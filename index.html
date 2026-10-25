@@ -359,9 +359,10 @@ button.crash-btn.go:active{transform:translate(4px,4px);box-shadow:2px 2px 0 #00
 #ostage[data-game="crash"] .o-target small{font-size:13px;color:var(--mu);margin-right:8px}
 #ostage[data-game="crash"] .o-hostcam{top:132px}                 /* Quizmaster-Kamera auf Höhe des Diagramms */
 #ostage[data-game="crash"] .o-side{top:492px;height:238px}       /* Live-Punktestand darunter */
-#ostage[data-game="crash"] .o-crash{flex:1;padding:16px;display:flex}
-#ostage[data-game="crash"] .crash-chart{flex:1;margin:0;border-width:0;box-shadow:none;background:transparent;display:flex;align-items:flex-end}
-#ostage[data-game="crash"] .crash-chart canvas{width:100%;height:100%}
+/* Diagramm-Kasten im Overlay – wie in der Spielersteuerung (schwarz, cyan Rahmen) */
+#ostage[data-game="crash"] .o-crash{flex:1;min-height:0;padding:0;display:flex;background:transparent;border:0;box-shadow:none}
+#ostage[data-game="crash"] .crash-chart{flex:1;min-height:0;margin:0;position:relative;background:#000;border:6px solid var(--cyan);box-shadow:8px 8px 0 #000;box-sizing:border-box;overflow:hidden}
+#ostage[data-game="crash"] .crash-chart canvas{position:absolute;inset:0;width:100%;height:100%}
 #ostage[data-game="crash"] .crash-score{font-size:90px;top:10px;text-shadow:6px 6px 0 var(--pink),12px 12px 0 #000}
 #ostage[data-game="crash"] .o-icons{display:flex;flex-wrap:wrap;gap:20px;justify-content:center}
 #ostage[data-game="crash"] .o-icons div{display:grid;gap:10px;justify-items:center;background:#000;border:5px solid var(--mu);padding:16px;min-width:110px;opacity:.5}
@@ -1844,6 +1845,9 @@ function niceStep(r) { const p = Math.pow(10, Math.floor(Math.log10(r || 1))); r
 function drawCrashChart(cv) {
   const c = state.crash, x = cv.getContext && cv.getContext('2d');
   if (!c || !x) return;
+  if (cv.dataset && cv.dataset.fit && cv.clientWidth && cv.clientHeight && (cv.width !== cv.clientWidth || cv.height !== cv.clientHeight)) {
+    cv.width = cv.clientWidth; cv.height = cv.clientHeight;   // Zeichenfläche = Kastengröße → nichts verzerrt
+  }
   const W = cv.width, H = cv.height, L = 100, R = 40, T = 70, B = 40;
   const crashed = c.phase !== 'run' && c.crashValue != null;
   const el = crashed ? c.crashT : Math.max(0, crashElapsed());
@@ -1911,7 +1915,8 @@ function crashTotals(big) {
     return `<div class="srow ${win ? 'win' : ''} ${me && id === me.id ? 'mine' : ''}"><i>${c.icons[id] || '·'}</i><b>${esc(crashName(id))}</b><span>${t} / ${c.target}</span></div>`;
   }).join('')}</div>`;
 }
-const crashChart = cls => `<div class="crash-chart ${cls || ''}"><div class="crash-score">0</div><canvas class="crash-canvas" width="1200" height="560"></canvas></div>`;
+// Overlay-Diagramm (cls 'ov') passt seine Zeichenfläche an die Kastengröße an (data-fit)
+const crashChart = cls => `<div class="crash-chart ${cls || ''}"><div class="crash-score">0</div><canvas class="crash-canvas" width="1200" height="560" ${cls === 'ov' ? 'data-fit="1"' : ''}></canvas></div>`;
 
 /* ----- Crash-Spieleransicht nach Skizze – Bausteine (Aussehen HIER ANPASSEN) ----- */
 // Balken oben rechts: Zielpunktzahl
