@@ -238,6 +238,14 @@ body.imp-mode #vdo>.card{padding:12px;margin-bottom:14px}
 .pwbox{display:grid;gap:8px;justify-items:start}
 .pwbox b{font-size:22px;color:var(--cyan);text-shadow:3px 3px 0 var(--pink);letter-spacing:4px}
 
+/* Kategorie-Auswahl */
+select.input{font:11px var(--px);background:#000;color:#fff;border:3px solid var(--cyan);padding:10px;max-width:100%;cursor:pointer}
+.setup label.wide{flex-basis:100%}
+.setup label.wide select{max-width:420px}
+.catrow{display:grid;gap:8px;margin-top:14px}
+.catrow select{max-width:420px}
+.vinfo em{font-style:normal;color:var(--yellow)}
+
 /* Player */
 .input{font:12px var(--px);background:#000;color:#fff;border:3px solid var(--cyan);padding:12px;width:100%;max-width:340px}
 .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
@@ -281,7 +289,6 @@ const MAX_SLOTS = 6;
 const IMPOSTER_COUNT = 1;        // Anzahl Imposter pro Runde
 const IMPOSTER_MIN_PLAYERS = 3;  // ab so vielen verbundenen Spielern kann verteilt werden
 const IMPOSTER_SEES_CATEGORY = true; // false = Imposter erfährt auch die Kategorie nicht
-const IMPOSTER_CATEGORY = 'Sport';
 const IMPOSTER_TURN_SEC = 60;     // Redezeit pro Zug in Sekunden
 const IMPOSTER_TURN_ROUNDS = 2;   // Standard für „Durchgänge pro Runde“ – wie oft jeder dran ist (im Host einstellbar)
 const IMPOSTER_VOTE_SEC = 30;     // Zeit für die Abstimmung in Sekunden
@@ -290,14 +297,61 @@ const IMPOSTER_ROUNDS = 3;        // Standard für „Spielrunden“ (im Host ei
 const IMPOSTER_PTS_WORD = 3;      // Imposter errät das Wort
 const IMPOSTER_PTS_PER_VOTE = -1; // Imposter pro Stimme, die er bekommt
 const IMPOSTER_PTS_CATCH = 1;     // Spieler tippt den Imposter richtig
-const IMPOSTER_WORDS = [         // Wörter der Kategorie – beliebig erweitern (eins pro Eintrag)
-  'Fußball', 'Basketball', 'Tennis', 'Handball', 'Volleyball', 'Eishockey', 'Golf', 'Boxen',
-  'Schwimmen', 'Skispringen', 'Formel 1', 'Radrennen', 'Tischtennis', 'Badminton', 'Rugby',
-  'Baseball', 'American Football', 'Darts', 'Snooker', 'Marathon', 'Hochsprung', 'Stabhochsprung',
-  'Turnen', 'Judo', 'Ringen', 'Fechten', 'Rudern', 'Surfen', 'Skateboard', 'Klettern',
-  'Biathlon', 'Eiskunstlauf', 'Bobfahren', 'Snowboard', 'Reiten', 'Triathlon', 'Bowling',
-  'Kegeln', 'Wasserball', 'Elfmeter', 'Abseits', 'Torwart', 'Schiedsrichter', 'Stadion', 'Trikot'
-];
+/* ===== Imposter-Datenbank – Kategorien und Begriffe HIER ANPASSEN =====
+   Neue Kategorie = neue Zeile "Name": [ ... ]. Doppelte Begriffe werden automatisch ignoriert. */
+const imposterDatabase = {
+  "Essen und Trinken": [
+    "Pizza", "Burger", "Sushi", "Pasta", "Salat", "Steak", "Suppe", "Kuchen", "Eis", "Schokolade",
+    "Apfel", "Banane", "Erdbeere", "Käse", "Brot", "Reis", "Nudeln", "Pommes", "Hotdog", "Taco",
+    "Curry", "Lasagne", "Pfannkuchen", "Waffeln", "Donut", "Croissant", "Bagel", "Sandwich", "Wrap", "Burrito",
+    "Ramen", "Pho", "Paella", "Risotto", "Gulasch", "Schnitzel", "Bratwurst", "Sauerkraut", "Kartoffelsalat", "Spätzle",
+    "Cola", "Fanta", "Sprite", "Wasser", "Saft", "Kaffee", "Tee", "Bier", "Wein", "Cocktail",
+    "Milchshake", "Smoothie", "Limonade", "Energy Drink", "Kakao"
+  ],
+  "Sportarten": [
+    "Fußball", "Basketball", "Tennis", "Schwimmen", "Laufen", "Radfahren", "Boxen", "Golf", "Skifahren", "Snowboarden",
+    "Volleyball", "Handball", "Eishockey", "Baseball", "Rugby", "Klettern", "Surfen", "Skateboarden", "Yoga", "Turnen",
+    "Leichtathletik", "Gewichtheben", "Ringen", "Judo", "Karate", "Taekwondo", "Fechten", "Bogenschießen", "Schießen", "Reiten",
+    "Segeln", "Rudern", "Kanufahren", "Wasserski", "Wakeboarden", "Kitesurfen", "Windsurfen", "Tauchen", "Schnorcheln", "Triathlon",
+    "Marathon", "Sprint", "Hochsprung", "Weitsprung", "Kugelstoßen", "Diskuswerfen", "Speerwerfen", "Stabhochsprung", "Hindernislauf", "Staffellauf"
+  ],
+  "Filme und Serien": [
+    "Titanic", "Star Wars", "Harry Potter", "Herr der Ringe", "Avatar", "Inception", "Matrix", "Joker", "Frozen", "Toy Story",
+    "Breaking Bad", "Game of Thrones", "Stranger Things", "The Office", "Friends", "Sherlock", "Narcos", "Squid Game", "Wednesday", "The Mandalorian",
+    "Avengers", "Spider-Man", "Batman", "Superman", "Iron Man", "Thor", "Captain America", "Black Panther", "Doctor Strange", "Guardians of the Galaxy",
+    "The Witcher", "House of the Dragon", "The Boys", "Peaky Blinders", "Money Heist", "Dark", "1899", "Lupin", "Bridgerton", "The Crown",
+    "Inception", "Interstellar", "The Dark Knight", "Pulp Fiction", "Fight Club", "Forrest Gump", "The Shawshank Redemption", "Inglourious Basterds", "Django Unchained", "Once Upon a Time in Hollywood"
+  ],
+  "Streamer": [
+    "MontanaBlack", "Knossi", "Trymacs", "EliasN97", "Gronkh", "Papaplatte", "HandOfBlood", "Rewinside", "Zombey", "Unge",
+    "xQc", "Pokimane", "Ninja", "Shroud", "TimTheTatman", "DrDisrespect", "Summit1g", "Lirik", "Sodapoppin", "Asmongold",
+    "Ibai", "Auronplay", "Rubius", "TheGrefg", "ElRubiusOMG", "Vegetta777", "Willyrex", "Lolito", "Fargan", "Knekro",
+    "Gaules", "Alanzoka", "Cellbit", "Felps", "Nobru", "Coringa", "Loud", "Pain Gaming", "Fluxo", "Los Grandes",
+    "Bibi", "Julien Bam", "Rezo", "Dagi Bee", "BibisBeautyPalace", "Paluten", "GermanLetsPlay", "Sturmwaffel", "AviveHD", "HoneyPuu"
+  ],
+  "Prominente": [
+    "Angela Merkel", "Olaf Scholz", "Barack Obama", "Donald Trump", "Elon Musk", "Taylor Swift", "Lionel Messi", "Cristiano Ronaldo", "Beyoncé", "Drake",
+    "Keanu Reeves", "Tom Holland", "Zendaya", "Dwayne Johnson", "Oprah Winfrey", "Bill Gates", "Mark Zuckerberg", "Jeff Bezos", "Tim Cook", "Sundar Pichai",
+    "Adele", "Ed Sheeran", "Billie Eilish", "Ariana Grande", "Justin Bieber", "Rihanna", "Lady Gaga", "Katy Perry", "Bruno Mars", "The Weeknd",
+    "Leonardo DiCaprio", "Brad Pitt", "Angelina Jolie", "Jennifer Lawrence", "Scarlett Johansson", "Robert Downey Jr.", "Chris Hemsworth", "Chris Evans", "Mark Ruffalo", "Tom Hiddleston",
+    "Heidi Klum", "Thomas Gottschalk", "Günther Jauch", "Stefan Raab", "Joko Winterscheidt", "Klaas Heufer-Umlauf", "Barbara Schöneberger", "Johannes B. Kerner", "Markus Lanz", "Sandra Maischberger"
+  ],
+  "Berufe": [
+    "Arzt", "Lehrer", "Polizist", "Feuerwehrmann", "Koch", "Pilot", "Mechaniker", "Friseur", "Programmierer", "Journalist",
+    "Anwalt", "Architekt", "Bäcker", "Gärtner", "Krankenpfleger", "Elektriker", "Tischler", "Fotograf", "Musiker", "Schauspieler",
+    "Wissenschaftler", "Taxifahrer", "Verkäufer", "Ingenieur", "Designer", "Zahnarzt", "Tierarzt", "Apotheker", "Physiotherapeut", "Ergotherapeut",
+    "Logopäde", "Psychologe", "Sozialarbeiter", "Erzieher", "Bibliothekar", "Buchhalter", "Steuerberater", "Makler", "Immobilienmakler", "Versicherungsmakler",
+    "Banker", "Börsenmakler", "Unternehmer", "Geschäftsführer", "Projektmanager", "Marketingmanager", "Vertriebsmitarbeiter", "Kundenservice", "Callcenter-Agent", "Reinigungskraft"
+  ],
+  "Alltagsgegenstände": [
+    "Handy", "Laptop", "Fernseher", "Kühlschrank", "Waschmaschine", "Staubsauger", "Lampe", "Stuhl", "Tisch", "Bett",
+    "Uhr", "Brille", "Schlüssel", "Geldbeutel", "Rucksack", "Regenschirm", "Zahnbürste", "Seife", "Handtuch", "Kissen",
+    "Decke", "Teppich", "Vorhang", "Spiegel", "Bild", "Vase", "Pflanze", "Blumentopf", "Gießkanne", "Schere",
+    "Messer", "Gabel", "Löffel", "Teller", "Tasse", "Glas", "Flasche", "Dose", "Topf", "Pfanne",
+    "Herd", "Backofen", "Mikrowelle", "Toaster", "Wasserkocher", "Kaffeemaschine", "Mixer", "Stabmixer", "Waage", "Thermometer"
+  ]
+};
+const IMPOSTER_CATEGORIES = Object.keys(imposterDatabase);
 
 /* ===== Passwortschutz – HIER ANPASSEN =====
    Quizmaster: Beim ersten Öffnen legst du dein Passwort fest (gilt dann für diesen Browser).
@@ -704,9 +758,16 @@ async function deal() {
   const ids = pl.map(p => p.id);
   for (let i = ids.length - 1; i > 0; i--) { const j = rint(i + 1); [ids[i], ids[j]] = [ids[j], ids[i]] }
   const imps = ids.slice(0, Math.min(IMPOSTER_COUNT, ids.length - 1));
-  const pool = IMPOSTER_WORDS.filter(w => !impSolution || w !== impSolution.word);
+  // Kategorie: die gewählte – oder zufällig (möglichst nicht dieselbe wie letzte Runde)
+  let cat = impCfg.category in imposterDatabase ? impCfg.category : '';
+  if (!cat) {
+    const others = IMPOSTER_CATEGORIES.filter(c => IMPOSTER_CATEGORIES.length === 1 || !impSolution || c !== impSolution.category);
+    cat = others[rint(others.length)];
+  }
+  // Begriff: zufällig aus der Kategorie (nicht derselbe wie letzte Runde)
+  const words = [...new Set(imposterDatabase[cat])];
+  const pool = words.length > 1 ? words.filter(w => !impSolution || w !== impSolution.word) : words;
   const word = pool[rint(pool.length)];
-  const cat = IMPOSTER_CATEGORY;
   const roles = {};
   for (const p of pl) {
     const sec = secrets[+p.id.slice(1) - 1];
@@ -718,7 +779,7 @@ async function deal() {
   const order = [...pl].sort((a, b) => (a.slot || 99) - (b.slot || 99)).map(p => p.id);   // Reihenfolge nach Platz
   const names = Object.fromEntries(pl.map(p => [p.id, p.name]));
   state.imposter = { deal: n, category: cat, count: pl.length, roles, order, names, phase: 'dealt', turn: -1, vote: 0, reveal: null };
-  impSolution = { deal: n, word, impIds: imps, imposters: pl.filter(p => imps.includes(p.id)).map(p => p.name), players: pl.map(p => p.name) };
+  impSolution = { deal: n, word, category: cat, impIds: imps, imposters: pl.filter(p => imps.includes(p.id)).map(p => p.name), players: pl.map(p => p.name) };
   ls.set('qs-imp', JSON.stringify(impSolution));
   if (impPendingRound && state.impGame) { state.impGame.round = impPendingRound; impPendingRound = 0 }
   state.timer = null;          // Timer startet erst, wenn der Host „Start“ drückt
@@ -754,7 +815,7 @@ const impName = id => (state.imposter && state.imposter.names && state.imposter.
   || ((state.players || []).find(p => p.id === id) || {}).name || id;
 
 /* Einstellungen (nur Host, vor dem Spiel) */
-let impCfg = { rounds: IMPOSTER_ROUNDS, turns: IMPOSTER_TURN_ROUNDS }, impPendingRound = 0;
+let impCfg = { rounds: IMPOSTER_ROUNDS, turns: IMPOSTER_TURN_ROUNDS, category: 'random' }, impPendingRound = 0;   // category: Name oder 'random'
 try { Object.assign(impCfg, JSON.parse(ls.get('qs-impcfg') || '{}')) } catch (e) {}
 
 /* Punkte: state.scores = { p1: 4, p2: -1, … } – bleiben über alle Runden eines Spiels */
@@ -908,11 +969,10 @@ function impInfo() {
   const extra = im.phase === 'vote' ? (roleHidden ? `<div class="ik ph"><small>ABSTIMMUNG</small><b class="wait">Rolle zeigen, um abzustimmen.</b></div>` : impVoteBox(r)) : impPhaseLine();
   if (roleHidden) return { cls: '', html: `<div class="ik"><small>RUNDE ${im.deal}</small><b>VERDECKT</b></div>${extra}${toggle}` };
   if (r.role === 'imposter') return { cls: 'bad', html:
-    `<div class="ik"><small>KATEGORIE</small><b>${esc(r.category || '???')}</b></div>
-     <div class="ik"><small>DEINE ROLLE</small><b class="red">IMPOSTER</b><span>Du kennst das Wort nicht – tu so, als ob!</span></div>${extra}${toggle}` };
+    `<div class="ik"><small>DEINE ROLLE</small><b class="red">DU BIST DER IMPOSTER</b><span>Kategorie: <em>${esc(r.category || '???')}</em> – den Begriff kennst du nicht. Tu so, als ob!</span></div>${extra}${toggle}` };
   return { cls: 'good', html:
     `<div class="ik"><small>KATEGORIE</small><b>${esc(r.category)}</b></div>
-     <div class="ik"><small>DEIN WORT</small><b class="word">${esc(r.word)}</b></div>${extra}${toggle}` };
+     <div class="ik"><small>DEIN BEGRIFF</small><b class="word">${esc(r.word)}</b></div>${extra}${toggle}` };
 }
 
 /* Zeile im Infokasten: wer ist dran / worauf wird gewartet */
@@ -1081,6 +1141,7 @@ const A = {
   },
   menu() { state = { ...state, activeGame: null, questionIndex: 0, buzzerWinner: null, imposter: null, timer: null, impGame: null, scores: {} }; impMsg = ''; push(); render() },
   cfg(k, v) {
+    if (k === 'category') { impCfg.category = v in imposterDatabase ? v : 'random'; ls.set('qs-impcfg', JSON.stringify(impCfg)); render(); return }
     const max = k === 'rounds' ? 20 : 10;
     impCfg[k] = Math.max(1, Math.min(max, Math.round(+v) || 1));
     ls.set('qs-impcfg', JSON.stringify(impCfg)); render();
@@ -1247,6 +1308,7 @@ function impHostCard() {
   if (!G) return `<div class="card imp-card"><h3>Imposter · Einstellungen</h3>
     ${impMsg ? `<div class="warn">${esc(impMsg)}</div>` : ''}
     <div class="setup">
+      <label class="wide"><span>Kategorie</span><small>fest oder jede Runde zufällig</small>${catSelect()}</label>
       <label><span>Spielrunden</span><small>so oft wird neu verteilt</small>
         <input class="input" type="number" min="1" max="20" value="${impCfg.rounds}" onchange="A.cfg('rounds',this.value)"></label>
       <label><span>Durchgänge pro Runde</span><small>so oft ist jeder dran (${IMPOSTER_TURN_SEC} s)</small>
@@ -1294,15 +1356,24 @@ function impHostCard() {
     ${impMsg ? `<div class="warn">${esc(impMsg)}</div>` : ''}
     ${im ? `<p class="mu">${im.count} Spieler · Kategorie ${esc(im.category)} · ${IMPOSTER_COUNT} Imposter · ${turns} Durchgänge</p>${flow}`
          : `<p class="mu">${impBusy ? 'Verteile Rollen …' : 'Noch keine Rollen verteilt.'}</p>`}
+    ${!G.over ? `<div class="catrow"><span class="mu">KATEGORIE FÜR DIE NÄCHSTE AUSLOSUNG</span>${catSelect()}</div>` : ''}
     ${!G.over ? `<div class="pbox"><span class="mu">PUNKTESTAND</span>${scoreTable(false)}</div>` : ''}
     <div class="row" style="margin-top:14px">
-      ${!G.over && (!im || ph === 'dealt' || ph === 'turns') ? `<button class="btn y" onclick="A.deal()">${im ? 'Neu mischen (gleiche Runde)' : 'Rollen verteilen'}</button>` : ''}
+      ${!G.over && (!im || ph === 'dealt' || ph === 'turns') ? `<button class="btn y" onclick="A.deal()">${im ? 'Neue Runde · neu auslosen' : 'Rollen verteilen'}</button>` : ''}
       ${sol && !G.over ? `<button class="btn" onclick="A.impShow()">${impShow ? 'Lösung verbergen' : 'Lösung zeigen'}</button>` : ''}
       ${!G.over ? `<button class="btn" onclick="A.newGame()">Spiel abbrechen</button>` : ''}
     </div>
-    ${sol && impShow && !G.over ? `<div class="sol"><div><span class="mu">WORT</span><b>${esc(sol.word)}</b></div><div><span class="mu">IMPOSTER</span><b class="red">${sol.imposters.map(esc).join(', ')}</b></div></div>` : ''}
+    ${sol && impShow && !G.over ? `<div class="sol"><div><span class="mu">KATEGORIE</span><b>${esc(sol.category || im.category)}</b></div><div><span class="mu">BEGRIFF</span><b>${esc(sol.word)}</b></div><div><span class="mu">IMPOSTER</span><b class="red">${sol.imposters.map(esc).join(', ')}</b></div></div>` : ''}
     ${sol && !impShow && !G.over ? `<p class="mu">Lösung ist verdeckt, damit sie nicht aus Versehen im Stream landet.</p>` : ''}
   </div>`;
+}
+
+/* Kategorie-Auswahl für den Host */
+function catSelect() {
+  return `<select class="input sel" onchange="A.cfg('category',this.value)">
+    <option value="random" ${impCfg.category === 'random' ? 'selected' : ''}>🎲 Zufällig (jede Runde neu)</option>
+    ${IMPOSTER_CATEGORIES.map(c => `<option value="${esc(c)}" ${impCfg.category === c ? 'selected' : ''}>${esc(c)} (${new Set(imposterDatabase[c]).size})</option>`).join('')}
+  </select>`;
 }
 
 /* Punktetabelle, sortiert (big = Endstand mit Platzierung) */
@@ -1437,6 +1508,10 @@ function render() {
   const slot = document.getElementById('myvid');
   if (slot && stream) slot.appendChild(vid);
 }
+
+/* Host doppelt offen? Startet ein anderer Tab eine neue Runde, lädt sich dieser Tab neu –
+   sonst würde er den alten Raum (mit altem Passwort) weiter offen halten. */
+addEventListener('storage', e => { if (ROLE === 'host' && e.key === 'qs-round' && e.newValue && e.newValue !== ROUND) location.reload() });
 
 /* Start: Schlüssel berechnen, gespeicherten Login dieser Sitzung prüfen, dann verbinden */
 (async function boot() {
