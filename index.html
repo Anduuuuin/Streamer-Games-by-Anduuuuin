@@ -372,6 +372,37 @@ button.crash-btn.go:active{transform:translate(4px,4px);box-shadow:2px 2px 0 #00
 #ostage[data-game="crash"] .o-win{color:var(--yellow);text-shadow:5px 5px 0 var(--pink);animation:glow 1s ease-in-out infinite alternate}
 #ostage[data-game="crash"] .srow i{font-size:18px}
 
+.ver{text-align:center;font-size:8px;color:var(--mu);opacity:.6;padding:6px 0 18px}
+.status .vsm{font-size:7px;opacity:.7;margin-left:8px}
+
+/* ===== Profilbilder – GRÖSSE/LAYOUT HIER ANPASSEN ===== */
+:root{--avi-inline:1.25em;--avi-pic:96px;--avi-host:110px}
+img.avi{width:var(--avi-inline);height:var(--avi-inline);border-radius:50%;object-fit:cover;vertical-align:middle;border:2px solid #000;box-shadow:0 0 0 2px var(--cyan)}
+.crash-btn img.avi{--avi-inline:1.3em}
+.avbox .avrow{display:flex;gap:16px;align-items:center;flex-wrap:wrap}
+.avbox.compact{background:#000;border:3px solid var(--pink);padding:12px;margin-bottom:12px;display:grid;gap:10px}
+.avbox.compact small{font-size:9px;color:var(--mu);letter-spacing:1px}
+.avpic{width:var(--avi-pic);height:var(--avi-pic);border-radius:50%;overflow:hidden;border:4px solid var(--cyan);background:#000;display:grid;place-items:center;flex:none}
+.avpic img{width:100%;height:100%;object-fit:cover}
+.avpic span{font-size:30px;color:var(--mu)}
+.avpic.pending{border-color:var(--yellow);border-style:dashed}.avpic.approved{border-color:var(--green)}.avpic.rejected{border-color:var(--red)}
+.avside{display:grid;gap:8px;justify-items:start}
+.avst{font-size:10px;color:var(--mu)}.avst.pending{color:var(--yellow)}.avst.approved{color:var(--green)}.avst.rejected{color:var(--red)}
+.filebtn{position:relative;overflow:hidden;cursor:pointer}
+.filebtn input{position:absolute;inset:0;opacity:0;cursor:pointer;font-size:100px}
+.av-card{border-color:var(--yellow)}
+.badge-n{display:inline-block;background:var(--red);color:#fff;font-size:10px;padding:4px 8px;margin-left:8px;text-shadow:none}
+.avgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:14px}
+.avitem{display:grid;gap:10px;justify-items:center;background:#000;border:3px solid var(--mu);padding:12px;text-align:center}
+.avitem.pending{border-color:var(--yellow)}
+.avitem img{width:var(--avi-host);height:var(--avi-host);border-radius:50%;object-fit:cover;border:3px solid var(--cyan)}
+.avitem b{font-size:10px;text-transform:uppercase}
+.avgrid.small .avitem img{--avi-host:64px}
+/* Kamera aus → Profilbild füllt die Kachel */
+.vframe.avi-bg,.oframe.avi-bg{background-size:cover;background-position:center;background-repeat:no-repeat}
+.vframe.avi-bg span,.oframe.avi-bg span{font-size:0;align-self:end;margin-bottom:8px}   /* Text „Keine Kamera“ ausblenden, Knopf bleibt */
+#ostage .oname img.avi{--avi-inline:1.4em}
+
 /* Player */
 .input{font:12px var(--px);background:#000;color:#fff;border:3px solid var(--cyan);padding:12px;width:100%;max-width:340px}
 .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
@@ -405,6 +436,7 @@ button.crash-btn.go:active{transform:translate(4px,4px);box-shadow:2px 2px 0 #00
 
 <script>
 /* ===== Konfiguration ===== */
+const APP_VERSION = 'v26.10.2026-4';   // Versionsnummer – steht unten auf jeder Seite, so siehst du, ob GitHub die neue Datei ausliefert
 const SUPABASE_URL = 'https://oufoopkyhdxbmvjngngd.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im91Zm9vcGt5aGR4Ym12am5nbmdkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTI5MzI0NTUsImV4cCI6MjEwODUwODQ1NX0.yeKbvsNwgqErfFNmHKsIrRc-SNVWD3SEfyqmR1X2BWM';
 const CHANNEL = 'raum-eins';   // Basisname; jede Runde läuft in "raum-eins-<Rundencode>"
@@ -634,6 +666,7 @@ function connect() {
     // Overlay hört nur auf dem festen Overlay-Kanal – dort kommen ausschließlich Anzeige-Daten an
     chO = sb.channel(overlayChannel(), { config: { broadcast: { self: false } } });
     chO.on('broadcast', { event: 'state' }, onState)
+       .on('broadcast', { event: 'avatars' }, ({ payload }) => receiveAvatars(payload))
        .subscribe(s => {
          if (!ch) { status = s; render() }
          if (s === 'SUBSCRIBED') chO.send({ type: 'broadcast', event: 'hello', payload: {} });
@@ -645,8 +678,8 @@ function connect() {
 
   if (ROLE === 'host') {
     chO = sb.channel(overlayChannel(), { config: { broadcast: { self: false } } });
-    chO.on('broadcast', { event: 'hello' }, () => push())
-       .subscribe(s => { chOok = s === 'SUBSCRIBED'; if (chOok) push() });
+    chO.on('broadcast', { event: 'hello' }, () => { push(); pushAvatars() })
+       .subscribe(s => { chOok = s === 'SUBSCRIBED'; if (chOok) { push(); pushAvatars() } });
   }
 }
 
@@ -655,7 +688,9 @@ function joinPlayerChannel() {
     config: { broadcast: { self: false }, presence: { key: me ? me.id : ROLE + '-' + rnd() } }
   });
   c.on('broadcast', { event: 'state' }, onState)
-   .on('broadcast', { event: 'hello' }, () => { if (ROLE === 'host') push() })
+   .on('broadcast', { event: 'hello' }, () => { if (ROLE === 'host') { push(); pushAvatars() } })
+   .on('broadcast', { event: 'avatar' }, ({ payload }) => { if (c === ch) receiveAvatar(payload) })
+   .on('broadcast', { event: 'avatars' }, ({ payload }) => { if (c === ch) receiveAvatars(payload) })
    .on('broadcast', { event: 'answer' }, ({ payload }) => { if (c === ch) receiveAnswer(payload) })
    .on('broadcast', { event: 'icon' }, ({ payload }) => { if (c === ch) crashReceiveIcon(payload) })
    .on('broadcast', { event: 'cashout' }, ({ payload }) => { if (c === ch) crashReceiveCash(payload) })
@@ -685,7 +720,7 @@ function joinPlayerChannel() {
      status = s; render();
      if (s !== 'SUBSCRIBED') return;
      if (me) await trackMe(c);
-     if (ROLE === 'host') push();
+     if (ROLE === 'host') { push(); pushAvatars() }
      else {
        c.send({ type: 'broadcast', event: 'hello', payload: {} });   // State vom Host anfordern
        if (ROLE === 'player') setTimeout(() => { if (!gotState) { expired = true; render() } }, 8000);
@@ -706,6 +741,7 @@ function onState({ payload }) {
 function push() {
   if (ROLE !== 'host') return;
   state.names = Object.fromEntries(slots.map((n, i) => ['p' + (i + 1), n]));
+  state.avatarStatus = avatarStatus();   // nur der Status (pending/approved/rejected) – die Bilder selbst gehen getrennt raus
   state.hostVdo = hostCam ? hostCam.vdoId : '';   // Kamera-ID des Hosts für alle
   syncTimer();
   const lean = { ...state, round: ROUND, ck: CK, sentAt: Date.now(), players: state.players.map(({ cameraFrame, ...p }) => p) };
@@ -1074,7 +1110,7 @@ function vdoList(withPlaceholders) {
     const own = !!(me && p.id === me.id);
     const v = own ? cleanVdo(me.vdoId) : cleanVdo(p.vdoId);
     if (v) l.push({ key: v, vdoId: v, pid: p.id, name: own ? me.name : p.name, slot: p.slot || 9, own });
-    else if (withPlaceholders) l.push({ key: 'ph-' + p.id, pid: p.id, name: own ? me.name : p.name, slot: p.slot || 9, own, ph: true });
+    else if (withPlaceholders || aviOf(p.id)) l.push({ key: 'ph-' + p.id, pid: p.id, name: own ? me.name : p.name, slot: p.slot || 9, own, ph: true });   // Kamera aus: Platzhalter (mit Profilbild, falls freigegeben)
   });
   // Host-Kamera (kommt beim Spieler über den State)
   if (ROLE !== 'host') {
@@ -1197,8 +1233,9 @@ function updateVdo(force) {
     t.classList.toggle('host', !!p.host);
     // Reihenfolge nur per CSS-order, damit die iframes nicht umgehängt werden (sonst laden sie neu)
     t.style.order = lay ? (p.host ? 0 : 10 + p.slot) : (p.own ? 0 : p.host ? 1 : p.slot + 1);
-    const label = (p.own ? 'DU · ' : '') + (cr && cr.icons[p.pid] ? cr.icons[p.pid] + ' ' : '') + p.name;
-    const nm = t.querySelector('.vname'); if (nm.textContent !== label) nm.textContent = label;
+    const label = (p.own ? 'DU · ' : '') + (cr && cr.icons[p.pid] ? iconHtml(p.pid, cr.icons[p.pid]) + ' ' : '') + esc(p.name);
+    const nm = t.querySelector('.vname'); if (nm._lbl !== label) { nm.innerHTML = label; nm._lbl = label }
+    if (p.ph) aviBackground(t.querySelector('.vframe'), p.pid);   // Kamera aus → Profilbild
     t.classList.toggle('turn', !!turnPid && p.pid === turnPid);                 // wer gerade dran ist
     const an = t.querySelector('.vans');                                         // Blase über der Kamera
     const dl = rev && im.result && p.pid in im.result ? ' · ' + fmtPts(im.result[p.pid]) : '';
@@ -1371,6 +1408,10 @@ const A = {
   },
   pickIcon(ic) { if (me && ch && status === 'SUBSCRIBED') ch.send({ type: 'broadcast', event: 'icon', payload: { id: me.id, icon: ic } }) },
   cashOut() { crashCashOut() },
+  avatarFile(input) { avatarFromFile(input) },
+  avOk(id) { avatarDecide(id, true) },
+  avNo(id) { avatarDecide(id, false) },
+  avDel(id) { if (confirm('Profilbild entfernen?')) avatarRemove(id) },
   copyHash(btn) { copyText(hostHash(), btn) },
   logout() { ss.set('qs-auth-host', ''); ss.set('qs-auth-' + ROUND, ''); location.reload() },
   async login() {
@@ -1413,8 +1454,9 @@ function copyText(u, btn) {
 }
 
 /* ===== Bausteine ===== */
-const logo = () => `<div class="logo"><b>STREAMER</b><b>GAMES</b></div>`;   // Hauptüberschrift
-const statusChip = () => `<div class="status ${status === 'SUBSCRIBED' ? 'ok' : ''}">● ${status === 'SUBSCRIBED' ? 'LIVE · RUNDE ' + esc(ROUND.toUpperCase()) : esc(status)}</div>`;
+const logo = () => `<div class="logo"><b>STREAMER</b><b>GAMES</b></div>`;
+const versionTag = () => `<div class="ver">${APP_VERSION}</div>`;   // Hauptüberschrift
+const statusChip = () => `<div class="status ${status === 'SUBSCRIBED' ? 'ok' : ''}">● ${status === 'SUBSCRIBED' ? 'LIVE · RUNDE ' + esc(ROUND.toUpperCase()) : esc(status)} <span class="vsm">${APP_VERSION}</span></div>`;
 const warn = () => missingKeys() ? `<div class="warn">Trage oben im Skript deine SUPABASE_URL und deinen SUPABASE_ANON_KEY ein, dann verbindet sich die Seite.</div>`
   : linkProblem() ? `<div class="warn">${esc(linkProblem())}</div>` : '';
 
@@ -1680,8 +1722,9 @@ function updateOverlayCams(st) {
     t.classList.toggle('host', w.pid === 'host');
     t.classList.toggle('turn', !!turnPid && w.pid === turnPid);
     const cr = state.activeGame === 'crash' && state.crash;
-    const label = (cr && cr.icons[w.pid] ? cr.icons[w.pid] + ' ' : '') + w.name;
-    const nm = t.querySelector('.oname'); if (nm.textContent !== label) nm.textContent = label;
+    const label = (cr && cr.icons[w.pid] ? iconHtml(w.pid, cr.icons[w.pid]) + ' ' : '') + esc(w.name);
+    const nm = t.querySelector('.oname'); if (nm._lbl !== label) { nm.innerHTML = label; nm._lbl = label }
+    if (!w.vdoId) aviBackground(t.querySelector('.oframe'), w.pid);   // Kamera aus → Profilbild
     const an = t.querySelector('.vans');
     const dl = rev && im.result && w.pid in im.result ? ' · ' + fmtPts(im.result[w.pid]) : '';
     let at = rev && rev[w.pid] ? '„' + rev[w.pid] + '“' + dl : rev && impOrder().includes(w.pid) ? '— keine Antwort —' + dl : '';
@@ -1707,6 +1750,156 @@ function overlayState() {
     imposter: im ? { deal: im.deal, category: im.category, count: im.count, order: im.order, names: im.names, phase: im.phase,
       turn: im.turn, vote: im.vote, reveal: im.phase === 'reveal' ? im.reveal : null, result: im.phase === 'reveal' ? im.result : null } : null
   };
+}
+
+/* ===================================================================================
+   PROFILBILDER
+   Ablauf:  Spieler lädt Bild hoch → wird quadratisch verkleinert → verschlüsselt an den Host
+            → Host speichert es mit Status „pending“ → Host gibt frei („approved“) oder lehnt ab („rejected“).
+   Nur freigegebene Bilder verlassen den Host (Event „avatars“) – Spieler und Overlay sehen nie ungeprüfte Bilder.
+   =================================================================================== */
+/* ----- Profilbilder – HIER ANPASSEN ----- */
+const AVATAR_SIZE = 160;          // Kantenlänge der gespeicherten Bilder in Pixel
+const AVATAR_QUALITY = 0.8;       // JPEG-Qualität 0…1
+const AVATAR_MAX_CHARS = 120000;  // Sicherheitsgrenze pro Bild (Base64-Zeichen, ≈ 90 KB)
+
+let avatarStore = {};             // nur Host: pid → { approved, pending, status: 'pending'|'approved'|'rejected', v }
+let avatars = {};                 // alle: pid → freigegebenes Bild (data:image/jpeg;base64,…)
+let myAvatarPreview = '', avatarMsg = '';
+const isAvi = s => typeof s === 'string' && /^data:image\/jpeg;base64,[A-Za-z0-9+/=]+$/.test(s) && s.length < AVATAR_MAX_CHARS;
+function approvedList() { const o = {}; for (const k in avatarStore) if (avatarStore[k] && isAvi(avatarStore[k].approved)) o[k] = avatarStore[k].approved; return o }
+if (ROLE === 'host') { try { avatarStore = JSON.parse(ls.get('qs-avatars') || '{}') || {} } catch (e) {} avatars = approvedList() }
+function saveAvatars() { ls.set('qs-avatars', JSON.stringify(avatarStore)) }
+const avatarStatus = () => Object.fromEntries(Object.entries(avatarStore).map(([k, v]) => [k, v.status]));
+
+/* --- FREIGABE-LOGIK (Host) --- */
+// Host schickt die freigegebenen Bilder an Spieler + Overlay (bei Änderung und wenn jemand neu dazukommt)
+function pushAvatars() {
+  if (ROLE !== 'host') return;
+  avatars = approvedList();
+  const msg = { type: 'broadcast', event: 'avatars', payload: { list: avatars } };
+  if (ch && status === 'SUBSCRIBED') ch.send(msg);
+  if (chO && chOok) chO.send(msg);
+}
+// Host empfängt ein neues Bild → Status „pending“ (das alte freigegebene Bild bleibt bis zur Entscheidung aktiv)
+async function receiveAvatar(pl) {
+  if (ROLE !== 'host' || !pl) return;
+  const id = cleanId(pl.id);
+  if (!/^p\d+$/.test(id) || +id.slice(1) > MAX_SLOTS) return;
+  try {
+    const o = await unseal(secrets[+id.slice(1) - 1], pl.box);   // nur der echte Spieler kann für seinen Platz hochladen
+    if (!isAvi(o.img)) return;
+    const a = avatarStore[id] || {};
+    avatarStore[id] = { approved: a.approved || null, pending: o.img, status: 'pending', v: (a.v || 0) + 1 };
+    saveAvatars(); push(); render();
+  } catch (e) {}
+}
+function avatarDecide(id, ok) {
+  const a = avatarStore[id]; if (!a) return;
+  if (ok && a.pending) { a.approved = a.pending; a.status = 'approved' }
+  if (!ok) a.status = a.pending ? 'rejected' : a.status;
+  a.pending = null;
+  saveAvatars(); push(); pushAvatars(); render();
+}
+function avatarRemove(id) { delete avatarStore[id]; saveAvatars(); push(); pushAvatars(); render() }
+
+/* Alle anderen: freigegebene Bilder übernehmen */
+function receiveAvatars(pl) {
+  if (ROLE === 'host' || !pl || !pl.list) return;
+  const o = {};
+  for (const k in pl.list) { const id = cleanId(k); if (isAvi(pl.list[k])) o[id] = pl.list[k] }
+  avatars = o; render();
+}
+
+/* --- Spieler: Bild auswählen, zuschneiden, hochladen --- */
+async function avatarFromFile(input) {
+  const f = input && input.files && input.files[0];
+  if (!f) return;
+  avatarMsg = '';
+  if (!/^image\//.test(f.type)) { avatarMsg = 'Bitte ein Bild auswählen.'; render(); return }
+  try {
+    const url = URL.createObjectURL(f);
+    const img = await new Promise((ok, no) => { const i = new Image(); i.onload = () => ok(i); i.onerror = no; i.src = url });
+    const s = Math.min(img.naturalWidth, img.naturalHeight), cv = document.createElement('canvas');
+    cv.width = cv.height = AVATAR_SIZE;                                       // quadratisch, Mitte ausschneiden
+    cv.getContext('2d').drawImage(img, (img.naturalWidth - s) / 2, (img.naturalHeight - s) / 2, s, s, 0, 0, AVATAR_SIZE, AVATAR_SIZE);
+    URL.revokeObjectURL(url);
+    const data = cv.toDataURL('image/jpeg', AVATAR_QUALITY);
+    if (!isAvi(data)) { avatarMsg = 'Das Bild ist zu groß.'; render(); return }
+    await sendAvatar(data);
+    myAvatarPreview = data; avatarMsg = 'Hochgeladen – wartet auf Freigabe durch den Quizmaster.';
+  } catch (e) { avatarMsg = 'Bild konnte nicht hochgeladen werden. Bist du verbunden?' }
+  try { input.value = '' } catch (e) {}
+  render();
+}
+async function sendAvatar(data) {
+  if (!me || !ch || status !== 'SUBSCRIBED') throw new Error('offline');
+  const box = await seal(me.secret, { img: data });
+  ch.send({ type: 'broadcast', event: 'avatar', payload: { id: me.id, box } });
+}
+
+/* --- BILDANZEIGE --- */
+const aviOf = id => avatars[id] || '';
+// HTML-Icon: Profilbild (freigegeben) oder Emoji als Ersatz
+const iconHtml = (id, fallback) => aviOf(id) ? `<img class="avi" src="${aviOf(id)}" alt="">` : esc(fallback || '');
+// Für das Crash-Diagramm (Canvas): Bild-Objekte zwischenspeichern
+const aviImgs = {};
+function aviImg(id) {
+  const a = aviOf(id);
+  if (!a || typeof Image === 'undefined') return null;
+  let im = aviImgs[id];
+  if (!im || im._src !== a) { im = new Image(); im._src = a; im.src = a; aviImgs[id] = im }
+  return im.complete && im.naturalWidth ? im : null;
+}
+// Kamera aus → Profilbild in die leere Kachel
+function aviBackground(frame, id) {
+  if (!frame || !frame.style) return;
+  const a = aviOf(id), key = a ? a.length + ':' + a.slice(-24) : '';
+  if ((frame.dataset.avi || '') === key) return;
+  frame.dataset.avi = key;
+  frame.style.backgroundImage = a ? 'url(' + a + ')' : '';
+  frame.classList.toggle('avi-bg', !!a);
+}
+
+/* Spieler-Karte „Profilbild“ */
+function avatarCard(compact) {
+  if (!me) return '';
+  const st = (state.avatarStatus || {})[me.id], cur = aviOf(me.id);
+  const label = { pending: '⏳ Wartet auf Freigabe', approved: '✓ Freigegeben', rejected: '✗ Abgelehnt – lade ein anderes hoch' }[st] || 'Noch kein Profilbild';
+  const pic = st === 'pending' && myAvatarPreview ? myAvatarPreview : cur;
+  return `<div class="${compact ? 'avbox compact' : 'card avbox'}">${compact ? '<small>PROFILBILD</small>' : '<h3>Profilbild</h3>'}
+    <div class="avrow">
+      <div class="avpic ${st || ''}">${pic ? `<img src="${pic}" alt="">` : '<span>?</span>'}</div>
+      <div class="avside"><span class="avst ${st || ''}">${label}</span>
+        ${st === 'pending' && cur ? '<span class="mu">Bis zur Freigabe wird dein altes Bild benutzt.</span>' : ''}
+        <label class="btn y sm filebtn">${cur || st === 'pending' ? 'Anderes Bild hochladen' : 'Bild hochladen'}<input type="file" accept="image/*" onchange="A.avatarFile(this)"></label>
+        ${avatarMsg ? `<span class="mu">${esc(avatarMsg)}</span>` : ''}</div>
+    </div></div>`;
+}
+
+/* Host-Karte „Profilbilder freigeben“ */
+function avatarHostCard() {
+  const name = id => (slots[+id.slice(1) - 1]) || impName(id);
+  const ids = Object.keys(avatarStore).sort();
+  const pend = ids.filter(id => avatarStore[id].pending), appr = ids.filter(id => avatarStore[id].approved);
+  return `<div class="card av-card"><h3>Profilbilder freigeben${pend.length ? ` <span class="badge-n">${pend.length}</span>` : ''}</h3>
+    ${pend.length ? `<div class="avgrid">${pend.map(id => `<div class="avitem pending">
+        <img src="${avatarStore[id].pending}" alt=""><b>${esc(name(id))}</b>
+        <div class="row"><button class="btn ok sm" onclick="A.avOk('${id}')">Freigeben</button><button class="btn sm" onclick="A.avNo('${id}')">Ablehnen</button></div>
+      </div>`).join('')}</div>` : '<p class="mu">Keine Bilder warten auf Freigabe.</p>'}
+    ${appr.length ? `<p class="mu" style="margin-top:14px">FREIGEGEBEN</p><div class="avgrid small">${appr.map(id => `<div class="avitem">
+        <img src="${avatarStore[id].approved}" alt=""><b>${esc(name(id))}</b><button class="btn sm" onclick="A.avDel('${id}')">Entfernen</button></div>`).join('')}</div>` : ''}
+  </div>`;
+}
+
+/* Crash-Diagramm: Icon zeichnen – Profilbild als Kreis, sonst Emoji */
+function drawIcon(x, id, emoji, cx, baseY, size) {
+  const im = aviImg(id);
+  if (!im) { x.font = size + 'px serif'; x.fillText(emoji, cx, baseY); return }
+  const r = size / 2, cy = baseY - r + 4;
+  x.save(); x.beginPath(); x.arc(cx, cy, r, 0, Math.PI * 2); x.closePath(); x.clip();
+  x.drawImage(im, cx - r, cy - r, size, size); x.restore();
+  x.beginPath(); x.arc(cx, cy, r, 0, Math.PI * 2); x.lineWidth = 4; x.strokeStyle = '#000'; x.stroke();
 }
 
 /* ===================================================================================
@@ -1873,13 +2066,14 @@ function drawCrashChart(cv) {
   let k = 0;
   (c.riders || []).forEach(id => {
     const icon = c.icons[id] || '❔', cs = c.cashed && c.cashed[id];
-    x.font = CRASH_CHART.iconSize + 'px serif';
     if (cs) {
       const px = X(cs.t), py = Y(cs.pts);
-      x.fillText(icon, px, py - 12);
+      drawIcon(x, id, icon, px, py - 12, CRASH_CHART.iconSize);          // Profilbild oder Emoji
       x.font = '15px ' + CRASH_CHART.font; x.fillStyle = CRASH_CHART.cashed; x.fillText(String(cs.pts), px, py - CRASH_CHART.iconSize - 18);
     } else {
-      x.fillText(crashed ? '💥' : icon, X(el) - k * (CRASH_CHART.iconSize + 6), Y(cur) - 12); k++;
+      if (crashed) { x.font = CRASH_CHART.iconSize + 'px serif'; x.fillText('💥', X(el) - k * (CRASH_CHART.iconSize + 6), Y(cur) - 12) }
+      else drawIcon(x, id, icon, X(el) - k * (CRASH_CHART.iconSize + 6), Y(cur) - 12, CRASH_CHART.iconSize);
+      k++;
     }
   });
 }
@@ -1912,7 +2106,7 @@ function crashTotals(big) {
   if (!ids.length) return '<p class="mu">Noch keine Spieler.</p>';
   return `<div class="scores ${big ? 'big' : ''}">${ids.map((id, i) => {
     const t = c.totals[id] || 0, win = (c.winners || []).includes(id);
-    return `<div class="srow ${win ? 'win' : ''} ${me && id === me.id ? 'mine' : ''}"><i>${c.icons[id] || '·'}</i><b>${esc(crashName(id))}</b><span>${t} / ${c.target}</span></div>`;
+    return `<div class="srow ${win ? 'win' : ''} ${me && id === me.id ? 'mine' : ''}"><i>${iconHtml(id, c.icons[id] || '·')}</i><b>${esc(crashName(id))}</b><span>${t} / ${c.target}</span></div>`;
   }).join('')}</div>`;
 }
 // Overlay-Diagramm (cls 'ov') passt seine Zeichenfläche an die Kastengröße an (data-fit)
@@ -1928,14 +2122,14 @@ function crashTargetBar() {
 function crashScoreBoard() {
   const c = state.crash, ids = crashIds().sort((a, b) => (c.totals[b] || 0) - (c.totals[a] || 0) || crashName(a).localeCompare(crashName(b)));
   return `<div class="vsh"><small>PUNKTE</small><small>ZIEL ${c.target}</small></div>` +
-    (ids.length ? ids.map(id => `<div class="vsr ${me && id === me.id ? 'me' : ''}"><b>${c.icons[id] || '·'} ${esc(crashName(id))}</b><span>${c.totals[id] || 0}</span></div>`).join('')
+    (ids.length ? ids.map(id => `<div class="vsr ${me && id === me.id ? 'me' : ''}"><b>${iconHtml(id, c.icons[id] || '·')} ${esc(crashName(id))}</b><span>${c.totals[id] || 0}</span></div>`).join('')
                 : '<div class="vsr"><b>Noch keine Spieler</b></div>');
 }
 // Großer Bereich rechts: Diagramm + Aussteigen-Button (bzw. Icon-Auswahl / Gewinner)
 function crashPanel() {
   const c = state.crash;
   if (crashPending && (c.round !== crashPending || c.phase !== 'run' || c.cashed[me.id])) crashPending = 0;
-  if (c.phase === 'over') return `<div class="crash-win"><small>GEWONNEN HAT</small><b>${esc((c.winners || []).map(id => (c.icons[id] || '') + ' ' + crashName(id)).join(' & '))}</b></div>`;
+  if (c.phase === 'over') return `<div class="crash-win"><small>GEWONNEN HAT</small><b>${(c.winners || []).map(id => iconHtml(id, c.icons[id]) + ' ' + esc(crashName(id))).join(' &amp; ')}</b></div>`;
   const mine = c.icons[me.id], rider = (c.riders || []).includes(me.id), cs = c.cashed[me.id];
   const picker = c.phase === 'pick' ? `<div class="crash-pick"><small>${mine ? 'DEIN ICON – du kannst bis zum Spielstart noch wechseln' : 'WÄHLE DEIN ICON – gilt fürs ganze Spiel'}</small>
     <div class="icons">${CRASH_ICONS.map(ic => {
@@ -1946,12 +2140,12 @@ function crashPanel() {
   if (c.phase === 'run') action = !rider ? `<div class="crash-btn wait">Du fährst diese Runde nicht mit</div>`
     : cs ? `<div class="crash-btn safe">✓ GESICHERT: ${cs.pts}</div>`
     : crashPending ? `<div class="crash-btn wait">Wird gesichert …</div>`
-    : `<button class="crash-btn go" onclick="A.cashOut()">${mine || ''} AUSSTEIGEN</button>`;
+    : `<button class="crash-btn go" onclick="A.cashOut()">${iconHtml(me.id, mine)} AUSSTEIGEN</button>`;
   if (c.phase === 'crashed' && rider) {
     const g = (c.last || {})[me.id] || 0;
     action = g ? `<div class="crash-btn safe">✓ +${g} PUNKTE GESICHERT</div>` : `<div class="crash-btn boom">💥 CRASH – 0 PUNKTE</div>`;
   }
-  if (c.phase === 'pick') return `${picker}<p class="mu">Der Quizmaster startet gleich die erste Runde.</p>`;
+  if (c.phase === 'pick') return `${avatarCard(true)}${picker}<p class="mu">${aviOf(me.id) ? 'Im Spiel wird dein Profilbild benutzt – das Emoji ist nur Ersatz. ' : ''}Der Quizmaster startet gleich die erste Runde.</p>`;
   return crashChart() + action + picker;
 }
 
@@ -1977,7 +2171,7 @@ function crashPlayerView() {
     action = !rider ? `<div class="crash-btn wait">Du fährst diese Runde nicht mit</div>`
       : cs ? `<div class="crash-btn safe">✓ GESICHERT: ${cs.pts}</div>`
       : crashPending ? `<div class="crash-btn wait">Wird gesichert …</div>`
-      : `<button class="crash-btn go" onclick="A.cashOut()">${mine || ''} AUSSTEIGEN</button>`;
+      : `<button class="crash-btn go" onclick="A.cashOut()">${iconHtml(me.id, mine)} AUSSTEIGEN</button>`;
   }
   if (c.phase === 'crashed' && rider) {
     const g = (c.last || {})[me.id] || 0;
@@ -2003,7 +2197,7 @@ function crashHostCard() {
     if (c.phase === 'run' && rider) st = cs ? `✓ ausgestiegen bei ${cs.pts}` : 'fährt …';
     if ((c.phase === 'crashed' || c.phase === 'over') && rider) st = (c.last || {})[id] ? `✓ +${c.last[id]}` : '💥 0';
     return `<div class="crow ${cs ? 'safe' : ''} ${c.phase !== 'run' && rider && !(c.last || {})[id] && c.crashValue != null ? 'lost' : ''}">
-      <i>${c.icons[id] || '·'}</i><b>${esc(crashName(id))}</b><span>${st}</span><em>${c.totals[id] || 0}</em></div>`;
+      <i>${iconHtml(id, c.icons[id] || '·')}</i><b>${esc(crashName(id))}</b><span>${st}</span><em>${c.totals[id] || 0}</em></div>`;
   }).join('');
   let ctl = '';
   if (c.phase === 'pick') ctl = `<button class="btn pk big" onclick="A.crashStart()">▶ Runde 1 starten</button>`;
@@ -2025,9 +2219,9 @@ OVERLAY_GAMES.crash = {
     const c = state.crash;
     const head = `<div class="o-head o-target"><b>CRASH</b>${c ? `<span><small>ZIELPUNKTZAHL</small> ${c.target}</span>${c.round ? `<span><small>RUNDE</small> ${c.round}</span>` : ''}` : ''}</div>`;
     if (!c) return head + `<div class="o-panel o-center"><div class="o-big">Gleich geht’s los …</div></div>`;
-    if (c.phase === 'over') return head + `<div class="o-panel o-center"><small>GEWONNEN HAT</small><div class="o-big o-win">${esc((c.winners || []).map(id => (c.icons[id] || '') + ' ' + crashName(id)).join(' & '))}</div></div>`;
+    if (c.phase === 'over') return head + `<div class="o-panel o-center"><small>GEWONNEN HAT</small><div class="o-big o-win">${(c.winners || []).map(id => iconHtml(id, c.icons[id]) + ' ' + esc(crashName(id))).join(' &amp; ')}</div></div>`;
     if (c.phase === 'pick') return head + `<div class="o-panel o-center"><div class="o-big">Wählt eure Icons!</div>
-      <div class="o-icons">${CRASH_ICONS.map(ic => { const o = Object.keys(c.icons).find(k => c.icons[k] === ic); return `<div class="${o ? 'on' : ''}"><span>${ic}</span><em>${o ? esc(crashName(o)) : ''}</em></div>` }).join('')}</div></div>`;
+      <div class="o-icons">${CRASH_ICONS.map(ic => { const o = Object.keys(c.icons).find(k => c.icons[k] === ic); return `<div class="${o ? 'on' : ''}"><span>${o && aviOf(o) ? iconHtml(o) : ic}</span><em>${o ? esc(crashName(o)) : ''}</em></div>` }).join('')}</div></div>`;
     return head + `<div class="o-panel o-crash">${crashChart('ov')}</div>`;
   },
   side: () => state.crash ? `<div class="o-scores"><div class="vsh"><small>PUNKTE</small><small>ZIEL ${state.crash.target}</small></div>${crashTotals(false)}</div>` : ''
@@ -2079,6 +2273,7 @@ function hostView() {
 function hostBottom() {
   const ovl = (t, k) => `<div class="lk"><span>${t}</span><code>${esc(overlayLink(k))}</code><div class="row"><button class="btn y" onclick="A.copy('${k}',this)">Kopieren</button></div></div>`;
   return `<div class="wrap wrap-b">
+    ${avatarHostCard()}
     <div class="card"><h3>Spieler-Links</h3>
       <div class="round">
         <div><span class="mu">AKTUELLE RUNDE</span><b>${esc(ROUND.toUpperCase())}</b></div>
@@ -2114,6 +2309,7 @@ function playerView() {
   if (g === 'imposter') return `<div class="wrap wrap-b">${statusChip()}${warn()}</div>`;
   if (g === 'crash') return state.crash ? `<div class="wrap wrap-b">${statusChip()}${warn()}</div>` : `<div class="wrap">${statusChip()}${warn()}${crashPlayerView()}</div>`;
   return `<div class="wrap">${logo()}${statusChip()}${warn()}
+    ${avatarCard(false)}
     <div class="card"><h3>Aktives Spiel</h3>
       <div class="now">${g ? esc(gameName(g)) : gotState ? 'Hauptmenü' : 'Warte auf den Host …'}</div>
       ${expired && !gotState ? '<p class="mu">Der Host ist gerade nicht online oder dein Link ist aus einer alten Runde. Die Kameras funktionieren trotzdem.</p>' : ''}
@@ -2151,7 +2347,7 @@ function render() {
   }
   if (ROLE === 'overlay') { renderOverlay(); return }
   document.getElementById('app').innerHTML = ROLE === 'host' ? hostView() : playerView();
-  if (app2) app2.innerHTML = ROLE === 'host' ? hostBottom() : '';
+  if (app2) app2.innerHTML = (ROLE === 'host' ? hostBottom() : '') + versionTag();
   // Eigenes Video-Element wiederverwenden, damit es beim Neuzeichnen nicht flackert
   const slot = document.getElementById('myvid');
   if (slot && stream) slot.appendChild(vid);
@@ -2198,6 +2394,8 @@ addEventListener('storage', e => { if (ROLE === 'host' && e.key === 'qs-round' &
   4. Runden: Vor jedem Quiz "Neue Runde · neue Links" drücken und die neuen Links verschicken.
   5. Nur EIN Host gleichzeitig und immer im selben Browser (Runde, Schlüssel, Namen im localStorage).
   6. Falls Supabase unter Realtime → Settings "Private channels only" aktiv ist: ausschalten.
+  6a. Profilbilder: Größe/Qualität oben bei AVATAR_SIZE/AVATAR_QUALITY, Anzeige im CSS unter "Profilbilder".
+      Freigabe-Logik in pushAvatars/receiveAvatar/avatarDecide – nur freigegebene Bilder verlassen den Host.
   6b. Crash: Icons, Geschwindigkeit (CRASH_SPEED/CRASH_ACCEL) und Crash-Wahrscheinlichkeit (CRASH_MIN/MEAN/MAX)
      oben im Abschnitt "Crash – HIER ANPASSEN", Aussehen im CSS unter "Crash" und im Diagramm bei CRASH_CHART.
   7. Imposter: Wörter, Kategorie, Anzahl Imposter, Mindestspieler, Redezeit (IMPOSTER_TURN_SEC),
