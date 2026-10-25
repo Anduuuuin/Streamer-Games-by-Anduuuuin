@@ -1816,7 +1816,7 @@ async function crashReceiveCash(pl) {
 /* Host: Spieler wählt ein Icon (jedes Icon nur einmal) */
 function crashReceiveIcon(pl) {
   const c = state.crash;
-  if (ROLE !== 'host' || !pl || !c || c.phase === 'run' || c.phase === 'over') return;
+  if (ROLE !== 'host' || !pl || !c || c.phase !== 'pick') return;   // Icons nur einmal, vor Runde 1
   const id = cleanId(pl.id), icon = pl.icon;
   if (!/^p\d+$/.test(id) || !CRASH_ICONS.includes(icon)) return;
   if (Object.entries(c.icons).some(([k, v]) => v === icon && k !== id)) return;
@@ -1937,7 +1937,7 @@ function crashPanel() {
   if (crashPending && (c.round !== crashPending || c.phase !== 'run' || c.cashed[me.id])) crashPending = 0;
   if (c.phase === 'over') return `<div class="crash-win"><small>GEWONNEN HAT</small><b>${esc((c.winners || []).map(id => (c.icons[id] || '') + ' ' + crashName(id)).join(' & '))}</b></div>`;
   const mine = c.icons[me.id], rider = (c.riders || []).includes(me.id), cs = c.cashed[me.id];
-  const picker = c.phase !== 'run' ? `<div class="crash-pick"><small>${mine ? 'DEIN ICON – du kannst bis zum Rundenstart wechseln' : 'WÄHLE DEIN ICON'}</small>
+  const picker = c.phase === 'pick' ? `<div class="crash-pick"><small>${mine ? 'DEIN ICON – du kannst bis zum Spielstart noch wechseln' : 'WÄHLE DEIN ICON – gilt fürs ganze Spiel'}</small>
     <div class="icons">${CRASH_ICONS.map(ic => {
       const owner = Object.keys(c.icons).find(k => c.icons[k] === ic), taken = owner && owner !== me.id;
       return `<button class="icon ${owner === me.id ? 'on' : ''}" ${taken ? 'disabled' : ''} onclick="A.pickIcon('${ic}')"><span>${ic}</span><em>${taken ? esc(crashName(owner)) : owner === me.id ? 'DU' : ''}</em></button>`;
@@ -1967,7 +1967,7 @@ function crashPlayerView() {
     return `<div class="card crash-card">${head}<div class="crash-win"><small>GEWONNEN HAT</small><b>${esc(w)}</b></div>${crashTotals(true)}</div>`;
   }
   // Icon-Auswahl (nicht während einer laufenden Runde)
-  const picker = c.phase !== 'run' ? `<div class="crash-pick"><small>${mine ? 'DEIN ICON – du kannst bis zum Rundenstart wechseln' : 'WÄHLE DEIN ICON'}</small>
+  const picker = c.phase === 'pick' ? `<div class="crash-pick"><small>${mine ? 'DEIN ICON – du kannst bis zum Spielstart noch wechseln' : 'WÄHLE DEIN ICON – gilt fürs ganze Spiel'}</small>
     <div class="icons">${CRASH_ICONS.map(ic => {
       const owner = Object.keys(c.icons).find(k => c.icons[k] === ic), taken = owner && owner !== me.id;
       return `<button class="icon ${owner === me.id ? 'on' : ''}" ${taken ? 'disabled' : ''} onclick="A.pickIcon('${ic}')"><span>${ic}</span><em>${taken ? esc(crashName(owner)) : owner === me.id ? 'DU' : ''}</em></button>`;
