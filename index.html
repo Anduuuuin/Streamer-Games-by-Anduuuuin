@@ -246,6 +246,57 @@ select.input{font:11px var(--px);background:#000;color:#fff;border:3px solid var
 .catrow select{max-width:420px}
 .vinfo em{font-style:normal;color:var(--yellow)}
 
+/* ===== OBS-Overlay 1920×1080 – LAYOUT HIER ANPASSEN ===== */
+#ostage{position:fixed;left:0;top:0;width:1920px;height:1080px;transform-origin:0 0;overflow:hidden;font-family:var(--px);color:#fff}
+#ostage.bg{background:repeating-linear-gradient(0deg,#00000045 0 2px,transparent 2px 5px),linear-gradient(#ff2bd626 2px,transparent 2px) 0 0/60px 60px,linear-gradient(90deg,#ff2bd626 2px,transparent 2px) 0 0/60px 60px,linear-gradient(var(--bg),var(--bg2))}
+/* Positionen der vier Bereiche */
+.o-hostcam{position:absolute;left:40px;top:40px;width:400px}
+.o-side{position:absolute;left:40px;top:410px;width:400px;height:330px}
+.o-game{position:absolute;left:480px;right:40px;top:40px;height:690px;display:flex;flex-direction:column;gap:22px}
+.o-row{position:absolute;left:40px;right:40px;bottom:30px;height:270px;display:flex;justify-content:center;align-items:flex-end;gap:22px}
+/* Kamera-Kacheln */
+.otile{position:relative;display:grid;gap:10px;justify-items:center;width:260px}
+.o-hostcam .otile{width:400px}
+.oframe{width:100%;aspect-ratio:4/3;background:repeating-linear-gradient(45deg,#1b0b4d 0 12px,#12063a 12px 24px);border:6px solid var(--cyan);box-shadow:6px 6px 0 #000;overflow:hidden;display:grid;place-items:center;box-sizing:border-box}
+.otile.host .oframe{border-color:#8b5cf6}
+.oframe iframe{width:100%;height:100%;border:0;display:block}
+.oframe span{font-size:12px;color:var(--mu)}
+.oname{font-size:14px;background:#000;border:3px solid var(--cyan);color:#fff;padding:8px 14px;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-transform:uppercase}
+.otile.host .oname{border-color:#8b5cf6;color:#c4b5fd}
+.otile.turn .oframe{border-color:var(--yellow);animation:turnpulse 1s ease-in-out infinite alternate}
+.otile.turn .oname{background:var(--yellow);color:#000;border-color:#000}
+.otile .vans{position:absolute;bottom:calc(100% + 14px);left:50%;transform:translateX(-50%);white-space:nowrap;font-size:14px;padding:10px 14px}
+/* Spiel-Bereich: allgemeine Bausteine */
+.o-head{display:flex;align-items:baseline;gap:30px}
+.o-head b{font-size:56px;color:var(--yellow);text-shadow:5px 5px 0 var(--pink),10px 10px 0 #000}
+.o-head span{font-size:22px;color:var(--cyan)}
+.o-grid{display:grid;grid-template-columns:420px 1fr;gap:22px;flex:1;min-height:0}
+.o-panel{background:#1b0b4dcc;border:6px solid var(--cyan);box-shadow:8px 8px 0 #000;padding:30px;box-sizing:border-box}
+.o-center{display:grid;gap:24px;align-content:center;justify-items:center;text-align:center;flex:1}
+.o-center small{font-size:16px;color:var(--mu);line-height:1.8}
+.o-big{font-size:46px;line-height:1.4;text-shadow:5px 5px 0 #000}
+.o-timer{padding:16px 20px}.o-timer .vtbar{height:34px}.o-timer .vtt{font-size:24px;min-width:120px}
+.o-scores{background:#000;border:5px solid #8b5cf6;box-shadow:6px 6px 0 #000;padding:16px;display:grid;gap:8px;max-height:100%;overflow:hidden;box-sizing:border-box}
+.o-scores .vsr{font-size:15px}.o-scores .vsh small{font-size:12px}
+.o-wait{height:100%;display:grid;place-items:center;align-content:center;gap:60px}
+.o-logo{display:flex;gap:40px}
+.o-logo b{font-size:80px;color:var(--yellow);text-shadow:6px 6px 0 var(--pink),12px 12px 0 #000}.o-logo b+b{color:var(--cyan)}
+.o-waittxt{font-size:34px;color:var(--cyan)}
+.o-waittxt i{font-style:normal;animation:blink 1.2s steps(2) infinite}.o-waittxt i:nth-child(2){animation-delay:.4s}.o-waittxt i:nth-child(3){animation-delay:.8s}
+/* Imposter im Overlay */
+#ostage[data-game="imposter"] .o-cat{background:#000;border:6px solid var(--yellow);box-shadow:8px 8px 0 #000;padding:26px;display:grid;gap:18px;align-content:center}
+#ostage[data-game="imposter"] .o-cat small{font-size:16px;color:var(--mu)}
+#ostage[data-game="imposter"] .o-cat b{font-size:34px;line-height:1.4;color:var(--yellow);text-shadow:4px 4px 0 var(--pink);text-transform:uppercase;overflow-wrap:anywhere}
+#ostage[data-game="imposter"] .o-turn{color:var(--yellow);text-shadow:5px 5px 0 var(--pink)}
+#ostage[data-game="imposter"] .o-vote{color:var(--red);animation:glow 1.2s ease-in-out infinite alternate}
+#ostage[data-game="imposter"] .o-final{flex:1;display:grid;gap:18px;align-content:start;overflow:hidden}
+#ostage[data-game="imposter"] .o-final small{font-size:18px;color:var(--yellow)}
+#ostage[data-game="imposter"] .o-final .scores.big .srow{font-size:20px;padding:16px 20px}
+/* Werwolf im Overlay – hier später gestalten */
+#ostage[data-game="werwolf"] .o-head b{color:var(--red)}
+.obs-card{border-color:var(--yellow)}
+.obs-card .tip{color:var(--yellow)}
+
 /* Player */
 .input{font:12px var(--px);background:#000;color:#fff;border:3px solid var(--cyan);padding:12px;width:100%;max-width:340px}
 .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
@@ -429,7 +480,14 @@ async function checkPlayerPw(pw) {
 }
 let authed = ROLE === 'overlay', gateErr = '', gateBusy = false;
 const hostHash = () => HOST_PASSWORD_HASH || ls.get('qs-hostpw') || '';
-const overlayChannel = () => CHANNEL + '-ov-' + OVKEY;
+/* Overlay-Kanal ist fest, damit der Overlay-Link ohne Schlüssel funktioniert.
+   Ist HOST_PASSWORD_HASH oben eingetragen, hängt der Kanal davon ab → fremde Hosts mit
+   eigenem Passwort landen auf einem anderen Kanal und können dein Overlay nicht stören. */
+let OVCH = CHANNEL + '-overlay';
+const overlayChannel = () => OVCH;
+async function initOverlayChannel() {
+  if (HOST_PASSWORD_HASH && crypto.subtle) OVCH = CHANNEL + '-overlay-' + (await sha('ov:' + HOST_PASSWORD_HASH)).slice(0, 16);
+}
 
 /* Overlay-Layout per URL: ?role=overlay&k=…&cams=top | bottom | side */
 const OV_LAYOUT = ['top', 'bottom', 'side'].includes(P.get('cams')) ? P.get('cams') : 'top';
@@ -488,7 +546,6 @@ const overlayLink = (layout) => BASE + '?role=overlay&k=' + OVKEY + (layout && l
 function linkProblem() {
   if (ROLE === 'player' && !ROUND) return 'Dieser Link ist unvollständig. Bitte den Host um deinen Link für diese Runde.';
   if (ROLE === 'player' && !clean(P.get('c'))) return 'Dieser Link ist veraltet. Bitte den Quizmaster um deinen neuen Link und das Passwort.';
-  if (ROLE === 'overlay' && !OVKEY) return 'Overlay-Link ohne Schlüssel. Kopiere ihn neu aus dem Host.';
   return '';
 }
 
@@ -499,7 +556,7 @@ function connect() {
   sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
   if (ROLE === 'overlay') {
-    // Overlay hört auf seinem festen Channel, bekommt dort den Rundencode und tritt dann dem Runden-Channel bei
+    // Overlay hört nur auf dem festen Overlay-Kanal – dort kommen ausschließlich Anzeige-Daten an
     chO = sb.channel(overlayChannel(), { config: { broadcast: { self: false } } });
     chO.on('broadcast', { event: 'state' }, onState)
        .subscribe(s => {
@@ -563,16 +620,6 @@ function onState({ payload }) {
   if (ROLE === 'host' || !payload || !payload.state) return;
   state = payload.state; gotState = true; expired = false;
   fillFrames();
-  if (ROLE === 'overlay') {
-    const r = clean(state.round);
-    const k = clean(state.ck);
-    if (r && (r !== ROUND || k !== CK)) {          // neue Runde → Runden-Channel wechseln
-      ROUND = r; CK = k;
-      if (ch) sb.removeChannel(ch);
-      for (const id in cams) delete cams[id];
-      joinPlayerChannel();
-    }
-  }
   const v = (state.imposter && state.imposter.vote) || 0;
   if (v !== myVote) { myVote = v; myAnswer = ''; draft = '' }
   applyHostName(); unsealMyRole(); syncTimer(); render();
@@ -588,7 +635,7 @@ function push() {
   ls.set('qs-state', JSON.stringify(lean));
   const msg = { type: 'broadcast', event: 'state', payload: { state: lean } };
   if (ch && status === 'SUBSCRIBED') ch.send(msg);
-  if (chO && chOok) chO.send(msg);
+  if (chO && chOok) chO.send({ type: 'broadcast', event: 'state', payload: { state: overlayState() } });   // Overlay: nur Anzeige-Daten
 }
 
 /* Eigene Daten in Presence melden – der Host übernimmt sie ins players-Array */
@@ -1208,6 +1255,7 @@ const A = {
   open(i) { window.open(slotLink(i), '_blank') },
   openAll() { for (let i = 0; i < MAX_SLOTS; i++) window.open(slotLink(i), '_blank') },
   copyPw(btn) { copyText(ROUND_PW, btn) },
+  copyOv(btn) { copyText(OVERLAY_URL, btn) },
   copyHash(btn) { copyText(hostHash(), btn) },
   logout() { ss.set('qs-auth-host', ''); ss.set('qs-auth-' + ROUND, ''); location.reload() },
   async login() {
@@ -1407,6 +1455,148 @@ function impPlayerStage() {
         <p>Kategorie: <em>${esc(r.category)}</em>. Einer von euch kennt das Wort nicht – findet ihn!</p>${toggle}</div>`;
 }
 
+/* ===================================================================================
+   OBS-OVERLAY (?role=overlay) – feste 1920×1080-Bühne, nur Anzeige
+   Aufbau:  #ostage
+             ├─ .o-hostcam    Quizmaster-Kamera (links oben)        ← bleibt immer stehen
+             ├─ .o-side       Punktestand unter dem Quizmaster       ← je nach Spiel
+             ├─ .o-game       Spiel-Bereich (rechts oben)            ← wird pro Spiel gezeichnet
+             └─ .o-row        Spieler-Kameras (unten)                ← bleibt immer stehen
+   Kameras werden nie neu gezeichnet (iframes würden sonst neu laden), nur ergänzt/entfernt.
+   =================================================================================== */
+const OVERLAY_URL = 'https://anduuuuin.github.io/Streamer-Games-by-Anduuuuin/?role=overlay';   // fester Link für OBS
+const OVERLAY_CAM_AUDIO = false;     // true = Ton der Kameras im Overlay (Achtung: doppelt, wenn ihr z. B. über Discord redet)
+const OVERLAY_BACKGROUND = true;     // false = durchsichtiger Hintergrund (eigener Hintergrund in OBS)
+
+/* ----- Ein Anzeige-Bereich pro Spiel – HIER das Aussehen pro Spiel anpassen -----
+   Jede Funktion liefert das HTML für den Spiel-Bereich (.o-game, 1400×690 px).
+   side() liefert optional das HTML für den Kasten unter der Quizmaster-Kamera. */
+const OVERLAY_GAMES = {
+  // Kein Spiel aktiv
+  none: {
+    game: () => `<div class="o-wait"><div class="o-logo"><b>STREAMER</b><b>GAMES</b></div><div class="o-waittxt">Warte auf Spielstart<i>.</i><i>.</i><i>.</i></div></div>`,
+    side: () => ''
+  },
+
+  // ---------- IMPOSTER ----------
+  imposter: {
+    game: () => {
+      const im = state.imposter, G = state.impGame;
+      const head = `<div class="o-head"><b>IMPOSTER</b>${G ? `<span>RUNDE ${G.round}/${G.rounds}</span>` : ''}</div>`;
+      if (G && G.over) return head + `<div class="o-panel o-final"><small>ENDSTAND</small>${scoreTable(true)}</div>`;
+      if (!im) return head + `<div class="o-panel o-center"><div class="o-big">Gleich geht’s los …</div><small>Der Quizmaster verteilt die Rollen</small></div>`;
+      // Nie den Begriff oder den Imposter zeigen – die Spieler könnten den Stream schauen!
+      const cat = `<div class="o-cat"><small>KATEGORIE</small><b>${esc(im.category)}</b></div>`;
+      let main = '';
+      if (im.phase === 'dealt') main = `<div class="o-big">Rollen verteilt</div><small>Einer von euch kennt den Begriff nicht …</small>`;
+      if (im.phase === 'turns') {
+        const r = Math.floor(im.turn / impOrder().length) + 1;
+        main = `<small>DURCHGANG ${r}/${impTurns()} · ZUG ${im.turn + 1}/${impTotal()}</small><div class="o-big o-turn">DRAN: ${esc(impName(impTurnPid()))}</div>`;
+      }
+      if (im.phase === 'vote') main = `<div class="o-big o-vote">ABSTIMMUNG</div><small>Wer ist der Imposter? Der Imposter tippt den Begriff.</small>`;
+      if (im.phase === 'reveal') main = `<div class="o-big">AUFLÖSUNG</div><small>Die Antworten stehen über den Kameras</small>`;
+      const timer = im.phase === 'turns' || im.phase === 'vote' || im.phase === 'dealt'
+        ? `<div class="vtimer o-timer"><div class="vtbar"><i></i></div><span class="vtt"></span></div>` : '';
+      return head + `<div class="o-grid">${cat}<div class="o-panel o-center">${main}</div></div>${timer}`;
+    },
+    side: () => state.impGame && !state.impGame.over ? `<div class="o-scores">${scoreBoard()}</div>` : ''
+  },
+
+  // ---------- WERWOLF (Platzhalter) ----------
+  werwolf: {
+    game: () => `<div class="o-head"><b>WERWOLF</b></div><div class="o-panel o-center"><div class="o-big">Gleich geht’s los …</div></div>`,
+    side: () => ''
+  }
+};
+
+/* Bühne einmal aufbauen und auf das Fenster skalieren (in OBS 1920×1080 = 1:1) */
+function overlayStage() {
+  let st = document.getElementById('ostage');
+  if (st) return st;
+  const app = document.getElementById('app');
+  app.innerHTML = `<div id="ostage" class="${OVERLAY_BACKGROUND ? 'bg' : ''}">
+    <div class="o-hostcam"></div><div class="o-side"></div><div class="o-game"></div><div class="o-row"></div></div>`;
+  st = document.getElementById('ostage');
+  if (!st) return null;
+  const fit = () => { st.style.transform = 'scale(' + Math.min(innerWidth / 1920, innerHeight / 1080) + ')' };
+  addEventListener('resize', fit); fit();
+  return st;
+}
+
+let ovGameHtml = '', ovSideHtml = '';
+function renderOverlay() {
+  const st = overlayStage();
+  if (!st) return;
+  const def = OVERLAY_GAMES[state.activeGame] || (state.activeGame ? {
+    game: () => `<div class="o-head"><b>${esc(gameName(state.activeGame))}</b></div>`, side: () => '' } : OVERLAY_GAMES.none);
+  st.dataset.game = state.activeGame || 'none';           // für CSS pro Spiel: #ostage[data-game="imposter"] …
+  const g = def.game(), s = def.side();
+  if (g !== ovGameHtml) { st.querySelector('.o-game').innerHTML = g; ovGameHtml = g }
+  if (s !== ovSideHtml) { st.querySelector('.o-side').innerHTML = s; ovSideHtml = s }
+  updateOverlayCams(st);
+  tickTimer();
+}
+
+/* Kameras im Overlay – sichtbar in jedem Spiel */
+function updateOverlayCams(st) {
+  const im = state.imposter, inImp = state.activeGame === 'imposter';
+  const turnPid = inImp ? impTurnPid() : '';
+  const rev = inImp && im && im.phase === 'reveal' ? (im.reveal || {}) : null;
+  const want = [];
+  const hv = cleanVdo(state.hostVdo);
+  want.push({ box: '.o-hostcam', key: hv || 'ph-host', vdoId: hv, pid: 'host', name: HOST_NAME, slot: 0 });
+  (state.players || []).slice().sort((a, b) => (a.slot || 99) - (b.slot || 99)).forEach(p => {
+    const v = cleanVdo(p.vdoId);
+    want.push({ box: '.o-row', key: v || 'ph-' + p.id, vdoId: v, pid: p.id, name: p.name, slot: p.slot || 9 });
+  });
+  const keys = new Set(want.map(w => w.key));
+  st.querySelectorAll('.otile').forEach(t => { if (!keys.has(t.dataset.key)) t.remove() });
+  want.forEach(w => {
+    const box = st.querySelector(w.box);
+    let t = box.querySelector('.otile[data-key="' + w.key + '"]');
+    if (!t) {
+      t = document.createElement('div'); t.className = 'otile'; t.dataset.key = w.key;
+      t.innerHTML = `<div class="vans"></div><div class="oframe">${w.vdoId
+        ? `<iframe src="${esc(vdoViewUrl(w.vdoId, !OVERLAY_CAM_AUDIO))}" allow="autoplay; fullscreen" title="Kamera"></iframe>`
+        : `<span>${w.pid === 'host' ? 'QUIZMASTER' : 'KEINE KAMERA'}</span>`}</div><div class="oname"></div>`;
+      box.appendChild(t);
+    }
+    t.style.order = w.slot;
+    t.classList.toggle('host', w.pid === 'host');
+    t.classList.toggle('turn', !!turnPid && w.pid === turnPid);
+    const nm = t.querySelector('.oname'); if (nm.textContent !== w.name) nm.textContent = w.name;
+    const an = t.querySelector('.vans');
+    const dl = rev && im.result && w.pid in im.result ? ' · ' + fmtPts(im.result[w.pid]) : '';
+    const at = rev && rev[w.pid] ? '„' + rev[w.pid] + '“' + dl : rev && impOrder().includes(w.pid) ? '— keine Antwort —' + dl : '';
+    if (an.textContent !== at) an.textContent = at;
+  });
+  st.querySelector('.o-row').style.setProperty('--n', Math.max(1, want.length - 1));
+}
+
+/* Was der Host an das Overlay schickt: nur Anzeige-Daten, nichts Geheimes
+   (kein Begriff, keine Rollen, kein Passwort, kein Raum-Schlüssel) */
+function overlayState() {
+  const im = state.imposter;
+  return {
+    activeGame: state.activeGame || null,
+    players: (state.players || []).map(p => ({ id: p.id, name: p.name, slot: p.slot, vdoId: p.vdoId || '' })),
+    hostVdo: state.hostVdo || '', names: state.names || {}, scores: state.scores || {},
+    impGame: state.impGame || null, impCfg: state.impCfg || null, timer: state.timer || null, sentAt: Date.now(),
+    imposter: im ? { deal: im.deal, category: im.category, count: im.count, order: im.order, names: im.names, phase: im.phase,
+      turn: im.turn, vote: im.vote, reveal: im.phase === 'reveal' ? im.reveal : null, result: im.phase === 'reveal' ? im.result : null } : null
+  };
+}
+
+/* Host-Hauptmenü: fester OBS-Link */
+function obsCard() {
+  return `<div class="card obs-card"><h3>OBS Overlay Link</h3>
+    <div class="lk"><code>${esc(OVERLAY_URL)}</code></div>
+    <div class="row"><button class="btn y" onclick="A.copyOv(this)">Link kopieren</button></div>
+    <p class="mu">In OBS als Browser-Source einfügen (1920×1080)</p>
+    ${HOST_PASSWORD_HASH ? '' : '<p class="mu tip">Tipp: Trag unten bei „Quizmaster“ den angezeigten Wert als HOST_PASSWORD_HASH in die Datei ein. Dann kann niemand mit eigenem Host dein Overlay stören.</p>'}
+  </div>`;
+}
+
 /* ===== Login ===== */
 function gateView() {
   const host = ROLE === 'host', setup = host && !hostHash();
@@ -1433,6 +1623,7 @@ function hostView() {
         `<button class="gm ${state.activeGame === k ? 'on' : ''}" onclick="A.game('${k}')">${GAMES[k]}</button>`).join('')}</div>
       ${state.activeGame ? `<div class="row" style="margin-top:18px"><button class="btn" onclick="A.menu()">← Zurück zum Menü</button></div>` : ''}
     </div>
+    ${!state.activeGame ? obsCard() : ''}
     ${state.activeGame === 'imposter' ? impHostCard() : ''}
   </div>`;
 }
@@ -1510,7 +1701,8 @@ function render() {
     const f = document.getElementById('pw'); if (f && f.focus) f.focus();
     return;
   }
-  document.getElementById('app').innerHTML = ROLE === 'host' ? hostView() : ROLE === 'player' ? playerView() : overlayView();
+  if (ROLE === 'overlay') { renderOverlay(); return }
+  document.getElementById('app').innerHTML = ROLE === 'host' ? hostView() : playerView();
   if (app2) app2.innerHTML = ROLE === 'host' ? hostBottom() : '';
   // Eigenes Video-Element wiederverwenden, damit es beim Neuzeichnen nicht flackert
   const slot = document.getElementById('myvid');
@@ -1524,6 +1716,7 @@ addEventListener('storage', e => { if (ROLE === 'host' && e.key === 'qs-round' &
 /* Start: Schlüssel berechnen, gespeicherten Login dieser Sitzung prüfen, dann verbinden */
 (async function boot() {
   try {
+    await initOverlayChannel();
     if (ROLE === 'host') {
       loadRoundPw(false);
       if (crypto.subtle) await deriveKeys(ROUND_PW);
@@ -1550,8 +1743,9 @@ addEventListener('storage', e => { if (ROLE === 'host' && e.key === 'qs-round' &
      drosselt oder dein Kontingent knapp wird: FRAME_MS auf 500–1000 hochsetzen.
   2. Kamera geht nur über https:// (z. B. Netlify) oder localhost. Über file:// klappt es in Chrome
      meist auch, für Mitspieler aber immer über die Online-Adresse.
-  3. Overlay in OBS: einen der drei Links (oben / unten / seitlich) als Browser-Quelle 1920×1080
-     eintragen. Der Link bleibt bei neuen Runden gleich – nicht weitergeben.
+  3. Overlay in OBS: https://anduuuuin.github.io/Streamer-Games-by-Anduuuuin/?role=overlay als
+     Browser-Source 1920×1080. Aussehen pro Spiel: OVERLAY_GAMES im Skript + CSS "OBS-Overlay".
+     HOST_PASSWORD_HASH eintragen, damit niemand mit eigenem Host dein Overlay stören kann.
   4. Runden: Vor jedem Quiz "Neue Runde · neue Links" drücken und die neuen Links verschicken.
   5. Nur EIN Host gleichzeitig und immer im selben Browser (Runde, Schlüssel, Namen im localStorage).
   6. Falls Supabase unter Realtime → Settings "Private channels only" aktiv ist: ausschalten.
