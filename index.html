@@ -1,0 +1,1484 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Streamer Games</title>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root{
+  --bg:#0d0221;--bg2:#2a0a5e;--panel:#1b0b4d;
+  --pink:#ff2bd6;--cyan:#00f0ff;--yellow:#ffe600;--green:#39ff14;--red:#ff2d55;
+  --tx:#fff;--mu:#b9a8e8;
+  --px:'Press Start 2P',monospace;
+}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%}
+body{
+  color:var(--tx);font-family:var(--px);
+  background:
+    repeating-linear-gradient(0deg,#00000045 0 2px,transparent 2px 5px),
+    linear-gradient(#ff2bd626 2px,transparent 2px) 0 0/60px 60px,
+    linear-gradient(90deg,#ff2bd626 2px,transparent 2px) 0 0/60px 60px,
+    linear-gradient(var(--bg),var(--bg2));
+  background-attachment:fixed;
+}
+body.overlay{background:transparent;overflow:hidden}
+.wrap{max-width:1000px;margin:auto;padding:24px 16px 48px}
+
+/* Logo */
+.logo{display:flex;justify-content:center;gap:28px;margin:10px 0 28px;flex-wrap:wrap}
+.logo b{font-size:clamp(22px,6vw,48px);color:var(--yellow);text-shadow:4px 4px 0 var(--pink),8px 8px 0 #000}
+.logo b+b{color:var(--cyan)}
+
+/* Panels */
+.card{background:var(--panel);border:4px solid var(--cyan);box-shadow:6px 6px 0 #000;padding:18px;margin-bottom:22px}
+.card h3{margin:0 0 16px;font-size:13px;color:var(--yellow);text-shadow:2px 2px 0 var(--pink);text-transform:uppercase;line-height:1.5}
+.mu{color:var(--mu);font-size:10px;line-height:1.8}
+
+/* Status-Chip */
+.status{display:inline-block;font-size:10px;padding:8px 12px;border:3px solid #000;background:var(--red);color:#000;margin-bottom:18px}
+.status.ok{background:var(--green)}
+.warn{background:var(--yellow);color:#000;border:4px solid #000;box-shadow:6px 6px 0 #000;padding:14px;font-size:11px;line-height:1.8;margin-bottom:22px}
+
+/* Game-Buttons */
+.mg{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px}
+.gm{font:14px/1.7 var(--px);background:var(--panel);color:var(--yellow);border:4px solid var(--cyan);box-shadow:6px 6px 0 #000;padding:30px 12px;text-shadow:3px 3px 0 var(--pink);cursor:pointer;text-transform:uppercase}
+.gm:hover{background:var(--bg2)}
+.gm:active{transform:translate(4px,4px);box-shadow:2px 2px 0 #000}
+.gm.on{background:var(--pink);color:#000;text-shadow:none;border-color:#000}
+.btn{font:11px var(--px);background:#000;color:var(--cyan);border:3px solid var(--cyan);box-shadow:4px 4px 0 #000;padding:12px 14px;cursor:pointer}
+.btn:active{transform:translate(3px,3px);box-shadow:1px 1px 0 #000}
+
+/* Aktuelles Spiel */
+.now{font-size:clamp(14px,3.5vw,22px);color:var(--green);line-height:1.6;margin:4px 0 14px;text-transform:uppercase}
+
+/* Spielerliste */
+.plist{display:grid;gap:10px}
+.pl{display:grid;grid-template-columns:auto 1fr auto;gap:12px;align-items:center;background:#000;border:3px solid var(--pink);padding:10px 12px;font-size:10px;line-height:1.6}
+.pl .fr{background:var(--yellow);color:#000;padding:6px 8px;border:2px solid #000;white-space:nowrap}
+.pl .nm{color:#fff;text-transform:uppercase;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pl .id{color:var(--cyan);font-size:9px;white-space:nowrap}
+.pl.me{border-color:var(--green)}
+.empty{font-size:10px;color:var(--mu);line-height:1.8}
+
+/* Links */
+.lk{display:flex;flex-direction:column;gap:6px;margin:10px 0}
+.lk span{font-size:10px;color:var(--yellow)}
+code{font:12px ui-monospace,monospace;background:#000;color:var(--cyan);padding:6px 8px;border:2px solid #ffffff22;word-break:break-all}
+
+/* Spieler-Links im Host */
+.slots{display:grid;gap:12px}
+.slot{background:#000;border:3px solid var(--pink);padding:12px;display:grid;gap:10px}
+.slot.live{border-color:var(--green)}
+.slot .top{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.slot .no{background:var(--yellow);color:#000;font-size:10px;padding:8px;border:2px solid #000}
+.slot .dot{font-size:9px;color:var(--mu)}
+.slot.live .dot{color:var(--green)}
+.slot .input{max-width:220px;padding:9px;font-size:11px}
+.btn.y{color:var(--yellow);border-color:var(--yellow)}
+.btn.ok{color:#000;background:var(--green);border-color:#000}
+
+/* Runde */
+.round{display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap;background:#000;border:4px solid var(--yellow);box-shadow:6px 6px 0 #000;padding:14px;margin-bottom:14px}
+.round b{display:block;font-size:22px;color:var(--yellow);text-shadow:3px 3px 0 var(--pink);margin-top:8px;letter-spacing:4px}
+.btn.pk{color:#000;background:var(--pink);border-color:#000}
+.card.dead{border-color:var(--red);text-align:center}
+.card.dead h3{color:var(--red);text-shadow:none}
+
+/* Kamera-Kacheln – Größe/Abstand hier anpassen */
+.cgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:22px 16px;padding-bottom:12px}
+.ctile{position:relative;border:5px solid var(--c);background:#000;box-shadow:5px 5px 0 #000}
+.cbox{aspect-ratio:4/3;overflow:hidden;background:repeating-linear-gradient(45deg,#1b0b4d 0 10px,#12063a 10px 20px)}
+.cbox img,.cbox video{width:100%;height:100%;object-fit:cover;display:block}
+.cbox video{transform:scaleX(-1)}
+#myvid{width:100%;height:100%}
+.cbadge{position:absolute;left:6px;top:-12px;background:var(--c);color:#000;font:9px var(--px);font-style:normal;padding:5px 7px;border:2px solid #000}
+.cname{position:absolute;left:50%;bottom:-12px;transform:translateX(-50%);background:#000;border:3px solid var(--c);color:var(--c);font:9px var(--px);padding:5px 9px;white-space:nowrap;max-width:92%;overflow:hidden;text-overflow:ellipsis;text-transform:uppercase}
+.pl .on{font-style:normal;color:var(--green)}
+
+/* Imposter */
+.role{border:6px solid var(--c);box-shadow:8px 8px 0 #000;background:#000;padding:28px 18px;text-align:center;display:grid;gap:14px;justify-items:center}
+.role.crew{--c:var(--cyan)}.role.imp{--c:var(--red)}.role.hidden{--c:var(--mu)}
+.role small{font-size:10px;color:var(--mu);letter-spacing:2px}
+.role b{font-size:clamp(22px,6vw,40px);color:var(--c);text-shadow:4px 4px 0 #000,6px 6px 0 var(--pink)}
+.role.imp b{animation:glow 1.2s ease-in-out infinite alternate}
+.role .word{font-size:clamp(18px,5vw,34px);color:var(--yellow);text-shadow:3px 3px 0 var(--pink);background:var(--panel);border:4px solid var(--yellow);padding:16px 22px;text-transform:uppercase;line-height:1.4;max-width:100%;overflow-wrap:anywhere}
+.role p{font-size:10px;line-height:2;color:#fff;margin:0;max-width:520px}
+.role em{font-style:normal;color:var(--yellow)}
+.imp-card{border-color:var(--red)}
+.sol{display:flex;gap:16px;flex-wrap:wrap;margin-top:14px}
+.sol>div{background:#000;border:3px solid var(--yellow);padding:12px 14px;display:grid;gap:8px}
+.sol b{font-size:14px;color:var(--yellow);text-transform:uppercase;line-height:1.5}.sol b.red{color:var(--red)}
+.osub{font:clamp(14px,1.6vw,28px)/1.8 var(--px);color:var(--cyan);text-align:center;text-shadow:3px 3px 0 #000;background:#000c;border:4px solid var(--cyan);box-shadow:6px 6px 0 #000;padding:14px 24px}
+
+/* VDO.Ninja-Kameras – LAYOUT HIER ANPASSEN */
+.vwrap{padding-top:0}
+.vgrid{
+  --vdo-w:240px;            /* Breite einer Kachel */
+  --vdo-h:180px;            /* Höhe einer Kachel */
+  --vdo-radius:14px;        /* Abrundung der Ecken */
+  display:flex;flex-wrap:wrap;gap:22px 18px;margin-top:14px
+}
+.vtile{width:var(--vdo-w);display:grid;gap:10px;justify-items:center}
+.vframe{width:var(--vdo-w);height:var(--vdo-h);border-radius:var(--vdo-radius);overflow:hidden;background:#000;border:4px solid var(--cyan);box-shadow:5px 5px 0 #000}
+.vframe iframe{width:100%;height:100%;border:0;display:block}
+.vtile.own .vframe{border-color:var(--green);box-shadow:5px 5px 0 #000,0 0 18px var(--green)}
+.vname{font:10px var(--px);color:#fff;text-transform:uppercase;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;padding:6px 10px;background:#000;border:3px solid var(--cyan);border-radius:8px}
+.vtile.own .vname{color:#000;background:var(--green);border-color:#000}
+.vhead a{color:#000;font-weight:bold}
+@media (max-width:560px){.vgrid{--vdo-w:calc(50vw - 46px);--vdo-h:calc((50vw - 46px)*.75)}}
+
+.vtile.host:not(.own) .vframe{border-color:#8b5cf6}
+.vtile.host:not(.own) .vname{border-color:#8b5cf6;color:#c4b5fd}
+.wrap-b{padding-top:0}
+#app .wrap{padding-bottom:0}
+
+/* Imposter-Ansicht für Spieler – LAYOUT HIER ANPASSEN
+   Zeile 1: Quizmaster-Kamera + Infokasten · Zeile 2: Spieler-Kameras · Zeile 3: Timer */
+body.imp-mode{display:flex;flex-direction:column}
+body.imp-mode #vdo{order:0;padding-top:24px}
+body.imp-mode #app{order:1}
+body.imp-mode #app2{order:2}
+body.imp-mode #vdo .vhead .row{justify-content:flex-end}
+.vgrid.imp{display:grid;grid-template-columns:repeat(var(--cols,5),minmax(0,1fr));gap:34px 16px;margin-top:18px}
+.vgrid.imp .vtile{width:auto}
+.vgrid.imp .vframe{width:100%;height:auto;aspect-ratio:4/3}
+.vgrid.imp .vtile.host{grid-column:1}
+.vframe.ph{display:grid;place-items:center;border-style:dashed;border-color:var(--mu);background:repeating-linear-gradient(45deg,#1b0b4d 0 10px,#12063a 10px 20px)}
+.vframe.ph span{font:9px var(--px);color:var(--mu);text-align:center;padding:8px;line-height:1.6}
+.vinfo{order:1;grid-column:2 / -1;border:6px solid var(--yellow);background:#000;box-shadow:8px 8px 0 #000;padding:18px 20px;display:flex;flex-wrap:wrap;gap:18px 34px;align-items:center;align-content:center;min-height:100%}
+.vinfo.good{border-color:var(--cyan)}
+.vinfo.bad{border-color:var(--red)}
+.vinfo .ik{display:grid;gap:10px}
+.vinfo small{font-size:10px;color:var(--mu);letter-spacing:2px}
+.vinfo b{font-size:clamp(14px,2.2vw,26px);color:var(--yellow);text-transform:uppercase;line-height:1.4;text-shadow:3px 3px 0 var(--pink);overflow-wrap:anywhere}
+.vinfo b.word{color:var(--cyan)}
+.vinfo b.red{color:var(--red);animation:glow 1.2s ease-in-out infinite alternate}
+.vinfo b.wait{font-size:11px;color:#fff;text-shadow:none;line-height:1.9;text-transform:none}
+.vinfo span{font-size:9px;color:#fff;line-height:1.8}
+.vinfo .btn{margin-left:auto}
+.vtimer{order:100;grid-column:1 / -1;display:flex;align-items:center;gap:16px;background:#000;border:4px solid #fff;box-shadow:6px 6px 0 #000;padding:10px 14px}
+.vtbar{flex:1;height:22px;background:#1b0b4d;border:3px solid #000;overflow:hidden}
+.vtbar i{display:block;height:100%;width:100%;background:repeating-linear-gradient(90deg,var(--yellow) 0 16px,transparent 16px 20px);transition:width .2s linear}
+.vtt{font-size:14px;color:var(--yellow);min-width:70px;text-align:right;white-space:nowrap}
+.vtimer.low .vtt{color:var(--red)}
+.vtimer.low .vtbar i{background:repeating-linear-gradient(90deg,var(--red) 0 16px,transparent 16px 20px)}
+.vtimer.done{border-color:var(--red)}
+.vtimer.done .vtt{color:var(--red);animation:blink .5s steps(2) infinite}
+.vtimer.idle{border-color:var(--mu)}
+.vtimer.idle .vtt{font-size:9px;color:var(--mu);min-width:0}
+@keyframes blink{to{opacity:.2}}
+#htimer{color:var(--yellow)}
+@media (max-width:700px){.vgrid.imp{--cols:3 !important}}
+
+/* Imposter-Ablauf: Dran-Markierung, Antwort-Blasen, Abstimmung, Host-Auswertung */
+.vtile.turn .vframe{border-color:var(--yellow);box-shadow:5px 5px 0 #000,0 0 26px var(--yellow);animation:turnpulse 1s ease-in-out infinite alternate}
+.vtile.turn .vname{background:var(--yellow);color:#000;border-color:#000}
+@keyframes turnpulse{to{box-shadow:5px 5px 0 #000,0 0 6px var(--yellow)}}
+.vans{position:relative;font:10px/1.6 var(--px);color:#000;background:var(--yellow);border:3px solid #000;box-shadow:4px 4px 0 #000;padding:8px 10px;max-width:100%;text-align:center;overflow-wrap:anywhere;text-transform:uppercase}
+.vans:empty{display:none}
+.vans::after{content:'';position:absolute;left:50%;bottom:-11px;transform:translateX(-50%);border:8px solid transparent;border-top-color:#000;border-bottom:0}
+.vinfo .ik.ph b.me{color:var(--green);animation:glow 1s ease-in-out infinite alternate}
+.vinfo .ik.vote{flex-basis:100%}
+.vinfo .vbtns{display:flex;flex-wrap:wrap;gap:10px}
+.vinfo .vin{max-width:260px}
+.btn.big{font-size:13px;padding:16px 18px}
+.turnbox{display:flex;flex-wrap:wrap;align-items:center;gap:12px 20px;background:#000;border:4px solid var(--yellow);box-shadow:5px 5px 0 #000;padding:14px;margin:14px 0}
+.turnbox b{font-size:16px;color:var(--yellow);text-shadow:2px 2px 0 var(--pink);text-transform:uppercase}
+.turnbox span{font-size:10px}
+.answers{display:grid;gap:8px;margin:14px 0}
+.arow{display:grid;grid-template-columns:minmax(90px,1fr) auto minmax(90px,1.4fr) 24px;gap:12px;align-items:center;background:#000;border:3px solid var(--mu);padding:10px 12px;font-size:10px}
+.arow b{color:#fff;text-transform:uppercase}.arow i{font-style:normal;font-size:8px;color:var(--mu)}
+.arow span{color:var(--yellow);text-transform:uppercase;overflow-wrap:anywhere}
+.arow em{font-style:normal;font-size:14px;text-align:right}
+.arow.right{border-color:var(--green)}.arow.right em{color:var(--green)}
+.arow.wrong{border-color:var(--red)}.arow.wrong em{color:var(--red)}
+@media (max-width:560px){.arow{grid-template-columns:1fr auto}.arow i{display:none}}
+
+/* Imposter: Einstellungen + Punkte */
+.setup{display:flex;flex-wrap:wrap;gap:16px;margin:6px 0 16px}
+.setup label{display:grid;gap:8px;background:#000;border:3px solid var(--cyan);padding:12px 14px;min-width:220px}
+.setup label span{font-size:11px;color:var(--yellow)}
+.setup label small{font-size:8px;color:var(--mu)}
+.setup .input{max-width:120px;font-size:16px;padding:10px}
+.pbox{margin-top:14px;display:grid;gap:10px}
+.scores{display:grid;gap:6px}
+.srow{display:grid;grid-template-columns:28px 1fr auto;gap:10px;align-items:center;background:#000;border:3px solid var(--pink);padding:8px 12px;font-size:10px}
+.srow i{font-style:normal;color:var(--mu)}
+.srow b{color:#fff;text-transform:uppercase;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.srow span{color:var(--yellow)}
+.scores.big .srow{font-size:12px;padding:12px 14px}
+.srow.win{border-color:var(--yellow);box-shadow:0 0 16px var(--yellow)}
+.srow.win b{color:var(--yellow)}
+.vinfo .ik.fin{flex-basis:100%}
+.pl .pts{font-style:normal;color:var(--yellow);margin-left:6px}
+
+/* Imposter-Spieleransicht kompakt: Quizmaster + Infokasten oben, Punktestand unter dem Quizmaster */
+body.imp-mode #vdo{padding-top:8px}
+body.imp-mode #vdo>.card{padding:12px;margin-bottom:14px}
+.vgrid.imp{margin-top:0}
+.vinfo{grid-row:span 2}                      /* Infokasten so hoch wie Quizmaster-Kamera + Punktestand */
+.vscore{order:2;grid-column:1;background:#000;border:4px solid #8b5cf6;box-shadow:5px 5px 0 #000;padding:10px;display:grid;gap:6px;align-content:start}
+.vsh{display:flex;justify-content:space-between;gap:8px;margin-bottom:4px}
+.vsh small{font-size:8px;color:#c4b5fd;letter-spacing:1px}
+.vsr{display:flex;justify-content:space-between;gap:8px;font-size:9px;line-height:1.5;padding:4px 6px;border:2px solid transparent}
+.vsr b{color:#fff;text-transform:uppercase;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:normal}
+.vsr span{color:var(--yellow)}
+.vsr.me{border-color:var(--green)}.vsr.me b{color:var(--green)}
+.vsr:nth-child(2) span{text-shadow:0 0 8px var(--yellow)}
+.vframe.ph span{display:grid;gap:10px;justify-items:center}
+.btn.sm{font-size:8px;padding:8px 10px;box-shadow:3px 3px 0 #000}
+
+/* Login + Passwort */
+.gate{max-width:560px;margin:0 auto 22px}
+.gform{display:flex;flex-wrap:wrap;gap:12px;align-items:center}
+.gform .input{flex:1;min-width:200px;font-size:16px;letter-spacing:2px}
+.pwbox{display:grid;gap:8px;justify-items:start}
+.pwbox b{font-size:22px;color:var(--cyan);text-shadow:3px 3px 0 var(--pink);letter-spacing:4px}
+
+/* Player */
+.input{font:12px var(--px);background:#000;color:#fff;border:3px solid var(--cyan);padding:12px;width:100%;max-width:340px}
+.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.stage{min-height:260px;border:6px dashed var(--yellow);box-shadow:8px 8px 0 #000;background:#0008;display:grid;place-items:center;text-align:center;padding:24px;font-size:12px;line-height:2;color:var(--mu)}
+.stage b{display:block;color:var(--yellow);font-size:clamp(16px,4vw,28px);text-shadow:3px 3px 0 var(--pink);margin-bottom:14px;text-transform:uppercase}
+
+/* Overlay */
+/* Overlay-Aufbau: ?cams=top | bottom | side */
+.ov{position:fixed;inset:0;display:flex;flex-direction:column;gap:30px;padding:34px 30px}
+.ov.side{flex-direction:row}
+.ov .omain{flex:1;min-width:0;min-height:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:50px}
+.ocams{display:flex;gap:28px 24px;justify-content:center;flex-wrap:wrap}
+.ocams .ctile{width:clamp(150px,12.5vw,250px);border-width:6px}
+.ov.side .ocams{flex-direction:column;align-content:flex-start;max-height:100%}
+.ov.side .ocams .ctile{width:clamp(140px,11vw,220px)}
+.ocams .cbadge{font-size:clamp(9px,.8vw,14px)}
+.ocams .cname{font-size:clamp(9px,.8vw,15px);bottom:-14px}
+.ov h1{margin:0;font:clamp(40px,8vw,140px)/1.3 var(--px);color:var(--yellow);text-align:center;text-transform:uppercase;
+  text-shadow:6px 6px 0 var(--pink),12px 12px 0 #000;animation:glow 1.6s ease-in-out infinite alternate}
+.ov h1.idle{color:var(--cyan);font-size:clamp(24px,4vw,64px)}
+@keyframes glow{to{filter:drop-shadow(0 0 22px var(--yellow))}}
+.ov .chips{display:flex;gap:16px;flex-wrap:wrap;justify-content:center}
+.ov .chip{font:clamp(12px,1.4vw,22px) var(--px);background:#000;color:var(--cyan);border:4px solid var(--cyan);box-shadow:6px 6px 0 #000;padding:12px 18px;text-transform:uppercase}
+.ov .chip i{font-style:normal;color:var(--yellow);margin-right:10px}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<div id="vdo" class="wrap vwrap"></div>   <!-- VDO.Ninja-Kameras (Spieler- und Host-Seite) -->
+<div id="app2"></div>                       <!-- unterer Teil der Host-Seite -->
+
+<script>
+/* ===== Konfiguration ===== */
+const SUPABASE_URL = 'https://oufoopkyhdxbmvjngngd.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im91Zm9vcGt5aGR4Ym12am5nbmdkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTI5MzI0NTUsImV4cCI6MjEwODUwODQ1NX0.yeKbvsNwgqErfFNmHKsIrRc-SNVWD3SEfyqmR1X2BWM';
+const CHANNEL = 'raum-eins';   // Basisname; jede Runde läuft in "raum-eins-<Rundencode>"
+const GAMES = { imposter: 'Imposter', werwolf: 'Werwolf' };   // Spiele im Hauptmenü – hier weitere ergänzen
+const MAX_SLOTS = 6;
+
+/* ===== Imposter – HIER ANPASSEN ===== */
+const IMPOSTER_COUNT = 1;        // Anzahl Imposter pro Runde
+const IMPOSTER_MIN_PLAYERS = 3;  // ab so vielen verbundenen Spielern kann verteilt werden
+const IMPOSTER_SEES_CATEGORY = true; // false = Imposter erfährt auch die Kategorie nicht
+const IMPOSTER_CATEGORY = 'Sport';
+const IMPOSTER_TURN_SEC = 60;     // Redezeit pro Zug in Sekunden
+const IMPOSTER_TURN_ROUNDS = 2;   // Standard für „Durchgänge pro Runde“ – wie oft jeder dran ist (im Host einstellbar)
+const IMPOSTER_VOTE_SEC = 30;     // Zeit für die Abstimmung in Sekunden
+const IMPOSTER_ROUNDS = 3;        // Standard für „Spielrunden“ (im Host einstellbar)
+// Punkte – HIER ANPASSEN
+const IMPOSTER_PTS_WORD = 3;      // Imposter errät das Wort
+const IMPOSTER_PTS_PER_VOTE = -1; // Imposter pro Stimme, die er bekommt
+const IMPOSTER_PTS_CATCH = 1;     // Spieler tippt den Imposter richtig
+const IMPOSTER_WORDS = [         // Wörter der Kategorie – beliebig erweitern (eins pro Eintrag)
+  'Fußball', 'Basketball', 'Tennis', 'Handball', 'Volleyball', 'Eishockey', 'Golf', 'Boxen',
+  'Schwimmen', 'Skispringen', 'Formel 1', 'Radrennen', 'Tischtennis', 'Badminton', 'Rugby',
+  'Baseball', 'American Football', 'Darts', 'Snooker', 'Marathon', 'Hochsprung', 'Stabhochsprung',
+  'Turnen', 'Judo', 'Ringen', 'Fechten', 'Rudern', 'Surfen', 'Skateboard', 'Klettern',
+  'Biathlon', 'Eiskunstlauf', 'Bobfahren', 'Snowboard', 'Reiten', 'Triathlon', 'Bowling',
+  'Kegeln', 'Wasserball', 'Elfmeter', 'Abseits', 'Torwart', 'Schiedsrichter', 'Stadion', 'Trikot'
+];
+
+/* ===== Passwortschutz – HIER ANPASSEN =====
+   Quizmaster: Beim ersten Öffnen legst du dein Passwort fest (gilt dann für diesen Browser).
+   Damit es auf ALLEN Geräten gilt, trage den Wert, den dir die Host-Seite unten anzeigt, hier ein: */
+const HOST_PASSWORD_HASH = '';
+/* Spieler: Das Passwort wird pro Runde im Host erzeugt (bei den Spieler-Links). Es steckt im
+   Namen des Supabase-Raums – mit falschem Passwort landet man in einem leeren Raum. */
+
+/* ===== VDO.Ninja (Spieler-Kameras) – HIER ANPASSEN ===== */
+const VDO_ROOM = 'twistuelraum';            // Room-Name für alle Kameras – hier ändern
+const VDO_BASE = 'https://vdo.ninja/';
+const vdoPushUrl = (id, name) => VDO_BASE + '?push=' + id + '&room=' + VDO_ROOM + '&label=' + encodeURIComponent(name) + '&webcam';
+// &solo = nur zuschauen (ohne &solo meldet sich die Kachel selbst als Gast im Room an und zeigt die Kamera-Auswahl)
+const vdoViewUrl = (id, own) => VDO_BASE + '?view=' + id + '&room=' + VDO_ROOM + '&solo&cleanoutput&cover' + (own ? '&noaudio' : ''); // eigene Kamera stumm, sonst hörst du dich selbst
+
+/* ===== Kamera (alte Standbild-Kamera für Host) – HIER ANPASSEN ===== */
+const FRAME_MS = 300;          // Abstand zwischen zwei Bildern in ms. Höher = weniger Supabase-Nachrichten, ruckeliger
+const FRAME_W = 192;           // Breite der gesendeten Bilder in Pixel (Höhe folgt automatisch). Größer = schärfer, mehr Daten
+const FRAME_Q = 0.5;           // JPEG-Qualität von 0 bis 1
+const FRAME_TIMEOUT = 3000;    // kommt so lange kein Bild, gilt die Kamera als aus (z. B. Tab abgestürzt)
+const HOST_NAME = 'Quizmaster'; // Name unter der Host-Kamera
+const SLOT_COLORS = ['#ff2d55', '#ff2d55', '#00cfff', '#00cfff', '#39ff14', '#39ff14']; // Rahmenfarbe je Platz (wie Team Rot/Blau/Grün)
+const HOST_COLOR = '#8b5cf6';
+
+/* ===== Hilfen ===== */
+const P = new URLSearchParams(location.search);
+const ROLE = ['host', 'player', 'overlay'].includes(P.get('role')) ? P.get('role') : 'host';
+const rnd = () => Math.random().toString(36).slice(2, 6);
+const code = (n = 6) => Array.from(crypto.getRandomValues(new Uint8Array(n)), b => 'abcdefghjkmnpqrstuvwxyz23456789'[b % 31]).join('');
+const clean = s => String(s || '').replace(/[^a-z0-9]/gi, '');
+const cleanId = s => String(s || '').replace(/[^a-z0-9-]/gi, '').slice(0, 32);
+const ls = {
+  get(k) { try { return localStorage.getItem(k) } catch (e) { return null } },
+  set(k, v) { try { localStorage.setItem(k, v) } catch (e) {} }
+};
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const gameName = k => GAMES[k] || '';
+const missingKeys = () => SUPABASE_URL === 'SUPABASE_URL' || SUPABASE_ANON_KEY === 'SUPABASE_ANON_KEY';
+
+/* ===== Runde & Overlay-Schlüssel =====
+   ROUND: steckt in den Spieler-Links, wird pro Runde neu erzeugt → alte Links landen in einem leeren Raum.
+   OVKEY: steckt im Overlay-Link, bleibt fest → OBS muss nie umgestellt werden.
+   Das Overlay erfährt den aktuellen Rundencode geheim über seinen eigenen Channel. */
+let ROUND = '', OVKEY = '';
+if (ROLE === 'host') {
+  ROUND = ls.get('qs-round') || code(); ls.set('qs-round', ROUND);
+  OVKEY = ls.get('qs-ov') || code(10); ls.set('qs-ov', OVKEY);
+}
+if (ROLE === 'player') ROUND = clean(P.get('r'));
+if (ROLE === 'overlay') OVKEY = clean(P.get('k'));
+let CK = '', CHK = '', ROUND_PW = '';   // CK = Raum-Schlüssel aus dem Passwort, CHK = Prüfwert im Link, ROUND_PW = Spieler-Passwort (nur Host)
+const playerChannel = () => CHANNEL + '-' + ROUND + (CK ? '-' + CK : '');
+const ss = {
+  get(k) { try { return sessionStorage.getItem(k) } catch (e) { return null } },
+  set(k, v) { try { sessionStorage.setItem(k, v) } catch (e) {} }
+};
+const sha = async s => Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256', new TextEncoder().encode(s))), b => b.toString(16).padStart(2, '0')).join('');
+async function deriveKeys(pw) {
+  CK = (await sha('room:' + ROUND + ':' + pw)).slice(0, 16);
+  CHK = (await sha('chk:' + ROUND + ':' + pw)).slice(0, 6);
+}
+/* Host: Spieler-Passwort gehört zur Runde – neue Runde = neues Passwort */
+function loadRoundPw(fresh) {
+  let s = null;
+  try { s = JSON.parse(ls.get('qs-roundpw') || 'null') } catch (e) {}
+  ROUND_PW = !fresh && s && s.round === ROUND && s.pw ? s.pw : code(6).toUpperCase();
+  ls.set('qs-roundpw', JSON.stringify({ round: ROUND, pw: ROUND_PW }));
+}
+async function checkPlayerPw(pw) {
+  const c = clean(P.get('c')).toLowerCase();
+  if (!pw || !c || !crypto.subtle) return false;
+  if ((await sha('chk:' + ROUND + ':' + pw)).slice(0, 6) !== c) return false;
+  await deriveKeys(pw);
+  return true;
+}
+let authed = ROLE === 'overlay', gateErr = '', gateBusy = false;
+const hostHash = () => HOST_PASSWORD_HASH || ls.get('qs-hostpw') || '';
+const overlayChannel = () => CHANNEL + '-ov-' + OVKEY;
+
+/* Overlay-Layout per URL: ?role=overlay&k=…&cams=top | bottom | side */
+const OV_LAYOUT = ['top', 'bottom', 'side'].includes(P.get('cams')) ? P.get('cams') : 'top';
+
+/* ===== Identität ===== */
+let me = null;
+if (ROLE === 'player') {
+  const id = cleanId(P.get('id')) || ls.get('qs-id') || ('p-' + rnd());
+  ls.set('qs-id', id);
+  me = {
+    id,
+    name: P.get('name') || ls.get('qs-name') || 'Spieler ' + id.slice(-2).toUpperCase(),
+    slot: +(P.get('slot') || P.get('frame')) || 0
+  };
+  me.secret = clean(P.get('s'));
+  me.vdoId = ls.get('qs-vdo-' + clean(P.get('r')) + '-' + me.id) || '';   // VDO.Ninja-ID, entsteht beim Klick auf „Kamera verbinden“   // geheimer Schlüssel nur für diesen Spieler (entschlüsselt seine Rolle)
+}
+const myId = () => ROLE === 'host' ? 'host' : me ? me.id : '';
+const myName = () => ROLE === 'host' ? HOST_NAME : me ? me.name : '';
+
+/* ===== State =====
+   players: [{ id, name, slot, cameraFrame }]
+   cameraFrame = aktuelles Kamerabild als Base64-JPEG ('' = Kamera aus).
+   Die Bilder laufen als eigenes Event "frame" über den Channel und werden bei jedem Client
+   in state.players[].cameraFrame eingetragen. Beim Verschicken des großen States werden sie
+   weggelassen, damit nicht alle Bilder doppelt übertragen werden. */
+const EMPTY = { activeGame: null, questionIndex: 0, buzzerWinner: null, players: [] };
+let state = { ...EMPTY };
+if (ROLE === 'host') {
+  try { Object.assign(state, JSON.parse(ls.get('qs-state') || '{}')) } catch (e) {}
+  if (!GAMES[state.activeGame]) state.activeGame = null;   // gespeichertes Spiel gibt es nicht mehr
+}
+let online = [];            // verbundene Spieler (Presence)
+let status = 'VERBINDE';
+let sb = null, ch = null, chO = null, chOok = false;
+let gotState = false, expired = false, roundClosed = false;
+const cams = {};            // id → { name, frame, t } aller empfangenen Kameras (auch Host)
+
+/* ===== Spieler-Plätze (nur Host) ===== */
+let slots = [];
+try { slots = JSON.parse(ls.get('qs-slots') || '[]') } catch (e) {}
+for (let i = 0; i < MAX_SLOTS; i++) slots[i] = slots[i] || 'Spieler ' + (i + 1);
+/* Pro Runde bekommt jeder Platz einen geheimen Schlüssel, der nur in seinem Link steckt */
+let secrets = [];
+function loadSecrets(fresh) {
+  let s = null;
+  try { s = JSON.parse(ls.get('qs-secrets') || 'null') } catch (e) {}
+  secrets = !fresh && s && s.round === ROUND && s.list && s.list.length === MAX_SLOTS ? s.list : Array.from({ length: MAX_SLOTS }, () => code(16));
+  ls.set('qs-secrets', JSON.stringify({ round: ROUND, list: secrets }));
+}
+if (ROLE === 'host') loadSecrets(false);
+const BASE = location.href.split('?')[0].split('#')[0];
+const slotLink = i => BASE + '?role=player&r=' + ROUND + '&c=' + CHK + '&id=p' + (i + 1) + '&slot=' + (i + 1) + '&s=' + secrets[i] + '&name=' + encodeURIComponent(slots[i]);
+const overlayLink = (layout) => BASE + '?role=overlay&k=' + OVKEY + (layout && layout !== 'top' ? '&cams=' + layout : '');
+
+function linkProblem() {
+  if (ROLE === 'player' && !ROUND) return 'Dieser Link ist unvollständig. Bitte den Host um deinen Link für diese Runde.';
+  if (ROLE === 'player' && !clean(P.get('c'))) return 'Dieser Link ist veraltet. Bitte den Quizmaster um deinen neuen Link und das Passwort.';
+  if (ROLE === 'overlay' && !OVKEY) return 'Overlay-Link ohne Schlüssel. Kopiere ihn neu aus dem Host.';
+  return '';
+}
+
+/* ===== Realtime ===== */
+function connect() {
+  if (missingKeys()) { status = 'KEINE ZUGANGSDATEN'; render(); return }
+  if (linkProblem()) { status = 'UNGÜLTIGER LINK'; render(); return }
+  sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+  if (ROLE === 'overlay') {
+    // Overlay hört auf seinem festen Channel, bekommt dort den Rundencode und tritt dann dem Runden-Channel bei
+    chO = sb.channel(overlayChannel(), { config: { broadcast: { self: false } } });
+    chO.on('broadcast', { event: 'state' }, onState)
+       .subscribe(s => {
+         if (!ch) { status = s; render() }
+         if (s === 'SUBSCRIBED') chO.send({ type: 'broadcast', event: 'hello', payload: {} });
+       });
+    return;
+  }
+
+  joinPlayerChannel();
+
+  if (ROLE === 'host') {
+    chO = sb.channel(overlayChannel(), { config: { broadcast: { self: false } } });
+    chO.on('broadcast', { event: 'hello' }, () => push())
+       .subscribe(s => { chOok = s === 'SUBSCRIBED'; if (chOok) push() });
+  }
+}
+
+function joinPlayerChannel() {
+  const c = ch = sb.channel(playerChannel(), {
+    config: { broadcast: { self: false }, presence: { key: me ? me.id : ROLE + '-' + rnd() } }
+  });
+  c.on('broadcast', { event: 'state' }, onState)
+   .on('broadcast', { event: 'hello' }, () => { if (ROLE === 'host') push() })
+   .on('broadcast', { event: 'answer' }, ({ payload }) => { if (c === ch) receiveAnswer(payload) })
+   .on('broadcast', { event: 'frame' }, ({ payload }) => {
+     if (c !== ch || !payload) return;
+     const id = cleanId(payload.id);
+     if (!id || id === myId()) return;
+     const f = typeof payload.frame === 'string' && payload.frame.startsWith('data:image/jpeg;base64,') ? payload.frame : '';
+     setCam(id, String(payload.name || '').slice(0, 24), f);
+   })
+   .on('broadcast', { event: 'closed' }, () => {          // Host hat eine neue Runde gestartet
+     if (ROLE !== 'player') return;
+     stopCam();
+     gotState = false; expired = true; roundClosed = true; status = 'RUNDE BEENDET';
+     sb.removeChannel(c); render();
+   })
+   .on('presence', { event: 'sync' }, () => {
+     if (c !== ch) return;   // alter Raum nach "Neue Runde"
+     online = Object.values(c.presenceState()).map(a => a[0]).filter(x => x && x.role === 'player');
+     // Wer den Raum verlassen hat, verliert sofort seine Kamera-Kachel
+     for (const id in cams) if (id !== 'host' && id !== myId() && !online.some(p => p.id === id)) dropCam(id);
+     if (ROLE === 'host') syncPlayers();
+     render();
+   })
+   .subscribe(async s => {
+     if (c !== ch) return;
+     status = s; render();
+     if (s !== 'SUBSCRIBED') return;
+     if (me) await trackMe(c);
+     if (ROLE === 'host') push();
+     else {
+       c.send({ type: 'broadcast', event: 'hello', payload: {} });   // State vom Host anfordern
+       if (ROLE === 'player') setTimeout(() => { if (!gotState) { expired = true; render() } }, 8000);
+     }
+   });
+}
+
+function onState({ payload }) {
+  if (ROLE === 'host' || !payload || !payload.state) return;
+  state = payload.state; gotState = true; expired = false;
+  fillFrames();
+  if (ROLE === 'overlay') {
+    const r = clean(state.round);
+    const k = clean(state.ck);
+    if (r && (r !== ROUND || k !== CK)) {          // neue Runde → Runden-Channel wechseln
+      ROUND = r; CK = k;
+      if (ch) sb.removeChannel(ch);
+      for (const id in cams) delete cams[id];
+      joinPlayerChannel();
+    }
+  }
+  const v = (state.imposter && state.imposter.vote) || 0;
+  if (v !== myVote) { myVote = v; myAnswer = ''; draft = '' }
+  applyHostName(); unsealMyRole(); syncTimer(); render();
+}
+
+/* Host ist die einzige Quelle der Wahrheit: er verteilt den State an Spieler und Overlay */
+function push() {
+  if (ROLE !== 'host') return;
+  state.names = Object.fromEntries(slots.map((n, i) => ['p' + (i + 1), n]));
+  state.hostVdo = hostCam ? hostCam.vdoId : '';   // Kamera-ID des Hosts für alle
+  syncTimer();
+  const lean = { ...state, round: ROUND, ck: CK, sentAt: Date.now(), players: state.players.map(({ cameraFrame, ...p }) => p) };
+  ls.set('qs-state', JSON.stringify(lean));
+  const msg = { type: 'broadcast', event: 'state', payload: { state: lean } };
+  if (ch && status === 'SUBSCRIBED') ch.send(msg);
+  if (chO && chOok) chO.send(msg);
+}
+
+/* Eigene Daten in Presence melden – der Host übernimmt sie ins players-Array */
+function trackMe(c) {
+  c = c || ch;
+  if (!me || !c || status !== 'SUBSCRIBED') return;
+  return c.track({ id: me.id, name: me.name, slot: me.slot, vdoId: me.vdoId || '', role: 'player' });
+}
+
+/* Spieler übernimmt den Namen, den der Host für seinen Platz eingetragen hat */
+let lastHostName;
+function applyHostName() {
+  if (!me || !state.names) return;
+  const n = state.names[me.id];
+  if (!n || n === lastHostName) return;
+  lastHostName = n;
+  if (n === me.name) return;
+  me.name = n; ls.set('qs-name', n);
+  trackMe();
+}
+
+/* Host baut state.players aus Presence und vergibt freie Plätze */
+function syncPlayers() {
+  const prev = Object.fromEntries(state.players.map(p => [p.id, p.slot]));
+  const used = new Set();
+  const list = online.map(p => {
+    let s = prev[p.id] || p.slot || 0;
+    if (s && used.has(s)) s = 0;
+    if (s) used.add(s);
+    return { id: p.id, name: p.name, slot: s, vdoId: cleanVdo(p.vdoId), cameraFrame: '' };
+  });
+  list.forEach(p => {
+    if (!p.slot) for (let i = 1; i <= MAX_SLOTS; i++) if (!used.has(i)) { p.slot = i; used.add(i); break }
+  });
+  state.players = list;
+  fillFrames();
+  push();
+}
+
+/* Verbundene Spieler (Liste unten). Das Overlay nimmt die Liste vom Host. */
+function connectedPlayers() {
+  const l = ROLE === 'overlay' ? state.players : online.map(p => {
+    const s = state.players.find(x => x.id === p.id);
+    return { id: p.id, name: p.name, slot: (s && s.slot) || p.slot || 0 };
+  });
+  return [...(l || [])].map(p => ({ ...p, cameraFrame: camFrame(p.id) }))
+    .sort((a, b) => (a.slot || 99) - (b.slot || 99));
+}
+
+/* ===== Kamera: empfangen ===== */
+function camFrame(id) { return id === myId() && stream ? 'live' : (cams[id] && cams[id].frame) || '' }
+function fillFrames() { (state.players || []).forEach(p => p.cameraFrame = (cams[p.id] && cams[p.id].frame) || '') }
+function setPlayerFrame(id, f) { const p = (state.players || []).find(x => x.id === id); if (p) p.cameraFrame = f }
+
+function setCam(id, name, frame) {
+  if (!frame) { if (cams[id]) { dropCam(id); render() } return }
+  const isNew = !cams[id];
+  cams[id] = { name: name || (cams[id] && cams[id].name) || id, frame, t: Date.now() };
+  setPlayerFrame(id, frame);
+  if (isNew) render();
+  else document.querySelectorAll('img[data-cam="' + id + '"]').forEach(img => img.src = frame); // nur das Bild tauschen, kein Neuzeichnen
+}
+function dropCam(id) { delete cams[id]; setPlayerFrame(id, '') }
+
+// Kameras ohne neues Bild (Tab geschlossen, Netz weg) nach FRAME_TIMEOUT entfernen
+setInterval(() => {
+  const now = Date.now(); let changed = false;
+  for (const id in cams) if (now - cams[id].t > FRAME_TIMEOUT) { dropCam(id); changed = true }
+  if (changed) render();
+}, 1000);
+
+/* ===== Kamera: eigene ===== */
+let stream = null, camTimer = null, camErr = '';
+const vid = document.createElement('video');
+vid.muted = true; vid.autoplay = true; vid.playsInline = true; vid.setAttribute('playsinline', '');
+const cvs = document.createElement('canvas');
+
+async function startCam() {
+  if (stream) return;
+  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+    camErr = 'Kein Kamerazugriff möglich. Die Seite muss über https:// laufen (z. B. Netlify), nicht über einen normalen http-Link.';
+    render(); return;
+  }
+  try {
+    // Aufnahme-Auflösung – kleiner reicht, gesendet wird ohnehin nur FRAME_W breit
+    stream = await navigator.mediaDevices.getUserMedia({ video: { width: { ideal: 640 }, height: { ideal: 480 }, facingMode: 'user' }, audio: false });
+  } catch (e) {
+    camErr = e && e.name === 'NotAllowedError' ? 'Kamera wurde nicht erlaubt. Klick links in der Adressleiste auf das Schloss und erlaube die Kamera.'
+      : e && e.name === 'NotFoundError' ? 'Keine Kamera gefunden.'
+      : 'Kamera konnte nicht gestartet werden (' + (e && e.message || e) + '). Läuft sie schon in einem anderen Programm?';
+    stream = null; render(); return;
+  }
+  camErr = '';
+  vid.srcObject = stream; vid.play && vid.play().catch(() => {});
+  stream.getVideoTracks().forEach(t => t.onended = stopCam);   // Kamera abgezogen o. Ä.
+  camTimer = setInterval(sendFrame, FRAME_MS);
+  render();
+}
+
+function sendFrame() {
+  if (!stream || !vid.videoWidth || !ch || status !== 'SUBSCRIBED') return;
+  const w = FRAME_W, h = Math.round(w * vid.videoHeight / vid.videoWidth);
+  cvs.width = w; cvs.height = h;
+  const g = cvs.getContext('2d');
+  g.translate(w, 0); g.scale(-1, 1);          // spiegeln wie im Selfie – entfernen, wenn Schrift lesbar sein soll
+  g.drawImage(vid, 0, 0, w, h);
+  const f = cvs.toDataURL('image/jpeg', FRAME_Q);
+  if (f.length > 200000) return;              // Sicherheitsgrenze, falls FRAME_W/FRAME_Q zu hoch gesetzt sind
+  setPlayerFrame(myId(), f);
+  ch.send({ type: 'broadcast', event: 'frame', payload: { id: myId(), name: myName(), frame: f } });
+}
+
+function sendEmptyFrame() {
+  if (ch && status === 'SUBSCRIBED') ch.send({ type: 'broadcast', event: 'frame', payload: { id: myId(), name: myName(), frame: '' } });
+}
+
+function stopCam() {
+  const was = !!stream;
+  if (stream) stream.getTracks().forEach(t => t.stop());
+  stream = null; clearInterval(camTimer); camTimer = null; vid.srcObject = null;
+  setPlayerFrame(myId(), '');
+  if (was) { sendEmptyFrame(); render() }
+}
+
+// Seite verlassen: allen sagen, dass die Kamera aus ist (FRAME_TIMEOUT fängt den Rest ab)
+addEventListener('pagehide', () => {
+  if (stream) sendEmptyFrame();
+  if (ROLE === 'host' && hostCam && hostCam.vdoId) { const v = hostCam.vdoId; hostCam.vdoId = ''; try { push() } catch (e) {} hostCam.vdoId = v }
+  if (me && ch) { try { ch.untrack() } catch (e) {} }   // Spieler verlässt die Seite → raus aus dem players-Array
+});
+
+/* ===== Imposter =====
+   Der Host verteilt die Rollen. Jede Rolle wird mit dem Schlüssel des jeweiligen Spielers
+   verschlüsselt (AES-GCM). Im State steht nur Verschlüsseltes – Overlay und andere Spieler
+   können fremde Rollen nicht lesen. Nur der Host kennt die Lösung. */
+const te = new TextEncoder(), td = new TextDecoder();
+const b64 = buf => btoa(String.fromCharCode(...new Uint8Array(buf)));
+const unb64 = s => Uint8Array.from(atob(s), c => c.charCodeAt(0));
+const rint = n => crypto.getRandomValues(new Uint32Array(1))[0] % n;
+async function keyFor(secret, round) {
+  const raw = await crypto.subtle.digest('SHA-256', te.encode('streamer-games:' + round + ':' + secret));
+  return crypto.subtle.importKey('raw', raw, 'AES-GCM', false, ['encrypt', 'decrypt']);
+}
+async function seal(secret, obj) {
+  const iv = crypto.getRandomValues(new Uint8Array(12));
+  const ct = await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, await keyFor(secret, ROUND), te.encode(JSON.stringify(obj)));
+  return { iv: b64(iv), ct: b64(ct) };
+}
+async function unseal(secret, box) {
+  const pt = await crypto.subtle.decrypt({ name: 'AES-GCM', iv: unb64(box.iv) }, await keyFor(secret, ROUND), unb64(box.ct));
+  return JSON.parse(td.decode(pt));
+}
+
+let impSolution = null, impShow = false, impMsg = '', impBusy = false;   // nur Host
+try { impSolution = JSON.parse(ls.get('qs-imp') || 'null') } catch (e) {}
+let myRole = null, myDeal = 0, roleHidden = false;                       // nur Spieler
+
+async function deal() {
+  if (ROLE !== 'host' || impBusy) return;
+  if (!crypto.subtle) { impMsg = 'Verschlüsselung nicht verfügbar – die Seite muss über https:// laufen.'; render(); return }
+  const pl = connectedPlayers().filter(p => /^p[1-9]\d*$/.test(p.id) && +p.id.slice(1) <= MAX_SLOTS);
+  if (pl.length < IMPOSTER_MIN_PLAYERS) {
+    impMsg = `Mindestens ${IMPOSTER_MIN_PLAYERS} Spieler nötig – gerade ${pl.length} verbunden.`;
+    render(); return;
+  }
+  impBusy = true; impMsg = '';
+  const ids = pl.map(p => p.id);
+  for (let i = ids.length - 1; i > 0; i--) { const j = rint(i + 1); [ids[i], ids[j]] = [ids[j], ids[i]] }
+  const imps = ids.slice(0, Math.min(IMPOSTER_COUNT, ids.length - 1));
+  const pool = IMPOSTER_WORDS.filter(w => !impSolution || w !== impSolution.word);
+  const word = pool[rint(pool.length)];
+  const cat = IMPOSTER_CATEGORY;
+  const roles = {};
+  for (const p of pl) {
+    const sec = secrets[+p.id.slice(1) - 1];
+    roles[p.id] = await seal(sec, imps.includes(p.id)
+      ? { role: 'imposter', category: IMPOSTER_SEES_CATEGORY ? cat : '' }
+      : { role: 'crew', word, category: cat });
+  }
+  const n = (state.imposter && state.imposter.deal || 0) + 1;
+  const order = [...pl].sort((a, b) => (a.slot || 99) - (b.slot || 99)).map(p => p.id);   // Reihenfolge nach Platz
+  const names = Object.fromEntries(pl.map(p => [p.id, p.name]));
+  state.imposter = { deal: n, category: cat, count: pl.length, roles, order, names, phase: 'dealt', turn: -1, vote: 0, reveal: null };
+  impSolution = { deal: n, word, impIds: imps, imposters: pl.filter(p => imps.includes(p.id)).map(p => p.name), players: pl.map(p => p.name) };
+  ls.set('qs-imp', JSON.stringify(impSolution));
+  if (impPendingRound && state.impGame) { state.impGame.round = impPendingRound; impPendingRound = 0 }
+  state.timer = null;          // Timer startet erst, wenn der Host „Start“ drückt
+  impAnswers = {}; saveAns();
+  impShow = false; impBusy = false;
+  push(); render();
+}
+
+async function unsealMyRole() {
+  if (!me) return;
+  const im = state.activeGame === 'imposter' ? state.imposter : null;
+  if (!im) { myRole = null; myDeal = 0; return }
+  if (im.deal === myDeal) return;
+  myDeal = im.deal; roleHidden = false;
+  const box = im.roles && im.roles[me.id];
+  if (!box) { myRole = { role: 'out' }; return }
+  if (!me.secret || !crypto.subtle) { myRole = { role: 'error' }; return }
+  myRole = { role: 'pending' };
+  try { myRole = await unseal(me.secret, box) } catch (e) { myRole = { role: 'error' } }
+  render();
+}
+
+/* ===== Imposter-Ablauf =====
+   Phasen in state.imposter.phase:
+   'dealt'  → Rollen verteilt, wartet auf „Start“ vom Host
+   'turns'  → jeder Spieler ist IMPOSTER_TURN_ROUNDS-mal dran, je IMPOSTER_TURN_SEC Sekunden; Host tippt „Weiter“
+   'vote'   → IMPOSTER_VOTE_SEC Sekunden: Imposter tippt das Wort, alle anderen wählen den Imposter
+   'reveal' → Host hat die Antworten freigegeben, sie stehen über den Kameras */
+const impOrder = () => (state.imposter && state.imposter.order) || [];
+const impTurns = () => (state.impCfg && +state.impCfg.turns) || IMPOSTER_TURN_ROUNDS;
+const impTotal = () => impOrder().length * impTurns();
+const impName = id => (state.imposter && state.imposter.names && state.imposter.names[id]) || (state.names || {})[id]
+  || ((state.players || []).find(p => p.id === id) || {}).name || id;
+
+/* Einstellungen (nur Host, vor dem Spiel) */
+let impCfg = { rounds: IMPOSTER_ROUNDS, turns: IMPOSTER_TURN_ROUNDS }, impPendingRound = 0;
+try { Object.assign(impCfg, JSON.parse(ls.get('qs-impcfg') || '{}')) } catch (e) {}
+
+/* Punkte: state.scores = { p1: 4, p2: -1, … } – bleiben über alle Runden eines Spiels */
+const ptsOf = id => (state.scores || {})[id] || 0;
+const fmtPts = n => n > 0 ? '+' + n : n < 0 ? '−' + Math.abs(n) : '±0';
+const scoreOn = () => state.activeGame === 'imposter' && !!state.impGame;
+const inGame = id => !!id && id !== 'host' && (id in (state.scores || {}) || impOrder().includes(id));
+function scoreList() {
+  const ids = [...new Set([...Object.keys(state.scores || {}), ...impOrder()])];
+  const l = ids.map(id => ({ id, name: impName(id), pts: ptsOf(id) })).sort((a, b) => b.pts - a.pts || a.name.localeCompare(b.name));
+  l.forEach((s, i) => s.place = i && s.pts === l[i - 1].pts ? l[i - 1].place : i + 1);
+  return l;
+}
+/* Punkte einer Runde berechnen (Host, beim Freigeben) */
+function impScore() {
+  const im = state.imposter, sol = impSolution || {}, imps = sol.impIds || [], d = {};
+  im.order.forEach(id => d[id] = 0);
+  const byName = Object.fromEntries(Object.entries(im.names || {}).map(([id, n]) => [n, id]));
+  im.order.forEach(id => {
+    const a = impAnswers[id]; if (!a) return;
+    if (imps.includes(id)) { if (norm(a) === norm(sol.word)) d[id] += IMPOSTER_PTS_WORD }     // Imposter errät das Wort
+    else {
+      const t = byName[a];
+      if (imps.includes(t)) { d[id] += IMPOSTER_PTS_CATCH; d[t] += IMPOSTER_PTS_PER_VOTE }       // richtig getippt / Stimme gegen den Imposter
+    }
+  });
+  return d;
+}
+function impTurnPid() {
+  const im = state.imposter, o = impOrder();
+  if (!im || im.phase !== 'turns' || !o.length) return '';
+  return o[im.turn % o.length] || '';
+}
+const timerRunning = () => !!timerEnd && Date.now() < timerEnd;
+
+/* Antworten: Spieler verschlüsseln mit ihrem eigenen Schlüssel → nur der Host kann sie lesen */
+let myAnswer = '', myVote = 0, draft = '';                 // Spieler
+let impAnswers = {};                                        // Host: id → Antwort
+try { const a = JSON.parse(ls.get('qs-imp-ans') || 'null'); if (a && state.imposter && a.deal === state.imposter.deal && a.vote === state.imposter.vote) impAnswers = a.answers || {} } catch (e) {}
+function saveAns() { if (ROLE === 'host' && state.imposter) ls.set('qs-imp-ans', JSON.stringify({ deal: state.imposter.deal, vote: state.imposter.vote, answers: impAnswers })) }
+
+async function sendAnswer(text) {
+  const im = state.imposter;
+  text = String(text || '').trim().slice(0, 40);
+  if (!me || !im || im.phase !== 'vote' || !timerRunning() || !text) return;
+  myAnswer = text; draft = ROLE === 'player' && myRole && myRole.role === 'imposter' ? text : draft;
+  render();
+  try {
+    const box = await seal(me.secret, { text, vote: im.vote });
+    if (ch && status === 'SUBSCRIBED') ch.send({ type: 'broadcast', event: 'answer', payload: { id: me.id, vote: im.vote, box } });
+  } catch (e) {}
+}
+
+async function receiveAnswer(pl) {
+  const im = state.imposter;
+  if (ROLE !== 'host' || !pl || !im || im.phase !== 'vote' || pl.vote !== im.vote) return;
+  const id = cleanId(pl.id);
+  if (!im.roles || !im.roles[id]) return;
+  if (timerEnd && Date.now() > timerEnd + 2000) return;        // zu spät (2 s Kulanz fürs Netz)
+  try {
+    const o = await unseal(secrets[+id.slice(1) - 1], pl.box);
+    if (o.vote !== im.vote) return;
+    impAnswers[id] = String(o.text || '').slice(0, 40);
+    saveAns(); render();
+  } catch (e) {}
+}
+
+/* Prüft für den Host, ob eine Antwort richtig ist */
+const norm = s => String(s || '').toLowerCase().replace(/[^a-z0-9äöüß]/g, '');
+function answerOk(id, text) {
+  const sol = impSolution; if (!sol || !text) return false;
+  const imps = sol.impIds || [];
+  return imps.includes(id) ? norm(text) === norm(sol.word) : imps.some(x => impName(x) === text);
+}
+
+/* ===== VDO.Ninja-Kameras (nur Spieler-Seite) =====
+   Die Kacheln liegen in einem eigenen Bereich #vdo außerhalb von #app. Sie werden nur ergänzt
+   oder entfernt, nie neu gezeichnet – sonst würden die iframes bei jedem Update neu laden. */
+const cleanVdo = s => /^(spieler|host)_[a-z0-9]{4}$/.test(s || '') ? s : '';
+let vdoWin = null, vdoBlocked = false;
+
+/* Der Host hat eine eigene Kamera-ID (host_xxxx). Sie bleibt über Runden hinweg gleich
+   und wird im State als hostVdo an alle verteilt. */
+const hostCam = ROLE === 'host' ? { id: 'host', name: HOST_NAME, slot: 0, vdoId: cleanVdo(ls.get('qs-vdo-host')) } : null;
+const camSelf = () => ROLE === 'host' ? hostCam : me;
+const vdoKey = () => ROLE === 'host' ? 'qs-vdo-host' : 'qs-vdo-' + ROUND + '-' + me.id;
+function announceCam() { ROLE === 'host' ? push() : trackMe() }   // Host → State, Spieler → Presence
+
+function vdoConnect() {
+  const M = camSelf(); if (!M) return;
+  if (!M.vdoId) {
+    M.vdoId = (ROLE === 'host' ? 'host_' : 'spieler_') + Array.from(crypto.getRandomValues(new Uint8Array(4)), b => 'abcdefghjkmnpqrstuvwxyz23456789'[b % 31]).join('');
+    ls.set(vdoKey(), M.vdoId);
+  }
+  // Muss direkt im Klick passieren, sonst blockt der Browser das Fenster
+  vdoWin = window.open(vdoPushUrl(M.vdoId, M.name), 'vdo-push-' + M.vdoId);
+  vdoBlocked = !vdoWin;
+  announceCam(); updateVdo(true);
+}
+
+function vdoDisconnect() {
+  const M = camSelf(); if (!M || !M.vdoId) return;
+  try { vdoWin && vdoWin.close() } catch (e) {}
+  vdoWin = null; vdoBlocked = false;
+  ls.set(vdoKey(), '');
+  M.vdoId = '';
+  announceCam(); updateVdo(true);
+}
+
+/* Alle bekannten Spieler: players-Array im State (vom Host) + Presence der verbundenen Spieler –
+   damit funktionieren die Kameras auch, wenn der Host gerade nicht offen ist. */
+function vdoPeople() {
+  const byId = {};
+  (state.players || []).forEach(p => byId[p.id] = { ...p });
+  online.forEach(p => byId[p.id] = { ...(byId[p.id] || {}), ...p, slot: (byId[p.id] && byId[p.id].slot) || p.slot });
+  return Object.values(byId);
+}
+
+/* Kamera-Liste. withPlaceholders = auch Spieler ohne Kamera als Platzhalter-Kachel (Imposter-Ansicht). */
+function vdoList(withPlaceholders) {
+  const M = camSelf();
+  const l = [];
+  vdoPeople().forEach(p => {
+    const own = !!(me && p.id === me.id);
+    const v = own ? cleanVdo(me.vdoId) : cleanVdo(p.vdoId);
+    if (v) l.push({ key: v, vdoId: v, pid: p.id, name: own ? me.name : p.name, slot: p.slot || 9, own });
+    else if (withPlaceholders) l.push({ key: 'ph-' + p.id, pid: p.id, name: own ? me.name : p.name, slot: p.slot || 9, own, ph: true });
+  });
+  // Host-Kamera (kommt beim Spieler über den State)
+  if (ROLE !== 'host') {
+    const hv = cleanVdo(state.hostVdo);
+    if (hv) l.push({ key: hv, vdoId: hv, pid: 'host', name: HOST_NAME, slot: 0, host: true });
+    else if (withPlaceholders) l.push({ key: 'ph-host', pid: 'host', name: HOST_NAME, slot: 0, host: true, ph: true });
+  }
+  // Eigene Kachel, falls man selbst noch nicht in der Liste ist (z. B. Presence noch unterwegs)
+  if (M && !l.some(p => p.own) && (M.vdoId || withPlaceholders && ROLE === 'player'))
+    l.push(M.vdoId ? { key: M.vdoId, vdoId: M.vdoId, pid: M.id, name: M.name, slot: M.slot || 9, own: true, host: ROLE === 'host' }
+                   : { key: 'ph-' + M.id, pid: M.id, name: M.name, slot: M.slot || 9, own: true, ph: true });
+  return l;
+}
+
+/* Infokasten in der Imposter-Ansicht: Imposter sieht nur die Kategorie, alle anderen auch das Wort */
+function impInfo() {
+  const r = myRole, im = state.imposter;
+  const toggle = `<button class="btn" onclick="A.hideRole()">${roleHidden ? 'Rolle zeigen' : 'Rolle verbergen'}</button>`;
+  if (state.impGame && state.impGame.over) return { cls: 'good', html: `<div class="ik fin"><small>SPIEL BEENDET · ENDSTAND</small>${scoreTable(true)}</div>` };
+  if (!im) return { cls: '', html: `<div class="ik"><small>IMPOSTER</small><b class="wait">Warte, bis der Quizmaster das Spiel startet …</b></div>` };
+  if (!r || r.role === 'pending') return { cls: '', html: `<div class="ik"><b class="wait">Rolle wird entschlüsselt …</b></div>` };
+  if (r.role === 'out') return { cls: '', html: `<div class="ik"><small>ZUSCHAUEN</small><b class="wait">Du warst beim Verteilen noch nicht da. In der nächsten Runde bist du dabei.</b></div>${impPhaseLine()}` };
+  if (r.role === 'error') return { cls: 'bad', html: `<div class="ik"><small>HOPPLA</small><b class="wait">Deine Rolle konnte nicht gelesen werden. Öffne deinen Link vom Host noch einmal.</b></div>` };
+  const extra = im.phase === 'vote' ? (roleHidden ? `<div class="ik ph"><small>ABSTIMMUNG</small><b class="wait">Rolle zeigen, um abzustimmen.</b></div>` : impVoteBox(r)) : impPhaseLine();
+  if (roleHidden) return { cls: '', html: `<div class="ik"><small>RUNDE ${im.deal}</small><b>VERDECKT</b></div>${extra}${toggle}` };
+  if (r.role === 'imposter') return { cls: 'bad', html:
+    `<div class="ik"><small>KATEGORIE</small><b>${esc(r.category || '???')}</b></div>
+     <div class="ik"><small>DEINE ROLLE</small><b class="red">IMPOSTER</b><span>Du kennst das Wort nicht – tu so, als ob!</span></div>${extra}${toggle}` };
+  return { cls: 'good', html:
+    `<div class="ik"><small>KATEGORIE</small><b>${esc(r.category)}</b></div>
+     <div class="ik"><small>DEIN WORT</small><b class="word">${esc(r.word)}</b></div>${extra}${toggle}` };
+}
+
+/* Zeile im Infokasten: wer ist dran / worauf wird gewartet */
+function impPhaseLine() {
+  const im = state.imposter;
+  if (!im || im.phase === 'dealt') return `<div class="ik ph"><small>GLEICH GEHT'S LOS</small><b class="wait">Warte auf den Start durch den Quizmaster …</b></div>`;
+  if (im.phase === 'turns') {
+    const pid = impTurnPid(), r = Math.floor(im.turn / impOrder().length) + 1, mine = me && pid === me.id;
+    return `<div class="ik ph"><small>DURCHGANG ${r}/${impTurns()} · ZUG ${im.turn + 1}/${impTotal()}</small><b class="${mine ? 'me' : ''}">${mine ? 'DU BIST DRAN!' : 'DRAN: ' + esc(impName(pid))}</b></div>`;
+  }
+  if (im.phase === 'reveal') { const d = me && im.result ? im.result[me.id] : undefined;
+    return `<div class="ik ph"><small>AUFLÖSUNG</small><b class="wait">Die Antworten stehen über den Kameras.${d !== undefined ? ' Deine Punkte: ' + fmtPts(d) + ' (gesamt ' + ptsOf(me.id) + ')' : ''}</b></div>` }
+  return '';
+}
+
+/* Abstimmung: Imposter tippt das Wort, alle anderen wählen einen Namen */
+function impVoteBox(r) {
+  const open = timerRunning();
+  if (!open) return `<div class="ik vote"><small>ABSTIMMUNG</small><b class="wait">${myAnswer ? 'Deine Antwort: „' + esc(myAnswer) + '“. ' : 'Keine Antwort abgegeben. '}Zeit um – der Quizmaster wertet aus …</b></div>`;
+  const done = myAnswer ? `<span>Abgegeben: „${esc(myAnswer)}“ – du kannst bis Zeitende ändern.</span>` : '';
+  if (r.role === 'imposter') return `<div class="ik vote"><small>WELCHES WORT SUCHEN DIE ANDEREN?</small>
+      <div class="row"><input class="input vin" maxlength="40" placeholder="Dein Tipp" oninput="A.draft(this.value)" onkeydown="if(event.key==='Enter')A.sendWord()"><button class="btn y" onclick="A.sendWord()">Absenden</button></div>${done}</div>`;
+  const others = impOrder().filter(id => !me || id !== me.id);
+  return `<div class="ik vote"><small>WER IST DER IMPOSTER?</small>
+      <div class="vbtns">${others.map(id => `<button class="btn ${myAnswer === impName(id) ? 'ok' : ''}" onclick="A.vote('${esc(id)}')">${esc(impName(id))}</button>`).join('')}</div>${done}</div>`;
+}
+
+let vdoHead = '', vdoInfoHtml = '';
+
+/* Punktestand unter der Quizmaster-Kamera (Spieler-Ansicht) */
+function scoreBoard() {
+  const G = state.impGame, l = scoreList();
+  return `<div class="vsh"><small>PUNKTE</small>${G ? `<small>RUNDE ${G.round}/${G.rounds}</small>` : ''}</div>` +
+    (l.length ? l.map(s => `<div class="vsr ${me && s.id === me.id ? 'me' : ''}"><b>${esc(s.name)}</b><span>${s.pts}</span></div>`).join('')
+              : '<div class="vsr"><b>Noch keine Punkte</b></div>');
+}
+function updateVdo(force) {
+  const box = document.getElementById('vdo');
+  if (!box) return;
+  const show = authed && (ROLE === 'host' || (ROLE === 'player' && !linkProblem() && !roundClosed));
+  // Imposter-Ansicht nur für Spieler: Host + Infokasten oben, Spieler-Kameras darunter, Timer unten
+  const imp = show && ROLE === 'player' && state.activeGame === 'imposter';
+  document.body.classList.toggle('imp-mode', imp);
+  box.style.display = show ? '' : 'none';
+  if (!show) return;
+  if (!box.querySelector('.vgrid')) box.innerHTML = '<div class="card"><h3 class="vtitle">Kameras</h3><div class="vhead"></div><div class="vgrid"></div></div>';
+
+  const G = state.impGame;
+  const title = imp ? 'IMPOSTER' + (G ? ' · RUNDE ' + G.round + '/' + G.rounds : '') : 'Kameras';
+  const h3 = box.querySelector('.vtitle'); if (h3.textContent !== title) h3.textContent = title;
+  h3.style.display = imp ? 'none' : '';   // im Spiel keine Überschrift → Kameras rücken nach oben
+
+  // Kopfbereich (Buttons) – nur neu schreiben, wenn sich etwas geändert hat
+  const M = camSelf();
+  const head = M.vdoId
+    ? `<div class="row"><button class="btn y" onclick="A.vdoConnect()">Kamera-Fenster öffnen</button><button class="btn" onclick="A.vdoDisconnect()">Kamera trennen</button></div>
+       ${imp ? '' : '<p class="mu">Deine Kamera läuft im VDO.Ninja-Fenster – lass es offen. Dort einmal die Kamera erlauben und starten.</p>'}
+       ${vdoBlocked ? `<div class="warn">Das Fenster wurde blockiert. <a href="${esc(vdoPushUrl(M.vdoId, M.name))}" target="_blank" rel="noopener">Hier klicken, um es zu öffnen</a> – oder Pop-ups für diese Seite erlauben.</div>` : ''}`
+    : `<div class="row"><button class="btn y" onclick="A.vdoConnect()">● Kamera verbinden</button></div>
+       ${imp ? '' : '<p class="mu">Öffnet ein VDO.Ninja-Fenster, in dem du deine Kamera freigibst.</p>'}`;
+  if (force || head !== vdoHead) { box.querySelector('.vhead').innerHTML = head; vdoHead = head }
+  // Im Spiel kein „Kamera verbinden“-Bereich (nur der Hinweis, falls das Fenster blockiert wurde)
+  box.querySelector('.vhead').style.display = imp && !vdoBlocked ? 'none' : '';
+
+  const grid = box.querySelector('.vgrid');
+  grid.classList.toggle('imp', imp);
+
+  // Kacheln abgleichen: neue anlegen, alte entfernen, Namen aktualisieren – iframes nie neu laden
+  const list = vdoList(imp), want = new Set(list.map(p => p.key));
+  grid.querySelectorAll('.vtile').forEach(t => { if (!want.has(t.dataset.vdo)) t.remove() });
+  const players = list.filter(p => !p.host).length;
+  grid.style.setProperty('--cols', Math.max(5, players));   // Imposter: so viele Spalten wie Spieler (mind. 5)
+  const im = state.imposter, turnPid = imp ? impTurnPid() : '', rev = imp && im && im.phase === 'reveal' ? (im.reveal || {}) : null, order = impOrder();
+  const showPts = scoreOn();
+  list.forEach(p => {
+    let t = grid.querySelector('.vtile[data-vdo="' + p.key + '"]');
+    if (!t) {
+      t = document.createElement('div'); t.className = 'vtile'; t.dataset.vdo = p.key;
+      t.innerHTML = p.ph
+        ? `<div class="vans"></div><div class="vframe ph"><span>KEINE KAMERA${p.own && ROLE === 'player' ? '<button class="btn y sm" onclick="A.vdoConnect()">Kamera verbinden</button>' : ''}</span></div><div class="vname"></div>`
+        : `<div class="vans"></div><div class="vframe"><iframe src="${esc(vdoViewUrl(p.vdoId, p.own))}" allow="autoplay; fullscreen; picture-in-picture" title="Kamera"></iframe></div><div class="vname"></div>`;
+      grid.appendChild(t);
+    }
+    t.classList.toggle('own', !!p.own);
+    t.classList.toggle('host', !!p.host);
+    // Reihenfolge nur per CSS-order, damit die iframes nicht umgehängt werden (sonst laden sie neu)
+    t.style.order = imp ? (p.host ? 0 : 10 + p.slot) : (p.own ? 0 : p.host ? 1 : p.slot + 1);
+    const label = (p.own ? 'DU · ' : '') + p.name;
+    const nm = t.querySelector('.vname'); if (nm.textContent !== label) nm.textContent = label;
+    t.classList.toggle('turn', !!turnPid && p.pid === turnPid);                 // wer gerade dran ist
+    const an = t.querySelector('.vans');                                         // freigegebene Antwort über der Kamera
+    const dl = rev && im.result && p.pid in im.result ? ' · ' + fmtPts(im.result[p.pid]) : '';
+    const at = rev && rev[p.pid] ? '„' + rev[p.pid] + '“' + dl : rev && order.includes(p.pid) ? '— keine Antwort —' + dl : '';
+    if (an && an.textContent !== at) an.textContent = at;
+  });
+
+  // Infokasten + Timer (nur Imposter-Ansicht)
+  let info = grid.querySelector('.vinfo'), tim = grid.querySelector('.vtimer'), sc = grid.querySelector('.vscore');
+  if (!sc) { sc = document.createElement('div'); sc.className = 'vscore'; grid.appendChild(sc) }
+  sc.style.display = imp && showPts ? '' : 'none';
+  if (imp && showPts) { const sh = scoreBoard(); if (sc.innerHTML !== sh) sc.innerHTML = sh }
+  if (!info) { info = document.createElement('div'); info.className = 'vinfo'; grid.appendChild(info) }
+  if (!tim) { tim = document.createElement('div'); tim.className = 'vtimer'; tim.innerHTML = '<div class="vtbar"><i></i></div><span class="vtt"></span>'; grid.appendChild(tim) }
+  info.style.display = tim.style.display = imp ? '' : 'none';
+  if (imp) {
+    const ii = impInfo();
+    info.className = 'vinfo ' + ii.cls;
+    if (ii.html !== vdoInfoHtml) {
+      const focused = document.activeElement && document.activeElement.classList && document.activeElement.classList.contains('vin');
+      info.innerHTML = ii.html; vdoInfoHtml = ii.html;
+      const inp = info.querySelector && info.querySelector('.vin');
+      if (inp) { inp.value = draft; if (focused) inp.focus() }
+    }
+    tickTimer();
+  }
+
+  let empty = grid.querySelector('.empty');
+  const noCams = !imp && !list.length;
+  if (noCams && !empty) { empty = document.createElement('div'); empty.className = 'empty'; empty.textContent = 'Noch keine Kamera verbunden.'; grid.appendChild(empty) }
+  if (!noCams && empty) empty.remove();
+}
+
+/* ===== Timer (Imposter) =====
+   Der Host startet ihn beim Verteilen. Jeder Client rechnet die Restzeit selbst aus,
+   dabei wird der Uhrzeit-Unterschied zwischen den Geräten ausgeglichen. */
+
+let timerId = 0, timerEnd = 0, timerDur = IMPOSTER_TURN_SEC, timerWasRunning = false;
+function syncTimer() {
+  const t = state.timer;
+  if (!t) { timerId = 0; timerEnd = 0; return }
+  if (t.id === timerId) return;
+  timerId = t.id; timerDur = t.dur || IMPOSTER_TURN_SEC;
+  timerEnd = ROLE === 'host' ? t.end : t.end - ((state.sentAt || Date.now()) - Date.now());
+}
+function tickTimer() {
+  const rem = timerEnd ? Math.max(0, timerEnd - Date.now()) : 0, running = rem > 0;
+  // Timer gerade abgelaufen → einmal neu zeichnen (Eingabe sperren, Antworten beim Host zeigen)
+  if (timerWasRunning && !running) { timerWasRunning = false; render(); return }
+  timerWasRunning = running;
+  const els = document.querySelectorAll('.vtimer, #htimer');
+  if (!els.length) return;
+  const im = state.imposter;
+  const label = im && im.phase === 'turns' ? impName(impTurnPid()).toUpperCase() + ' · ' : im && im.phase === 'vote' ? 'ABSTIMMUNG · ' : '';
+  const idle = !im ? 'TIMER' : im.phase === 'dealt' ? 'WARTE AUF START' : im.phase === 'reveal' ? 'AUFLÖSUNG' : 'TIMER';
+  const s = Math.ceil(rem / 1000), clock = Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0');
+  const txt = !timerEnd ? idle : running ? label + clock : label + 'ZEIT UM!';
+  const pct = !timerEnd ? 100 : rem / (timerDur * 1000) * 100;
+  els.forEach(el => {
+    if (el.id === 'htimer') { const t2 = timerEnd ? (running ? 'Restzeit ' + clock : 'Zeit um!') : ''; if (el.textContent !== t2) el.textContent = t2; return }
+    el.classList.toggle('done', !!timerEnd && !running);
+    el.classList.toggle('idle', !timerEnd);
+    el.classList.toggle('low', running && rem < 10000);
+    const bar = el.querySelector('.vtbar i'), tt = el.querySelector('.vtt');
+    if (bar) bar.style.width = pct + '%';
+    if (tt && tt.textContent !== txt) tt.textContent = txt;
+  });
+}
+setInterval(tickTimer, 200);
+function newTimer(sec) { return { id: (state.timer && state.timer.id || 0) + 1, end: Date.now() + sec * 1000, dur: sec } }
+
+/* ===== Aktionen ===== */
+const A = {
+  game(k) {
+    state = { ...state, activeGame: k, questionIndex: 0, buzzerWinner: null, imposter: null, timer: null, impGame: null, scores: {} };
+    impMsg = ''; impAnswers = {}; push(); render();   // Imposter: erst Einstellungen, dann „Spiel starten“
+  },
+  menu() { state = { ...state, activeGame: null, questionIndex: 0, buzzerWinner: null, imposter: null, timer: null, impGame: null, scores: {} }; impMsg = ''; push(); render() },
+  cfg(k, v) {
+    const max = k === 'rounds' ? 20 : 10;
+    impCfg[k] = Math.max(1, Math.min(max, Math.round(+v) || 1));
+    ls.set('qs-impcfg', JSON.stringify(impCfg)); render();
+  },
+  startGame() {
+    state.impCfg = { ...impCfg }; state.scores = {}; state.imposter = null; state.timer = null;
+    state.impGame = { round: 1, rounds: impCfg.rounds, over: false };
+    impAnswers = {}; impMsg = ''; push(); render(); deal();
+  },
+  nextRound() { const G = state.impGame; if (!G || G.round >= G.rounds) return; impPendingRound = G.round + 1; deal() },
+  finish() { if (!state.impGame) return; state.impGame.over = true; state.timer = null; push(); render() },
+  newGame() {
+    if (state.impGame && !state.impGame.over && !confirm('Spiel abbrechen? Die Punkte gehen verloren.')) return;
+    state.impGame = null; state.imposter = null; state.scores = {}; state.timer = null; impAnswers = {}; impMsg = ''; push(); render();
+  },
+  timer() { const ph = state.imposter && state.imposter.phase; state.timer = newTimer(ph === 'vote' ? IMPOSTER_VOTE_SEC : IMPOSTER_TURN_SEC); push(); render() },
+  impStart() { const im = state.imposter; if (!im) return; im.phase = 'turns'; im.turn = 0; state.timer = newTimer(IMPOSTER_TURN_SEC); push(); render() },
+  impNext() { const im = state.imposter; if (!im || im.phase !== 'turns' || im.turn + 1 >= impTotal()) return; im.turn++; state.timer = newTimer(IMPOSTER_TURN_SEC); push(); render() },
+  impVote() { const im = state.imposter; if (!im) return; im.phase = 'vote'; im.vote = (im.vote || 0) + 1; im.reveal = null; impAnswers = {}; saveAns(); state.timer = newTimer(IMPOSTER_VOTE_SEC); push(); render() },
+  impReveal() {
+    const im = state.imposter; if (!im || im.phase === 'reveal') return;
+    const d = impScore(); im.result = d;                         // Punkte dieser Runde
+    state.scores = { ...(state.scores || {}) };
+    for (const id in d) state.scores[id] = (state.scores[id] || 0) + d[id];
+    im.phase = 'reveal'; im.reveal = { ...impAnswers }; state.timer = null; push(); render();
+  },
+  draft(v) { draft = v },
+  sendWord() { sendAnswer(draft) },
+  vote(id) { sendAnswer(impName(id)) },
+  deal() { deal() },
+  impShow() { impShow = !impShow; render() },
+  hideRole() { roleHidden = !roleHidden; render() },
+  vdoConnect() { vdoConnect() },
+  vdoDisconnect() { vdoDisconnect() },
+  cam() { stream ? stopCam() : startCam() },
+  slotName(i, v) { slots[i] = v.trim().slice(0, 24) || 'Spieler ' + (i + 1); ls.set('qs-slots', JSON.stringify(slots)); push(); render() },
+  resetNames() {
+    if (!confirm('Alle Namen auf "Spieler 1–6" zurücksetzen?')) return;
+    for (let i = 0; i < MAX_SLOTS; i++) slots[i] = 'Spieler ' + (i + 1);
+    ls.set('qs-slots', JSON.stringify(slots)); push(); render();
+  },
+  async newRound() {
+    if (!confirm('Neue Runde starten?\n\nAlle Spieler-Links und das Spieler-Passwort werden neu erzeugt. Die alten funktionieren danach nicht mehr – auch Spieler, die gerade verbunden sind, fliegen raus.')) return;
+    const old = ch;
+    ROUND = code(); ls.set('qs-round', ROUND); loadSecrets(true); loadRoundPw(true);
+    await deriveKeys(ROUND_PW);
+    online = []; state.players = []; state.imposter = null; impSolution = null; status = 'VERBINDE';
+    for (const id in cams) delete cams[id];
+    if (sb) {
+      if (old) { old.send({ type: 'broadcast', event: 'closed', payload: {} }); setTimeout(() => sb.removeChannel(old), 500) }
+      joinPlayerChannel();
+    }
+    push(); render();
+  },
+  copy(i, btn) { copyText(typeof i === 'string' ? overlayLink(i) : slotLink(i), btn) },
+  open(i) { window.open(slotLink(i), '_blank') },
+  openAll() { for (let i = 0; i < MAX_SLOTS; i++) window.open(slotLink(i), '_blank') },
+  copyPw(btn) { copyText(ROUND_PW, btn) },
+  copyHash(btn) { copyText(hostHash(), btn) },
+  logout() { ss.set('qs-auth-host', ''); ss.set('qs-auth-' + ROUND, ''); location.reload() },
+  async login() {
+    if (gateBusy) return;
+    const v = ((document.getElementById('pw') || {}).value || '').trim();
+    gateErr = ''; gateBusy = true;
+    try {
+      if (!crypto.subtle) gateErr = 'Die Seite muss über https:// laufen.';
+      else if (ROLE === 'host') {
+        const hh = hostHash(), x = await sha('host:' + v);
+        if (!hh) {                                   // erstes Mal: Passwort festlegen
+          const v2 = ((document.getElementById('pw2') || {}).value || '').trim();
+          if (v.length < 4) gateErr = 'Bitte mindestens 4 Zeichen.';
+          else if (v !== v2) gateErr = 'Die beiden Passwörter stimmen nicht überein.';
+          else { ls.set('qs-hostpw', x); ss.set('qs-auth-host', x); authed = true }
+        } else if (x === hh) { ss.set('qs-auth-host', x); authed = true }
+        else gateErr = 'Falsches Passwort.';
+      } else {
+        const pw = v.toUpperCase();
+        if (await checkPlayerPw(pw)) { ss.set('qs-auth-' + ROUND, pw); authed = true }
+        else gateErr = 'Falsches Passwort.';
+      }
+    } finally { gateBusy = false }
+    if (document.activeElement && document.activeElement.blur) document.activeElement.blur();
+    render();
+    if (authed) connect();
+  },
+  rename(v) {
+    v = v.trim().slice(0, 24); if (!v || !me) return;
+    me.name = v; ls.set('qs-name', v);
+    trackMe();
+    render();
+  }
+};
+
+function copyText(u, btn) {
+  const ok = () => { const t = btn.textContent; btn.textContent = 'Kopiert ✓'; btn.classList.add('ok'); setTimeout(() => { btn.textContent = t; btn.classList.remove('ok') }, 1500) };
+  if (navigator.clipboard) navigator.clipboard.writeText(u).then(ok, () => prompt('Link kopieren:', u));
+  else prompt('Link kopieren:', u);
+}
+
+/* ===== Bausteine ===== */
+const logo = () => `<div class="logo"><b>STREAMER</b><b>GAMES</b></div>`;   // Hauptüberschrift
+const statusChip = () => `<div class="status ${status === 'SUBSCRIBED' ? 'ok' : ''}">● ${status === 'SUBSCRIBED' ? 'LIVE · RUNDE ' + esc(ROUND.toUpperCase()) : esc(status)}</div>`;
+const warn = () => missingKeys() ? `<div class="warn">Trage oben im Skript deine SUPABASE_URL und deinen SUPABASE_ANON_KEY ein, dann verbindet sich die Seite.</div>`
+  : linkProblem() ? `<div class="warn">${esc(linkProblem())}</div>` : '';
+
+function playerList() {
+  const l = connectedPlayers();
+  const rows = l.length ? l.map(p => `
+    <div class="pl ${me && p.id === me.id ? 'me' : ''}">
+      <span class="fr">CAM ${p.slot || '–'}</span>
+      <span class="nm">${esc(p.name)}</span>
+      <span class="id">${p.cameraFrame ? '<em class="on">● CAM</em> ' : ''}${esc(p.id)}</span>
+    </div>`).join('') : `<div class="empty">Noch keine Spieler verbunden.</div>`;
+  return `<div class="card"><h3>Spieler online (${l.length})</h3><div class="plist">${rows}</div></div>`;
+}
+
+/* Alle Kameras (eigene + empfangene), Host zuerst, dann nach Platz */
+function camList() {
+  const slotOf = id => id === 'host' ? 0 : ((state.players || []).find(p => p.id === id) || {}).slot || (me && id === me.id ? me.slot : 0) || 9;
+  const list = Object.entries(cams).filter(([id]) => id !== myId()).map(([id, c]) => ({ id, name: c.name, frame: c.frame }));
+  if (stream && ROLE !== 'overlay') list.push({ id: myId(), name: myName(), own: true });
+  return list.map(c => ({ ...c, slot: slotOf(c.id) })).sort((a, b) => a.slot - b.slot);
+}
+
+function camTile(c) {
+  const color = c.id === 'host' ? HOST_COLOR : SLOT_COLORS[(c.slot || 1) - 1] || '#ffe600';
+  const label = c.id === 'host' ? 'HOST' : c.slot && c.slot < 9 ? 'CAM ' + c.slot : '';
+  return `<div class="ctile" style="--c:${color}">
+    <div class="cbox">${c.own ? '<div id="myvid"></div>' : `<img data-cam="${esc(c.id)}" src="${esc(c.frame)}" alt="">`}</div>
+    ${label ? `<i class="cbadge">${label}</i>` : ''}<b class="cname">${esc(c.name)}${c.own ? ' (du)' : ''}</b>
+  </div>`;
+}
+
+function camCard() {
+  const l = camList();
+  return `<div class="card"><h3>Kameras</h3>
+    <div class="row" style="margin-bottom:14px">
+      <button class="btn ${stream ? 'pk' : 'y'}" onclick="A.cam()">${stream ? '■ Kamera stoppen' : '● Kamera starten'}</button>
+      <span class="mu">${stream ? 'Du sendest live.' : 'Deine Kamera ist aus.'}</span>
+    </div>
+    ${camErr ? `<div class="warn">${esc(camErr)}</div>` : ''}
+    ${l.length ? `<div class="cgrid">${l.map(camTile).join('')}</div>` : `<div class="empty">Noch keine Kamera an.</div>`}
+  </div>`;
+}
+
+function slotCards() {
+  return slots.map((n, i) => {
+    const live = online.some(p => p.id === 'p' + (i + 1));
+    return `<div class="slot ${live ? 'live' : ''}">
+      <div class="top">
+        <span class="no">CAM ${i + 1}</span>
+        <input class="input" value="${esc(n)}" maxlength="24" onchange="A.slotName(${i},this.value)">
+        <span class="dot">${live ? '● ONLINE' : '○ offline'}</span>
+      </div>
+      <code>${esc(slotLink(i))}</code>
+      <div class="row"><button class="btn y" onclick="A.copy(${i},this)">Kopieren</button><button class="btn" onclick="A.open(${i})">Öffnen</button></div>
+    </div>`;
+  }).join('');
+}
+
+function impHostCard() {
+  const im = state.imposter, G = state.impGame, sol = im && impSolution && impSolution.deal === im.deal ? impSolution : null;
+  // Noch kein Spiel: Einstellungen
+  if (!G) return `<div class="card imp-card"><h3>Imposter · Einstellungen</h3>
+    ${impMsg ? `<div class="warn">${esc(impMsg)}</div>` : ''}
+    <div class="setup">
+      <label><span>Spielrunden</span><small>so oft wird neu verteilt</small>
+        <input class="input" type="number" min="1" max="20" value="${impCfg.rounds}" onchange="A.cfg('rounds',this.value)"></label>
+      <label><span>Durchgänge pro Runde</span><small>so oft ist jeder dran (${IMPOSTER_TURN_SEC} s)</small>
+        <input class="input" type="number" min="1" max="10" value="${impCfg.turns}" onchange="A.cfg('turns',this.value)"></label>
+    </div>
+    <p class="mu">Punkte: Imposter errät das Wort ${fmtPts(IMPOSTER_PTS_WORD)} · Imposter ${fmtPts(IMPOSTER_PTS_PER_VOTE)} pro Stimme gegen ihn · Imposter richtig getippt ${fmtPts(IMPOSTER_PTS_CATCH)}</p>
+    <div class="row"><button class="btn pk big" onclick="A.startGame()" ${impBusy ? 'disabled' : ''}>▶ Spiel starten</button></div>
+  </div>`;
+
+  const ph = im ? im.phase || 'dealt' : '';
+  const order = impOrder(), total = impTotal(), turns = impTurns();
+  let flow = '';
+  if (G.over) flow = `<div class="turnbox"><span class="mu">SPIEL BEENDET</span><b>ENDSTAND</b></div>${scoreTable(true)}
+      <div class="row"><button class="btn pk big" onclick="A.newGame()">Neues Spiel</button></div>`;
+  else if (ph === 'dealt') flow = `
+      <p class="mu">Jeder ist ${turns}× dran, je ${IMPOSTER_TURN_SEC} Sekunden. Reihenfolge: ${order.map(id => esc(impName(id))).join(' → ')}</p>
+      <div class="row"><button class="btn pk big" onclick="A.impStart()">▶ Start – ${esc(impName(order[0]))} ist dran</button></div>`;
+  else if (ph === 'turns') {
+    const pid = impTurnPid(), last = im.turn + 1 >= total, next = order[(im.turn + 1) % order.length];
+    flow = `
+      <div class="turnbox"><span class="mu">DURCHGANG ${Math.floor(im.turn / order.length) + 1}/${turns} · ZUG ${im.turn + 1}/${total}</span><b>DRAN: ${esc(impName(pid))}</b><span id="htimer"></span></div>
+      <div class="row">
+        ${last ? `<button class="btn pk big" onclick="A.impVote()">Abstimmung starten (${IMPOSTER_VOTE_SEC} s)</button>`
+               : `<button class="btn pk big" onclick="A.impNext()">Weiter → ${esc(impName(next))}</button>`}
+        <button class="btn" onclick="A.timer()">Timer neu starten</button>
+      </div>`;
+  }
+  else if (ph === 'vote' || ph === 'reveal') {
+    const n = Object.keys(impAnswers).length, show = ph === 'reveal' || !timerRunning(), res = im.result || {};
+    flow = `
+      <div class="turnbox"><span class="mu">ABSTIMMUNG</span><b>${ph === 'reveal' ? 'FREIGEGEBEN' : show ? 'ZEIT UM' : 'LÄUFT …'}</b><span>${n}/${order.length} Antworten</span><span id="htimer"></span></div>
+      ${show ? `<div class="answers">${order.map(id => {
+          const a = (ph === 'reveal' ? im.reveal || {} : impAnswers)[id], isImp = sol && (sol.impIds || []).includes(id);
+          return `<div class="arow ${a ? (answerOk(id, a) ? 'right' : 'wrong') : ''}"><b>${esc(impName(id))}</b><i>${isImp ? 'IMPOSTER · TIPPT WORT' : 'TIPPT IMPOSTER'}</i><span>${a ? esc(a) : '— keine Antwort —'}</span><em>${ph === 'reveal' ? fmtPts(res[id] || 0) : a ? (answerOk(id, a) ? '✓' : '✗') : ''}</em></div>`;
+        }).join('')}</div>` : `<p class="mu">Die Antworten siehst du, sobald die ${IMPOSTER_VOTE_SEC} Sekunden um sind.</p>`}
+      <div class="row">
+        ${ph === 'vote' && show ? `<button class="btn pk big" onclick="A.impReveal()">Antworten freigeben &amp; Punkte vergeben</button>` : ''}
+        ${ph === 'vote' && !show ? `<button class="btn" onclick="A.timer()">Timer neu starten</button>` : ''}
+        ${ph === 'reveal' ? (G.round < G.rounds
+          ? `<button class="btn pk big" onclick="A.nextRound()">Nächste Runde (${G.round + 1}/${G.rounds})</button>`
+          : `<button class="btn pk big" onclick="A.finish()">Endstand zeigen</button>`) : ''}
+      </div>`;
+  }
+  return `<div class="card imp-card"><h3>Imposter · Runde ${G.round}/${G.rounds}</h3>
+    ${impMsg ? `<div class="warn">${esc(impMsg)}</div>` : ''}
+    ${im ? `<p class="mu">${im.count} Spieler · Kategorie ${esc(im.category)} · ${IMPOSTER_COUNT} Imposter · ${turns} Durchgänge</p>${flow}`
+         : `<p class="mu">${impBusy ? 'Verteile Rollen …' : 'Noch keine Rollen verteilt.'}</p>`}
+    ${!G.over ? `<div class="pbox"><span class="mu">PUNKTESTAND</span>${scoreTable(false)}</div>` : ''}
+    <div class="row" style="margin-top:14px">
+      ${!G.over && (!im || ph === 'dealt' || ph === 'turns') ? `<button class="btn y" onclick="A.deal()">${im ? 'Neu mischen (gleiche Runde)' : 'Rollen verteilen'}</button>` : ''}
+      ${sol && !G.over ? `<button class="btn" onclick="A.impShow()">${impShow ? 'Lösung verbergen' : 'Lösung zeigen'}</button>` : ''}
+      ${!G.over ? `<button class="btn" onclick="A.newGame()">Spiel abbrechen</button>` : ''}
+    </div>
+    ${sol && impShow && !G.over ? `<div class="sol"><div><span class="mu">WORT</span><b>${esc(sol.word)}</b></div><div><span class="mu">IMPOSTER</span><b class="red">${sol.imposters.map(esc).join(', ')}</b></div></div>` : ''}
+    ${sol && !impShow && !G.over ? `<p class="mu">Lösung ist verdeckt, damit sie nicht aus Versehen im Stream landet.</p>` : ''}
+  </div>`;
+}
+
+/* Punktetabelle, sortiert (big = Endstand mit Platzierung) */
+function scoreTable(big) {
+  const l = scoreList();
+  if (!l.length) return '<p class="mu">Noch keine Punkte.</p>';
+  return `<div class="scores ${big ? 'big' : ''}">${l.map((s, i) => `<div class="srow ${big && s.place === 1 ? 'win' : ''}"><i>${big ? s.place + '.' : ''}</i><b>${esc(s.name)}</b><span>${s.pts} P</span></div>`).join('')}</div>`;
+}
+
+function impPlayerStage() {
+  const r = myRole, im = state.imposter;
+  if (!im) return `<div class="stage"><div><b>Imposter</b>Warte, bis der Host die Rollen verteilt …</div></div>`;
+  if (!r || r.role === 'pending') return `<div class="stage"><div>Rolle wird entschlüsselt …</div></div>`;
+  if (r.role === 'out') return `<div class="stage"><div><b>Zuschauen</b>Du warst beim Verteilen noch nicht da. In der nächsten Runde bist du dabei.</div></div>`;
+  if (r.role === 'error') return `<div class="stage"><div><b>Hoppla</b>Deine Rolle konnte nicht gelesen werden. Öffne deinen Link vom Host noch einmal.</div></div>`;
+  const toggle = `<button class="btn" onclick="A.hideRole()">${roleHidden ? 'Rolle zeigen' : 'Rolle verbergen'}</button>`;
+  if (roleHidden) return `<div class="role hidden"><small>RUNDE ${im.deal}</small><b>VERDECKT</b>${toggle}</div>`;
+  return r.role === 'imposter'
+    ? `<div class="role imp"><small>DEINE ROLLE · RUNDE ${im.deal}</small><b>IMPOSTER</b>
+        <p>Du kennst das Wort nicht.${r.category ? ` Kategorie: <em>${esc(r.category)}</em>.` : ''} Tu so, als ob – und lass dich nicht erwischen!</p>${toggle}</div>`
+    : `<div class="role crew"><small>DEINE ROLLE · RUNDE ${im.deal}</small><b>SPIELER</b>
+        <small>DEIN WORT</small><div class="word">${esc(r.word)}</div>
+        <p>Kategorie: <em>${esc(r.category)}</em>. Einer von euch kennt das Wort nicht – findet ihn!</p>${toggle}</div>`;
+}
+
+/* ===== Login ===== */
+function gateView() {
+  const host = ROLE === 'host', setup = host && !hostHash();
+  const enter = `onkeydown="if(event.key==='Enter')A.login()"`;
+  return `<div class="wrap">${logo()}
+    <div class="card gate"><h3>${setup ? 'Quizmaster-Passwort festlegen' : host ? 'Quizmaster-Login' : 'Spieler-Login'}</h3>
+      <p class="mu">${setup ? 'Wähle ein Passwort. Das gibst du ab jetzt bei jedem Öffnen ein.' : host ? 'Gib dein Quizmaster-Passwort ein.' : 'Gib das Passwort ein, das du vom Quizmaster bekommen hast.'}</p>
+      <div class="gform">
+        <input class="input" id="pw" type="${host ? 'password' : 'text'}" placeholder="${host ? 'Passwort' : 'z. B. K7MXP2'}" autocomplete="${host ? 'current-password' : 'off'}" autocapitalize="characters" spellcheck="false" ${enter}>
+        ${setup ? `<input class="input" id="pw2" type="password" placeholder="Passwort wiederholen" ${enter}>` : ''}
+        <button class="btn y" onclick="A.login()">${setup ? 'Festlegen' : 'Einloggen'}</button>
+      </div>
+      ${gateErr ? `<div class="warn" style="margin-top:14px">${esc(gateErr)}</div>` : ''}
+    </div></div>`;
+}
+
+/* ===== Views ===== */
+function hostView() {
+  const ovl = (t, k) => `<div class="lk"><span>${t}</span><code>${esc(overlayLink(k))}</code><div class="row"><button class="btn y" onclick="A.copy('${k}',this)">Kopieren</button></div></div>`;
+  return `<div class="wrap">${logo()}${statusChip()}${warn()}
+    <div class="card"><h3>Spiel wählen</h3>
+      <div class="now">${state.activeGame ? '▶ ' + esc(gameName(state.activeGame)) : 'Hauptmenü'}</div>
+      <div class="mg">${Object.keys(GAMES).map(k =>
+        `<button class="gm ${state.activeGame === k ? 'on' : ''}" onclick="A.game('${k}')">${GAMES[k]}</button>`).join('')}</div>
+      ${state.activeGame ? `<div class="row" style="margin-top:18px"><button class="btn" onclick="A.menu()">← Zurück zum Menü</button></div>` : ''}
+    </div>
+    ${state.activeGame === 'imposter' ? impHostCard() : ''}
+  </div>`;
+}
+
+/* Unterer Teil der Host-Seite (unter den Kameras) */
+function hostBottom() {
+  const ovl = (t, k) => `<div class="lk"><span>${t}</span><code>${esc(overlayLink(k))}</code><div class="row"><button class="btn y" onclick="A.copy('${k}',this)">Kopieren</button></div></div>`;
+  return `<div class="wrap wrap-b">
+    <div class="card"><h3>Spieler-Links</h3>
+      <div class="round">
+        <div><span class="mu">AKTUELLE RUNDE</span><b>${esc(ROUND.toUpperCase())}</b></div>
+        <div class="pwbox"><span class="mu">SPIELER-PASSWORT</span><b>${esc(ROUND_PW)}</b><button class="btn y sm" onclick="A.copyPw(this)">Kopieren</button></div>
+        <button class="btn pk" onclick="A.newRound()">Neue Runde · neue Links + Passwort</button>
+      </div>
+      <p class="mu">Namen eintragen, Link kopieren, an den Spieler schicken – und das Passwort dazu (am besten getrennt vom Link). Links und Passwort gelten nur für diese Runde. Vor dem nächsten Quiz „Neue Runde“ drücken – dann kommt mit den alten niemand mehr rein.</p>
+      <div class="slots">${slotCards()}</div>
+      <div class="row" style="margin-top:16px"><button class="btn y" onclick="A.openAll()">Alle zum Testen öffnen</button><button class="btn" onclick="A.resetNames()">Namen zurücksetzen</button></div>
+    </div>
+    <div class="card"><h3>Quizmaster</h3>
+      ${HOST_PASSWORD_HASH ? '' : `<p class="mu">Dein Passwort gilt im Moment nur in diesem Browser. Damit es auf allen Geräten gilt, trage diesen Wert in der index.html bei HOST_PASSWORD_HASH ein:</p>
+      <div class="lk"><code>${esc(hostHash())}</code><div class="row"><button class="btn y sm" onclick="A.copyHash(this)">Kopieren</button></div></div>`}
+      <div class="row"><button class="btn" onclick="A.logout()">Abmelden</button></div>
+    </div>
+  </div>`;
+}
+
+function playerView() {
+  if (linkProblem() || roundClosed) {
+    const t = linkProblem() || 'Diese Runde ist beendet. Frag den Host nach deinem Link für die neue Runde.';
+    return `<div class="wrap">${logo()}<div class="card dead"><h3>Kein Zutritt</h3><p class="mu">${esc(t)}</p></div></div>`;
+  }
+  const g = state.activeGame;
+  const mine = (state.players || []).find(p => p.id === me.id);
+  const youCard = `<div class="card"><h3>Du</h3>
+      <div class="row">
+        <input class="input" value="${esc(me.name)}" maxlength="24" onchange="A.rename(this.value)">
+        <span class="mu">ID ${esc(me.id)} · CAM ${mine && mine.slot || me.slot || '–'}</span>
+      </div>
+    </div>`;
+  // Imposter: Rolle steht im Infokasten oben (in #vdo), hier nur noch Name + Spielerliste
+  if (g === 'imposter') return `<div class="wrap wrap-b">${statusChip()}${warn()}</div>`;
+  return `<div class="wrap">${logo()}${statusChip()}${warn()}
+    <div class="card"><h3>Aktives Spiel</h3>
+      <div class="now">${g ? esc(gameName(g)) : gotState ? 'Hauptmenü' : 'Warte auf den Host …'}</div>
+      ${expired && !gotState ? '<p class="mu">Der Host ist gerade nicht online oder dein Link ist aus einer alten Runde. Die Kameras funktionieren trotzdem.</p>' : ''}
+      ${g === 'imposter' ? impPlayerStage() : `<div class="stage">${g ? `<div><b>${esc(gameName(g))}</b>Hier kommt die Spiel-UI hin.</div>` : '<div>Gleich geht’s los …</div>'}</div>`}
+    </div>
+  </div>`;
+}
+
+function overlayView() {
+  const g = state.activeGame, cl = camList();
+  const camsHtml = cl.length ? `<div class="ocams">${cl.map(camTile).join('')}</div>` : '';
+  const noCam = connectedPlayers().filter(p => !p.cameraFrame);   // Spieler ohne Kamera als Namens-Chip
+  return `<div class="ov ${OV_LAYOUT}">
+    ${OV_LAYOUT !== 'bottom' ? camsHtml : ''}
+    <div class="omain">
+      <h1 class="${g ? '' : 'idle'}">${g ? esc(gameName(g)) : 'Gleich geht’s los'}</h1>
+      ${g === 'imposter' && state.imposter ? `<div class="osub">Kategorie ${esc(state.imposter.category)} · Runde ${state.imposter.deal}<br>Wer ist der Imposter?</div>` : ''}
+      ${noCam.length ? `<div class="chips">${noCam.map(p => `<div class="chip"><i>${p.slot || '–'}</i>${esc(p.name)} · ${esc(p.id)}</div>`).join('')}</div>` : ''}
+    </div>
+    ${OV_LAYOUT === 'bottom' ? camsHtml : ''}
+  </div>`;
+}
+
+function render() {
+  document.body.className = ROLE === 'overlay' ? 'overlay' : '';
+  updateVdo();
+  const app2 = document.getElementById('app2');
+  // Eingabefeld nicht beim Tippen überschreiben
+  if (ROLE !== 'overlay' && document.activeElement && document.activeElement.classList && document.activeElement.classList.contains('input')) return;
+  if (!authed && !(ROLE === 'player' && linkProblem())) {          // noch nicht eingeloggt → nur Login
+    document.getElementById('app').innerHTML = gateView();
+    if (app2) app2.innerHTML = '';
+    const f = document.getElementById('pw'); if (f && f.focus) f.focus();
+    return;
+  }
+  document.getElementById('app').innerHTML = ROLE === 'host' ? hostView() : ROLE === 'player' ? playerView() : overlayView();
+  if (app2) app2.innerHTML = ROLE === 'host' ? hostBottom() : '';
+  // Eigenes Video-Element wiederverwenden, damit es beim Neuzeichnen nicht flackert
+  const slot = document.getElementById('myvid');
+  if (slot && stream) slot.appendChild(vid);
+}
+
+/* Start: Schlüssel berechnen, gespeicherten Login dieser Sitzung prüfen, dann verbinden */
+(async function boot() {
+  try {
+    if (ROLE === 'host') {
+      loadRoundPw(false);
+      if (crypto.subtle) await deriveKeys(ROUND_PW);
+      const hh = hostHash();
+      if (hh && ss.get('qs-auth-host') === hh) authed = true;
+    }
+    if (ROLE === 'player' && !linkProblem()) {
+      const pw = ss.get('qs-auth-' + ROUND);
+      if (pw && await checkPlayerPw(pw)) authed = true;
+    }
+  } catch (e) {}
+  render();
+  if (authed) connect();
+})();
+</script>
+
+<!--
+  ===== WAS DU ALS NÄCHSTES ANPASSEN MUSST =====
+  0. Passwortschutz: Quizmaster-Passwort beim ersten Öffnen festlegen, für alle Geräte den angezeigten Wert
+     bei HOST_PASSWORD_HASH eintragen. Spieler-Passwort steht im Host bei den Spieler-Links.
+  1. Kamera-Werte oben im Skript (Abschnitt "Kamera – HIER ANPASSEN"): FRAME_MS, FRAME_W, FRAME_Q.
+     Jedes Bild ist eine Realtime-Nachricht, die an alle Clients geht. Bei 6 Kameras alle 300 ms
+     kommen schnell über hundert zugestellte Nachrichten pro Sekunde zusammen. Wenn Supabase
+     drosselt oder dein Kontingent knapp wird: FRAME_MS auf 500–1000 hochsetzen.
+  2. Kamera geht nur über https:// (z. B. Netlify) oder localhost. Über file:// klappt es in Chrome
+     meist auch, für Mitspieler aber immer über die Online-Adresse.
+  3. Overlay in OBS: einen der drei Links (oben / unten / seitlich) als Browser-Quelle 1920×1080
+     eintragen. Der Link bleibt bei neuen Runden gleich – nicht weitergeben.
+  4. Runden: Vor jedem Quiz "Neue Runde · neue Links" drücken und die neuen Links verschicken.
+  5. Nur EIN Host gleichzeitig und immer im selben Browser (Runde, Schlüssel, Namen im localStorage).
+  6. Falls Supabase unter Realtime → Settings "Private channels only" aktiv ist: ausschalten.
+  7. Imposter: Wörter, Kategorie, Anzahl Imposter, Mindestspieler, Redezeit (IMPOSTER_TURN_SEC),
+     Anzahl Durchgänge (IMPOSTER_TURN_ROUNDS) und Abstimmungszeit (IMPOSTER_VOTE_SEC) oben unter "Imposter – HIER ANPASSEN".
+     Rollen werden pro Spieler verschlüsselt – Spieler-Links aus dem Host nehmen (sie enthalten den Schlüssel &s=…).
+     Werwolf: in playerView() den .stage-Platzhalter für 'werwolf' ersetzen.
+  8. Spieler-Kameras laufen über VDO.Ninja: Room-Name oben bei VDO_ROOM, Kachelgröße im CSS bei .vgrid.
+     Der Room-Name ist öffentlich lesbar – wer ihn kennt, kann in den Room. Später ggf. &password=… ergänzen.
+     Host und Overlay nutzen noch die alte Standbild-Kamera (Supabase-Frames).
+-->
+</body>
+</html>
