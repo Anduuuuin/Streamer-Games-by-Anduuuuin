@@ -247,6 +247,10 @@ select.input{font:11px var(--px);background:#000;color:#fff;border:3px solid var
 .vinfo em{font-style:normal;color:var(--yellow)}
 
 /* ===== OBS-Overlay 1920×1080 – LAYOUT HIER ANPASSEN ===== */
+html:has(body.overlay){background:transparent}
+body.overlay{margin:0;width:100vw;height:100vh;overflow:hidden}
+body.overlay #app,body.overlay #app2{margin:0;padding:0}
+body.overlay #vdo{display:none}
 #ostage{position:fixed;left:0;top:0;width:1920px;height:1080px;transform-origin:0 0;overflow:hidden;font-family:var(--px);color:#fff}
 #ostage.bg{background:repeating-linear-gradient(0deg,#00000045 0 2px,transparent 2px 5px),linear-gradient(#ff2bd626 2px,transparent 2px) 0 0/60px 60px,linear-gradient(90deg,#ff2bd626 2px,transparent 2px) 0 0/60px 60px,linear-gradient(var(--bg),var(--bg2))}
 /* Positionen der vier Bereiche */
@@ -331,7 +335,30 @@ button.crash-btn.go:active{transform:translate(4px,4px);box-shadow:2px 2px 0 #00
 .crow span{color:var(--cyan)}.crow em{font-style:normal;color:var(--yellow);text-align:right}
 .crow.safe{border-color:var(--green)}.crow.safe span{color:var(--green)}
 .crow.lost{border-color:var(--red)}.crow.lost span{color:var(--red)}
+/* Crash – Spieler-Ansicht nach Skizze
+   Zeile 1: Zielpunktzahl (rechts) · Zeile 2+3: Quizmaster-Kamera + Punkte links, Diagramm rechts · Zeile 4: Spieler-Kameras */
+.vgrid.crash .vtarget{grid-column:2 / -1;grid-row:1;justify-self:end;min-width:55%}
+.vgrid.crash .vtile.host{grid-column:1;grid-row:2}
+.vgrid.crash .vscore{grid-column:1;grid-row:3}
+.vgrid.crash .vinfo{grid-column:2 / -1;grid-row:2 / span 2;min-height:0}
+.vgrid.crash .vtile:not(.host){grid-row:4}
+.vtarget{display:flex;flex-wrap:wrap;align-items:center;justify-content:flex-end;gap:10px 26px;background:#000;border:4px solid var(--yellow);box-shadow:5px 5px 0 #000;padding:12px 18px;font-size:14px;color:var(--yellow)}
+.vtarget b{margin-right:auto;font-size:18px;text-shadow:3px 3px 0 var(--pink)}
+.vtarget small{font-size:8px;color:var(--mu);margin-right:6px}
+.vtarget .mine{color:var(--green)}
+.vinfo.crashbox{display:grid;gap:14px;align-content:start;padding:14px;border-color:var(--cyan)}
+.vinfo.crashbox .crash-chart{margin:0}
+.vinfo.crashbox .crash-btn{margin:0;font-size:clamp(14px,2.4vw,24px);padding:18px 12px}
+.vinfo.crashbox .crash-pick .icons{margin-bottom:6px}
+@media (max-width:700px){.vgrid.crash .vtarget{grid-column:1 / -1;min-width:0;justify-self:stretch}.vgrid.crash .vtile:not(.host){grid-row:auto}}
+
 /* Crash im Overlay */
+#ostage[data-game="crash"] .o-target{align-self:flex-end;align-items:center;background:#000;border:6px solid var(--yellow);box-shadow:8px 8px 0 #000;padding:14px 30px;gap:34px;min-width:760px;box-sizing:border-box;height:70px}
+#ostage[data-game="crash"] .o-target b{font-size:30px;margin-right:auto}
+#ostage[data-game="crash"] .o-target span{font-size:26px;color:var(--yellow)}
+#ostage[data-game="crash"] .o-target small{font-size:13px;color:var(--mu);margin-right:8px}
+#ostage[data-game="crash"] .o-hostcam{top:132px}                 /* Quizmaster-Kamera auf Höhe des Diagramms */
+#ostage[data-game="crash"] .o-side{top:492px;height:238px}       /* Live-Punktestand darunter */
 #ostage[data-game="crash"] .o-crash{flex:1;padding:16px;display:flex}
 #ostage[data-game="crash"] .crash-chart{flex:1;margin:0;border-width:0;box-shadow:none;background:transparent;display:flex;align-items:flex-end}
 #ostage[data-game="crash"] .crash-chart canvas{width:100%;height:100%}
@@ -1117,9 +1144,13 @@ function updateVdo(force) {
   const box = document.getElementById('vdo');
   if (!box) return;
   const show = authed && (ROLE === 'host' || (ROLE === 'player' && !linkProblem() && !roundClosed));
-  // Imposter-Ansicht nur für Spieler: Host + Infokasten oben, Spieler-Kameras darunter, Timer unten
+  // Spiel-Ansichten nur für Spieler (Layout HIER pro Spiel im CSS anpassen: .vgrid.imp bzw. .vgrid.crash)
+  //   Imposter: Quizmaster + Infokasten oben, Punkte darunter, Spieler-Kameras, Timer
+  //   Crash:    Zielpunktzahl oben rechts, Quizmaster + Punkte links, Diagramm rechts, Spieler-Kameras unten
   const imp = show && ROLE === 'player' && state.activeGame === 'imposter';
-  document.body.classList.toggle('imp-mode', imp);
+  const crm = show && ROLE === 'player' && state.activeGame === 'crash' && !!state.crash;
+  const lay = imp || crm;
+  document.body.classList.toggle('imp-mode', lay);
   box.style.display = show ? '' : 'none';
   if (!show) return;
   if (!box.querySelector('.vgrid')) box.innerHTML = '<div class="card"><h3 class="vtitle">Kameras</h3><div class="vhead"></div><div class="vgrid"></div></div>';
@@ -1127,30 +1158,31 @@ function updateVdo(force) {
   const G = state.impGame;
   const title = imp ? 'IMPOSTER' + (G ? ' · RUNDE ' + G.round + '/' + G.rounds : '') : 'Kameras';
   const h3 = box.querySelector('.vtitle'); if (h3.textContent !== title) h3.textContent = title;
-  h3.style.display = imp ? 'none' : '';   // im Spiel keine Überschrift → Kameras rücken nach oben
+  h3.style.display = lay ? 'none' : '';   // im Spiel keine Überschrift → Kameras rücken nach oben
 
   // Kopfbereich (Buttons) – nur neu schreiben, wenn sich etwas geändert hat
   const M = camSelf();
   const head = M.vdoId
     ? `<div class="row"><button class="btn y" onclick="A.vdoConnect()">Kamera-Fenster öffnen</button><button class="btn" onclick="A.vdoDisconnect()">Kamera trennen</button></div>
-       ${imp ? '' : '<p class="mu">Deine Kamera läuft im VDO.Ninja-Fenster – lass es offen. Dort einmal die Kamera erlauben und starten.</p>'}
+       ${lay ? '' : '<p class="mu">Deine Kamera läuft im VDO.Ninja-Fenster – lass es offen. Dort einmal die Kamera erlauben und starten.</p>'}
        ${vdoBlocked ? `<div class="warn">Das Fenster wurde blockiert. <a href="${esc(vdoPushUrl(M.vdoId, M.name))}" target="_blank" rel="noopener">Hier klicken, um es zu öffnen</a> – oder Pop-ups für diese Seite erlauben.</div>` : ''}`
     : `<div class="row"><button class="btn y" onclick="A.vdoConnect()">● Kamera verbinden</button></div>
-       ${imp ? '' : '<p class="mu">Öffnet ein VDO.Ninja-Fenster, in dem du deine Kamera freigibst.</p>'}`;
+       ${lay ? '' : '<p class="mu">Öffnet ein VDO.Ninja-Fenster, in dem du deine Kamera freigibst.</p>'}`;
   if (force || head !== vdoHead) { box.querySelector('.vhead').innerHTML = head; vdoHead = head }
   // Im Spiel kein „Kamera verbinden“-Bereich (nur der Hinweis, falls das Fenster blockiert wurde)
-  box.querySelector('.vhead').style.display = imp && !vdoBlocked ? 'none' : '';
+  box.querySelector('.vhead').style.display = lay && !vdoBlocked ? 'none' : '';
 
   const grid = box.querySelector('.vgrid');
-  grid.classList.toggle('imp', imp);
+  grid.classList.toggle('imp', lay);     // gemeinsames Spiel-Raster
+  grid.classList.toggle('crash', crm);   // Crash-Anordnung
 
   // Kacheln abgleichen: neue anlegen, alte entfernen, Namen aktualisieren – iframes nie neu laden
-  const list = vdoList(imp), want = new Set(list.map(p => p.key));
+  const list = vdoList(lay), want = new Set(list.map(p => p.key));
   grid.querySelectorAll('.vtile').forEach(t => { if (!want.has(t.dataset.vdo)) t.remove() });
   const players = list.filter(p => !p.host).length;
-  grid.style.setProperty('--cols', Math.max(5, players));   // Imposter: so viele Spalten wie Spieler (mind. 5)
+  grid.style.setProperty('--cols', Math.max(5, players));   // so viele Spalten wie Spieler (mind. 5)
   const im = state.imposter, turnPid = imp ? impTurnPid() : '', rev = imp && im && im.phase === 'reveal' ? (im.reveal || {}) : null, order = impOrder();
-  const showPts = scoreOn();
+  const cr = crm ? state.crash : null;
   list.forEach(p => {
     let t = grid.querySelector('.vtile[data-vdo="' + p.key + '"]');
     if (!t) {
@@ -1163,26 +1195,33 @@ function updateVdo(force) {
     t.classList.toggle('own', !!p.own);
     t.classList.toggle('host', !!p.host);
     // Reihenfolge nur per CSS-order, damit die iframes nicht umgehängt werden (sonst laden sie neu)
-    t.style.order = imp ? (p.host ? 0 : 10 + p.slot) : (p.own ? 0 : p.host ? 1 : p.slot + 1);
-    const label = (p.own ? 'DU · ' : '') + p.name;
+    t.style.order = lay ? (p.host ? 0 : 10 + p.slot) : (p.own ? 0 : p.host ? 1 : p.slot + 1);
+    const label = (p.own ? 'DU · ' : '') + (cr && cr.icons[p.pid] ? cr.icons[p.pid] + ' ' : '') + p.name;
     const nm = t.querySelector('.vname'); if (nm.textContent !== label) nm.textContent = label;
     t.classList.toggle('turn', !!turnPid && p.pid === turnPid);                 // wer gerade dran ist
-    const an = t.querySelector('.vans');                                         // freigegebene Antwort über der Kamera
+    const an = t.querySelector('.vans');                                         // Blase über der Kamera
     const dl = rev && im.result && p.pid in im.result ? ' · ' + fmtPts(im.result[p.pid]) : '';
-    const at = rev && rev[p.pid] ? '„' + rev[p.pid] + '“' + dl : rev && order.includes(p.pid) ? '— keine Antwort —' + dl : '';
+    let at = rev && rev[p.pid] ? '„' + rev[p.pid] + '“' + dl : rev && order.includes(p.pid) ? '— keine Antwort —' + dl : '';
+    if (cr && (cr.riders || []).includes(p.pid)) {                               // Crash: ausgestiegen / Ergebnis
+      if (cr.phase === 'run' && cr.cashed[p.pid]) at = '✓ ' + cr.cashed[p.pid].pts;
+      if (cr.phase === 'crashed' || cr.phase === 'over') at = (cr.last || {})[p.pid] ? '+' + cr.last[p.pid] : '💥 0';
+    }
     if (an && an.textContent !== at) an.textContent = at;
   });
 
-  // Infokasten + Timer (nur Imposter-Ansicht)
-  let info = grid.querySelector('.vinfo'), tim = grid.querySelector('.vtimer'), sc = grid.querySelector('.vscore');
-  if (!sc) { sc = document.createElement('div'); sc.className = 'vscore'; grid.appendChild(sc) }
-  sc.style.display = imp && showPts ? '' : 'none';
-  if (imp && showPts) { const sh = scoreBoard(); if (sc.innerHTML !== sh) sc.innerHTML = sh }
-  if (!info) { info = document.createElement('div'); info.className = 'vinfo'; grid.appendChild(info) }
-  if (!tim) { tim = document.createElement('div'); tim.className = 'vtimer'; tim.innerHTML = '<div class="vtbar"><i></i></div><span class="vtt"></span>'; grid.appendChild(tim) }
-  info.style.display = tim.style.display = imp ? '' : 'none';
-  if (imp) {
-    const ii = impInfo();
+  // Bausteine der Spiel-Ansicht: Infokasten/Diagramm, Punkte, Timer, Zielpunktzahl
+  const mk = cls => { let e = grid.querySelector('.' + cls); if (!e) { e = document.createElement('div'); e.className = cls; grid.appendChild(e) } return e };
+  const info = mk('vinfo'), sc = mk('vscore'), tim = mk('vtimer'), tg = mk('vtarget');
+  if (!tim.querySelector || !tim.querySelector('.vtbar')) tim.innerHTML = '<div class="vtbar"><i></i></div><span class="vtt"></span>';
+  const showSc = (imp && scoreOn()) || crm;
+  sc.style.display = showSc ? '' : 'none';
+  if (showSc) { const sh = crm ? crashScoreBoard() : scoreBoard(); if (sc.innerHTML !== sh) sc.innerHTML = sh }
+  info.style.display = lay ? '' : 'none';
+  tim.style.display = imp ? '' : 'none';
+  tg.style.display = crm ? '' : 'none';
+  if (crm) { const th = crashTargetBar(); if (tg.innerHTML !== th) tg.innerHTML = th }
+  if (lay) {
+    const ii = imp ? impInfo() : { cls: 'crashbox', html: crashPanel() };
     info.className = 'vinfo ' + ii.cls;
     if (ii.html !== vdoInfoHtml) {
       const focused = document.activeElement && document.activeElement.classList && document.activeElement.classList.contains('vin');
@@ -1190,11 +1229,11 @@ function updateVdo(force) {
       const inp = info.querySelector && info.querySelector('.vin');
       if (inp) { inp.value = draft; if (focused) inp.focus() }
     }
-    tickTimer();
+    if (imp) tickTimer();
   }
 
   let empty = grid.querySelector('.empty');
-  const noCams = !imp && !list.length;
+  const noCams = !lay && !list.length;
   if (noCams && !empty) { empty = document.createElement('div'); empty.className = 'empty'; empty.textContent = 'Noch keine Kamera verbunden.'; grid.appendChild(empty) }
   if (!noCams && empty) empty.remove();
 }
@@ -1874,6 +1913,43 @@ function crashTotals(big) {
 }
 const crashChart = cls => `<div class="crash-chart ${cls || ''}"><div class="crash-score">0</div><canvas class="crash-canvas" width="1200" height="560"></canvas></div>`;
 
+/* ----- Crash-Spieleransicht nach Skizze – Bausteine (Aussehen HIER ANPASSEN) ----- */
+// Balken oben rechts: Zielpunktzahl
+function crashTargetBar() {
+  const c = state.crash;
+  return `<b>CRASH</b><span><small>ZIELPUNKTZAHL</small> ${c.target}</span>${c.round ? `<span><small>RUNDE</small> ${c.round}</span>` : ''}${me ? `<span class="mine"><small>DU</small> ${c.totals[me.id] || 0}</span>` : ''}`;
+}
+// Live-Punktestand unter der Quizmaster-Kamera
+function crashScoreBoard() {
+  const c = state.crash, ids = crashIds().sort((a, b) => (c.totals[b] || 0) - (c.totals[a] || 0) || crashName(a).localeCompare(crashName(b)));
+  return `<div class="vsh"><small>PUNKTE</small><small>ZIEL ${c.target}</small></div>` +
+    (ids.length ? ids.map(id => `<div class="vsr ${me && id === me.id ? 'me' : ''}"><b>${c.icons[id] || '·'} ${esc(crashName(id))}</b><span>${c.totals[id] || 0}</span></div>`).join('')
+                : '<div class="vsr"><b>Noch keine Spieler</b></div>');
+}
+// Großer Bereich rechts: Diagramm + Aussteigen-Button (bzw. Icon-Auswahl / Gewinner)
+function crashPanel() {
+  const c = state.crash;
+  if (crashPending && (c.round !== crashPending || c.phase !== 'run' || c.cashed[me.id])) crashPending = 0;
+  if (c.phase === 'over') return `<div class="crash-win"><small>GEWONNEN HAT</small><b>${esc((c.winners || []).map(id => (c.icons[id] || '') + ' ' + crashName(id)).join(' & '))}</b></div>`;
+  const mine = c.icons[me.id], rider = (c.riders || []).includes(me.id), cs = c.cashed[me.id];
+  const picker = c.phase !== 'run' ? `<div class="crash-pick"><small>${mine ? 'DEIN ICON – du kannst bis zum Rundenstart wechseln' : 'WÄHLE DEIN ICON'}</small>
+    <div class="icons">${CRASH_ICONS.map(ic => {
+      const owner = Object.keys(c.icons).find(k => c.icons[k] === ic), taken = owner && owner !== me.id;
+      return `<button class="icon ${owner === me.id ? 'on' : ''}" ${taken ? 'disabled' : ''} onclick="A.pickIcon('${ic}')"><span>${ic}</span><em>${taken ? esc(crashName(owner)) : owner === me.id ? 'DU' : ''}</em></button>`;
+    }).join('')}</div></div>` : '';
+  let action = '';
+  if (c.phase === 'run') action = !rider ? `<div class="crash-btn wait">Du fährst diese Runde nicht mit</div>`
+    : cs ? `<div class="crash-btn safe">✓ GESICHERT: ${cs.pts}</div>`
+    : crashPending ? `<div class="crash-btn wait">Wird gesichert …</div>`
+    : `<button class="crash-btn go" onclick="A.cashOut()">${mine || ''} AUSSTEIGEN</button>`;
+  if (c.phase === 'crashed' && rider) {
+    const g = (c.last || {})[me.id] || 0;
+    action = g ? `<div class="crash-btn safe">✓ +${g} PUNKTE GESICHERT</div>` : `<div class="crash-btn boom">💥 CRASH – 0 PUNKTE</div>`;
+  }
+  if (c.phase === 'pick') return `${picker}<p class="mu">Der Quizmaster startet gleich die erste Runde.</p>`;
+  return crashChart() + action + picker;
+}
+
 /* ----- Spieler-Ansicht – Aussehen HIER ANPASSEN ----- */
 function crashPlayerView() {
   const c = state.crash;
@@ -1942,7 +2018,7 @@ function crashHostCard() {
 OVERLAY_GAMES.crash = {
   game: () => {
     const c = state.crash;
-    const head = `<div class="o-head"><b>CRASH</b>${c ? `<span>ZIEL ${c.target}${c.round ? ' · RUNDE ' + c.round : ''}</span>` : ''}</div>`;
+    const head = `<div class="o-head o-target"><b>CRASH</b>${c ? `<span><small>ZIELPUNKTZAHL</small> ${c.target}</span>${c.round ? `<span><small>RUNDE</small> ${c.round}</span>` : ''}` : ''}</div>`;
     if (!c) return head + `<div class="o-panel o-center"><div class="o-big">Gleich geht’s los …</div></div>`;
     if (c.phase === 'over') return head + `<div class="o-panel o-center"><small>GEWONNEN HAT</small><div class="o-big o-win">${esc((c.winners || []).map(id => (c.icons[id] || '') + ' ' + crashName(id)).join(' & '))}</div></div>`;
     if (c.phase === 'pick') return head + `<div class="o-panel o-center"><div class="o-big">Wählt eure Icons!</div>
@@ -2031,7 +2107,7 @@ function playerView() {
     </div>`;
   // Imposter: Rolle steht im Infokasten oben (in #vdo), hier nur noch Name + Spielerliste
   if (g === 'imposter') return `<div class="wrap wrap-b">${statusChip()}${warn()}</div>`;
-  if (g === 'crash') return `<div class="wrap">${statusChip()}${warn()}${crashPlayerView()}</div>`;
+  if (g === 'crash') return state.crash ? `<div class="wrap wrap-b">${statusChip()}${warn()}</div>` : `<div class="wrap">${statusChip()}${warn()}${crashPlayerView()}</div>`;
   return `<div class="wrap">${logo()}${statusChip()}${warn()}
     <div class="card"><h3>Aktives Spiel</h3>
       <div class="now">${g ? esc(gameName(g)) : gotState ? 'Hauptmenü' : 'Warte auf den Host …'}</div>
