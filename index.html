@@ -776,7 +776,15 @@ async function deal() {
       : { role: 'crew', word, category: cat });
   }
   const n = (state.imposter && state.imposter.deal || 0) + 1;
-  const order = [...pl].sort((a, b) => (a.slot || 99) - (b.slot || 99)).map(p => p.id);   // Reihenfolge nach Platz
+  const seat = [...pl].sort((a, b) => (a.slot || 99) - (b.slot || 99)).map(p => p.id);   // Sitzreihenfolge nach Platz
+  // Startspieler wechselt jede Runde: der Nächste nach dem letzten Startspieler, in der ersten Runde zufällig
+  const last = state.impLastStart;
+  let start = seat.indexOf(last);
+  if (start >= 0) start = (start + 1) % seat.length;
+  else if (last) { const s = +String(last).slice(1), nx = seat.findIndex(id => +id.slice(1) > s); start = nx >= 0 ? nx : 0 }  // letzter Starter ist weg
+  else start = rint(seat.length);
+  const order = [...seat.slice(start), ...seat.slice(0, start)];
+  state.impLastStart = order[0];
   const names = Object.fromEntries(pl.map(p => [p.id, p.name]));
   state.imposter = { deal: n, category: cat, count: pl.length, roles, order, names, phase: 'dealt', turn: -1, vote: 0, reveal: null };
   impSolution = { deal: n, word, category: cat, impIds: imps, imposters: pl.filter(p => imps.includes(p.id)).map(p => p.name), players: pl.map(p => p.name) };
@@ -1147,7 +1155,7 @@ const A = {
     ls.set('qs-impcfg', JSON.stringify(impCfg)); render();
   },
   startGame() {
-    state.impCfg = { ...impCfg }; state.scores = {}; state.imposter = null; state.timer = null;
+    state.impCfg = { ...impCfg }; state.scores = {}; state.imposter = null; state.timer = null; state.impLastStart = null;
     state.impGame = { round: 1, rounds: impCfg.rounds, over: false };
     impAnswers = {}; impMsg = ''; push(); render(); deal();
   },
@@ -1155,7 +1163,7 @@ const A = {
   finish() { if (!state.impGame) return; state.impGame.over = true; state.timer = null; push(); render() },
   newGame() {
     if (state.impGame && !state.impGame.over && !confirm('Spiel abbrechen? Die Punkte gehen verloren.')) return;
-    state.impGame = null; state.imposter = null; state.scores = {}; state.timer = null; impAnswers = {}; impMsg = ''; push(); render();
+    state.impGame = null; state.imposter = null; state.scores = {}; state.timer = null; state.impLastStart = null; impAnswers = {}; impMsg = ''; push(); render();
   },
   timer() { const ph = state.imposter && state.imposter.phase; state.timer = newTimer(ph === 'vote' ? IMPOSTER_VOTE_SEC : IMPOSTER_TURN_SEC); push(); render() },
   impStart() { const im = state.imposter; if (!im) return; im.phase = 'turns'; im.turn = 0; state.timer = newTimer(IMPOSTER_TURN_SEC); push(); render() },
