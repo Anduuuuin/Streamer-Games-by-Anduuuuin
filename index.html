@@ -297,6 +297,53 @@ select.input{font:11px var(--px);background:#000;color:#fff;border:3px solid var
 .obs-card{border-color:var(--yellow)}
 .obs-card .tip{color:var(--yellow)}
 
+/* ===== Crash – AUSSEHEN HIER ANPASSEN ===== */
+.crash-card{border-color:var(--yellow)}
+.crash-head{display:flex;flex-wrap:wrap;align-items:baseline;gap:12px 22px;margin-bottom:16px}
+.crash-head b{font-size:26px;color:var(--yellow);text-shadow:3px 3px 0 var(--pink)}
+.crash-head span{font-size:10px;color:var(--cyan)}
+.crash-head .mine{color:var(--green);margin-left:auto}
+.crash-chart{position:relative;background:#000;border:5px solid var(--cyan);box-shadow:6px 6px 0 #000;margin-bottom:16px}
+.crash-chart canvas{display:block;width:100%;height:auto}
+.crash-score{position:absolute;left:0;right:0;top:12px;text-align:center;font-size:clamp(22px,5vw,46px);color:var(--yellow);text-shadow:4px 4px 0 var(--pink),8px 8px 0 #000;pointer-events:none}
+.crash-score.boom{color:var(--red);animation:glow .8s ease-in-out infinite alternate}
+.crash-btn{display:block;width:100%;font:clamp(16px,4vw,26px) var(--px);padding:24px 14px;text-align:center;border:5px solid #000;box-shadow:6px 6px 0 #000;margin-bottom:16px;box-sizing:border-box}
+button.crash-btn.go{background:var(--green);color:#000;cursor:pointer;animation:turnpulse .6s ease-in-out infinite alternate}
+button.crash-btn.go:active{transform:translate(4px,4px);box-shadow:2px 2px 0 #000}
+.crash-btn.safe{background:#000;color:var(--green);border-color:var(--green)}
+.crash-btn.boom{background:#000;color:var(--red);border-color:var(--red)}
+.crash-btn.wait{background:#000;color:var(--mu);border-color:var(--mu);font-size:12px}
+.crash-pick small,.crash-tot small{font-size:9px;color:var(--mu);letter-spacing:1px}
+.crash-pick .icons{display:grid;grid-template-columns:repeat(auto-fill,minmax(84px,1fr));gap:12px;margin:10px 0 18px}
+.crash-pick .icon{display:grid;gap:6px;justify-items:center;background:#000;border:4px solid var(--cyan);box-shadow:4px 4px 0 #000;padding:12px 6px;cursor:pointer}
+.crash-pick .icon span{font-size:36px;line-height:1}
+.crash-pick .icon em{font:8px var(--px);font-style:normal;color:var(--mu);min-height:10px;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.crash-pick .icon.on{border-color:var(--green);background:#0b2a0b}.crash-pick .icon.on em{color:var(--green)}
+.crash-pick .icon:disabled{opacity:.35;cursor:default}
+.crash-tot{display:grid;gap:8px}
+.srow.mine{border-color:var(--green)}
+.crash-win{text-align:center;display:grid;gap:12px;margin:10px 0 18px}
+.crash-win small{font-size:10px;color:var(--mu)}
+.crash-win b{font-size:clamp(20px,5vw,36px);color:var(--yellow);text-shadow:4px 4px 0 var(--pink);animation:glow 1s ease-in-out infinite alternate}
+.crows{display:grid;gap:8px}
+.crow{display:grid;grid-template-columns:34px 1fr auto 70px;gap:12px;align-items:center;background:#000;border:3px solid var(--mu);padding:8px 12px;font-size:10px}
+.crow i{font-style:normal;font-size:22px}.crow b{color:#fff;text-transform:uppercase}
+.crow span{color:var(--cyan)}.crow em{font-style:normal;color:var(--yellow);text-align:right}
+.crow.safe{border-color:var(--green)}.crow.safe span{color:var(--green)}
+.crow.lost{border-color:var(--red)}.crow.lost span{color:var(--red)}
+/* Crash im Overlay */
+#ostage[data-game="crash"] .o-crash{flex:1;padding:16px;display:flex}
+#ostage[data-game="crash"] .crash-chart{flex:1;margin:0;border-width:0;box-shadow:none;background:transparent;display:flex;align-items:flex-end}
+#ostage[data-game="crash"] .crash-chart canvas{width:100%;height:100%}
+#ostage[data-game="crash"] .crash-score{font-size:90px;top:10px;text-shadow:6px 6px 0 var(--pink),12px 12px 0 #000}
+#ostage[data-game="crash"] .o-icons{display:flex;flex-wrap:wrap;gap:20px;justify-content:center}
+#ostage[data-game="crash"] .o-icons div{display:grid;gap:10px;justify-items:center;background:#000;border:5px solid var(--mu);padding:16px;min-width:110px;opacity:.5}
+#ostage[data-game="crash"] .o-icons div.on{border-color:var(--green);opacity:1}
+#ostage[data-game="crash"] .o-icons span{font-size:56px;line-height:1}
+#ostage[data-game="crash"] .o-icons em{font-style:normal;font-size:12px;color:var(--green)}
+#ostage[data-game="crash"] .o-win{color:var(--yellow);text-shadow:5px 5px 0 var(--pink);animation:glow 1s ease-in-out infinite alternate}
+#ostage[data-game="crash"] .srow i{font-size:18px}
+
 /* Player */
 .input{font:12px var(--px);background:#000;color:#fff;border:3px solid var(--cyan);padding:12px;width:100%;max-width:340px}
 .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
@@ -333,7 +380,7 @@ select.input{font:11px var(--px);background:#000;color:#fff;border:3px solid var
 const SUPABASE_URL = 'https://oufoopkyhdxbmvjngngd.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im91Zm9vcGt5aGR4Ym12am5nbmdkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTI5MzI0NTUsImV4cCI6MjEwODUwODQ1NX0.yeKbvsNwgqErfFNmHKsIrRc-SNVWD3SEfyqmR1X2BWM';
 const CHANNEL = 'raum-eins';   // Basisname; jede Runde läuft in "raum-eins-<Rundencode>"
-const GAMES = { imposter: 'Imposter', werwolf: 'Werwolf' };   // Spiele im Hauptmenü – hier weitere ergänzen
+const GAMES = { imposter: 'Imposter', werwolf: 'Werwolf', crash: 'Crash' };   // Spiele im Hauptmenü – hier weitere ergänzen
 const MAX_SLOTS = 6;
 
 /* ===== Imposter – HIER ANPASSEN ===== */
@@ -582,6 +629,8 @@ function joinPlayerChannel() {
   c.on('broadcast', { event: 'state' }, onState)
    .on('broadcast', { event: 'hello' }, () => { if (ROLE === 'host') push() })
    .on('broadcast', { event: 'answer' }, ({ payload }) => { if (c === ch) receiveAnswer(payload) })
+   .on('broadcast', { event: 'icon' }, ({ payload }) => { if (c === ch) crashReceiveIcon(payload) })
+   .on('broadcast', { event: 'cashout' }, ({ payload }) => { if (c === ch) crashReceiveCash(payload) })
    .on('broadcast', { event: 'frame' }, ({ payload }) => {
      if (c !== ch || !payload) return;
      const id = cleanId(payload.id);
@@ -622,7 +671,7 @@ function onState({ payload }) {
   fillFrames();
   const v = (state.imposter && state.imposter.vote) || 0;
   if (v !== myVote) { myVote = v; myAnswer = ''; draft = '' }
-  applyHostName(); unsealMyRole(); syncTimer(); render();
+  applyHostName(); unsealMyRole(); syncTimer(); crashSync(); render();
 }
 
 /* Host ist die einzige Quelle der Wahrheit: er verteilt den State an Spieler und Overlay */
@@ -1191,10 +1240,11 @@ function newTimer(sec) { return { id: (state.timer && state.timer.id || 0) + 1, 
 /* ===== Aktionen ===== */
 const A = {
   game(k) {
-    state = { ...state, activeGame: k, questionIndex: 0, buzzerWinner: null, imposter: null, timer: null, impGame: null, scores: {} };
+    state = { ...state, activeGame: k, questionIndex: 0, buzzerWinner: null, imposter: null, timer: null, impGame: null, scores: {}, crash: null };
+    crashMsg = '';
     impMsg = ''; impAnswers = {}; push(); render();   // Imposter: erst Einstellungen, dann „Spiel starten“
   },
-  menu() { state = { ...state, activeGame: null, questionIndex: 0, buzzerWinner: null, imposter: null, timer: null, impGame: null, scores: {} }; impMsg = ''; push(); render() },
+  menu() { state = { ...state, activeGame: null, questionIndex: 0, buzzerWinner: null, imposter: null, timer: null, impGame: null, scores: {}, crash: null }; impMsg = ''; push(); render() },
   cfg(k, v) {
     if (k === 'category') { impCfg.category = v in imposterDatabase ? v : 'random'; ls.set('qs-impcfg', JSON.stringify(impCfg)); render(); return }
     const max = k === 'rounds' ? 20 : 10;
@@ -1256,6 +1306,31 @@ const A = {
   openAll() { for (let i = 0; i < MAX_SLOTS; i++) window.open(slotLink(i), '_blank') },
   copyPw(btn) { copyText(ROUND_PW, btn) },
   copyOv(btn) { copyText(OVERLAY_URL, btn) },
+  crashCfg(v) { crashCfg.target = Math.max(50, Math.min(100000, Math.round(+v) || CRASH_TARGET_DEFAULT)); ls.set('qs-crashcfg', JSON.stringify(crashCfg)); render() },
+  crashNewGame() {
+    state.crash = { phase: 'pick', target: crashCfg.target, round: 0, icons: {}, totals: {}, riders: [], cashed: {}, last: {}, names: {}, winners: [] };
+    crashMsg = ''; push(); render();
+  },
+  crashStart() {
+    const c = state.crash; if (!c || c.phase === 'run' || c.phase === 'over') return;
+    const ids = (state.players || []).map(p => p.id).filter(id => /^p\d+$/.test(id));
+    ids.forEach(id => {                                    // wer noch kein Icon hat, bekommt ein freies
+      if (!c.icons[id]) { const free = CRASH_ICONS.find(i => !Object.values(c.icons).includes(i)); if (free) c.icons[id] = free }
+    });
+    const riders = ids.filter(id => c.icons[id]);
+    if (!riders.length) { crashMsg = 'Keine Spieler verbunden.'; render(); return }
+    crashMsg = ''; c.round++; c.riders = riders; c.cashed = {}; c.last = {}; c.crashValue = null; c.crashT = null;
+    riders.forEach(id => c.names[id] = impName(id));
+    crashSecret = { round: c.round, at: crashDraw() }; ls.set('qs-crash', JSON.stringify(crashSecret));   // geheim, bleibt beim Host
+    c.startAt = Date.now() + CRASH_COUNTDOWN_SEC * 1000; c.phase = 'run';
+    crashSync(); push(); render(); crashSchedule();
+  },
+  crashEnd() {
+    if (state.crash && state.crash.phase !== 'over' && !confirm('Crash beenden? Die Punkte gehen verloren.')) return;
+    state.crash = null; crashSecret = null; ls.set('qs-crash', 'null'); crashMsg = ''; push(); render();
+  },
+  pickIcon(ic) { if (me && ch && status === 'SUBSCRIBED') ch.send({ type: 'broadcast', event: 'icon', payload: { id: me.id, icon: ic } }) },
+  cashOut() { crashCashOut() },
   copyHash(btn) { copyText(hostHash(), btn) },
   logout() { ss.set('qs-auth-host', ''); ss.set('qs-auth-' + ROUND, ''); location.reload() },
   async login() {
@@ -1564,10 +1639,16 @@ function updateOverlayCams(st) {
     t.style.order = w.slot;
     t.classList.toggle('host', w.pid === 'host');
     t.classList.toggle('turn', !!turnPid && w.pid === turnPid);
-    const nm = t.querySelector('.oname'); if (nm.textContent !== w.name) nm.textContent = w.name;
+    const cr = state.activeGame === 'crash' && state.crash;
+    const label = (cr && cr.icons[w.pid] ? cr.icons[w.pid] + ' ' : '') + w.name;
+    const nm = t.querySelector('.oname'); if (nm.textContent !== label) nm.textContent = label;
     const an = t.querySelector('.vans');
     const dl = rev && im.result && w.pid in im.result ? ' · ' + fmtPts(im.result[w.pid]) : '';
-    const at = rev && rev[w.pid] ? '„' + rev[w.pid] + '“' + dl : rev && impOrder().includes(w.pid) ? '— keine Antwort —' + dl : '';
+    let at = rev && rev[w.pid] ? '„' + rev[w.pid] + '“' + dl : rev && impOrder().includes(w.pid) ? '— keine Antwort —' + dl : '';
+    if (cr && (cr.riders || []).includes(w.pid)) {                   // Crash: Ausstieg / Ergebnis über der Kamera
+      if (cr.phase === 'run' && cr.cashed[w.pid]) at = '✓ ' + cr.cashed[w.pid].pts;
+      if (cr.phase === 'crashed' || cr.phase === 'over') at = (cr.last || {})[w.pid] ? '+' + cr.last[w.pid] : '💥 0';
+    }
     if (an.textContent !== at) an.textContent = at;
   });
   st.querySelector('.o-row').style.setProperty('--n', Math.max(1, want.length - 1));
@@ -1582,10 +1663,294 @@ function overlayState() {
     players: (state.players || []).map(p => ({ id: p.id, name: p.name, slot: p.slot, vdoId: p.vdoId || '' })),
     hostVdo: state.hostVdo || '', names: state.names || {}, scores: state.scores || {},
     impGame: state.impGame || null, impCfg: state.impCfg || null, timer: state.timer || null, sentAt: Date.now(),
+    crash: state.crash || null,   // enthält nie den Crash-Punkt
     imposter: im ? { deal: im.deal, category: im.category, count: im.count, order: im.order, names: im.names, phase: im.phase,
       turn: im.turn, vote: im.vote, reveal: im.phase === 'reveal' ? im.reveal : null, result: im.phase === 'reveal' ? im.result : null } : null
   };
 }
+
+/* ===================================================================================
+   CRASH – steigende Punktzahl, rechtzeitig aussteigen
+   Phasen in state.crash.phase:
+   'pick'    → Spiel gestartet, Spieler wählen ihr Icon
+   'run'     → Runde läuft (erst Countdown, dann steigt die Punktzahl)
+   'crashed' → Runde vorbei, Punkte gutgeschrieben
+   'over'    → jemand hat die Zielpunktzahl erreicht
+   Der Crash-Punkt kennt nur der Host (crashSecret) – er wird nie verschickt.
+   =================================================================================== */
+
+/* ----- Crash – HIER ANPASSEN ----- */
+const CRASH_ICONS = ['🚀', '💎', '🍀', '🔥', '⭐', '🎯', '💰', '🦄'];   // Icons zur Auswahl (Anzahl beliebig)
+const CRASH_TARGET_DEFAULT = 1000;   // Standard-Zielpunktzahl im Host-Menü
+// Geschwindigkeit des Anstiegs:  Punkte(t) = CRASH_SPEED · t + CRASH_ACCEL · t²   (t in Sekunden)
+const CRASH_SPEED = 25;              // Punkte pro Sekunde am Anfang
+const CRASH_ACCEL = 6;               // Beschleunigung – höher = wird immer schneller
+const CRASH_COUNTDOWN_SEC = 3;       // Countdown vor dem Start
+// Crash-Wahrscheinlichkeit: Crash-Punkt = CRASH_MIN + Zufall (exponentiell verteilt, Durchschnitt CRASH_MEAN), höchstens CRASH_MAX
+//   kleiner CRASH_MEAN = es crasht früher/öfter, größer = Runden dauern länger
+const CRASH_MIN = 10;
+const CRASH_MEAN = 250;
+const CRASH_MAX = 2000;
+
+const crashPts = t => t <= 0 ? 0 : Math.floor(CRASH_SPEED * t + CRASH_ACCEL * t * t);
+const crashTimeOf = p => p <= 0 ? 0 : (-CRASH_SPEED + Math.sqrt(CRASH_SPEED * CRASH_SPEED + 4 * CRASH_ACCEL * p)) / (2 * CRASH_ACCEL);
+const crashName = id => (state.crash && state.crash.names && state.crash.names[id]) || impName(id);
+function crashDraw() {
+  const u = crypto.getRandomValues(new Uint32Array(1))[0] / 4294967296;
+  return Math.min(CRASH_MAX, Math.max(CRASH_MIN, CRASH_MIN + Math.round(-Math.log(1 - u) * CRASH_MEAN)));
+}
+
+/* Einstellungen (Host) */
+let crashCfg = { target: CRASH_TARGET_DEFAULT };
+try { Object.assign(crashCfg, JSON.parse(ls.get('qs-crashcfg') || '{}')) } catch (e) {}
+let crashMsg = '';
+
+/* ----- Zeit: alle rechnen ab demselben Start – Uhr-Unterschied der Geräte wird ausgeglichen ----- */
+let crashLocalStart = 0, crashStartId = 0;
+function crashSync() {
+  const c = state.crash;
+  if (!c || !c.startAt) { crashLocalStart = 0; crashStartId = 0; return }
+  if (c.startAt === crashStartId) return;
+  crashStartId = c.startAt;
+  crashLocalStart = ROLE === 'host' ? c.startAt : c.startAt - ((state.sentAt || Date.now()) - Date.now());
+}
+const crashElapsed = () => crashLocalStart ? (Date.now() - crashLocalStart) / 1000 : 0;
+function crashNow() {
+  const c = state.crash; if (!c) return 0;
+  if (c.crashValue != null && c.phase !== 'run') return c.crashValue;
+  return c.phase === 'run' ? crashPts(crashElapsed()) : 0;
+}
+
+/* ----- Host: geheimer Crash-Punkt + Crash auslösen ----- */
+let crashSecret = null;
+try { crashSecret = JSON.parse(ls.get('qs-crash') || 'null') } catch (e) {}
+// Hintergrund-Timer (Worker): läuft auch zuverlässig, wenn der Host-Tab im Hintergrund ist
+const crashWorker = (() => {
+  try { return new Worker(URL.createObjectURL(new Blob(['onmessage=e=>setTimeout(()=>postMessage(e.data),Math.max(0,e.data.ms))'], { type: 'text/javascript' }))) }
+  catch (e) { return null }
+})();
+if (crashWorker) crashWorker.onmessage = () => crashCheck();
+function crashSchedule() {
+  const c = state.crash;
+  if (ROLE !== 'host' || !c || c.phase !== 'run' || !crashSecret || crashSecret.round !== c.round) return;
+  const ms = c.startAt + crashTimeOf(crashSecret.at) * 1000 + 5 - Date.now();
+  if (crashWorker) crashWorker.postMessage({ ms }); else setTimeout(crashCheck, Math.max(0, ms));
+}
+function crashCheck() {
+  const c = state.crash;
+  if (ROLE !== 'host' || !c || c.phase !== 'run' || !crashSecret) return;
+  if (crashPts((Date.now() - c.startAt) / 1000) >= crashSecret.at) doCrash();
+}
+if (ROLE === 'host') setInterval(crashCheck, 250);   // Sicherheitsnetz
+
+function doCrash() {
+  const c = state.crash; if (!c || c.phase !== 'run') return;
+  c.phase = 'crashed'; c.crashValue = crashSecret.at; c.crashT = crashTimeOf(crashSecret.at);
+  const last = {};
+  (c.riders || []).forEach(id => {                       // Ausgestiegene bekommen ihre Punkte, alle anderen 0
+    const g = c.cashed[id] ? c.cashed[id].pts : 0;
+    last[id] = g; c.totals[id] = (c.totals[id] || 0) + g;
+  });
+  c.last = last;
+  const max = Math.max(0, ...Object.values(c.totals));
+  if (max >= c.target) { c.phase = 'over'; c.winners = Object.keys(c.totals).filter(id => c.totals[id] === max) }
+  push(); render();
+}
+
+/* Host: Spieler meldet „Aussteigen“ (verschlüsselt mit seinem Schlüssel) */
+async function crashReceiveCash(pl) {
+  const c = state.crash;
+  if (ROLE !== 'host' || !pl || !c || c.phase !== 'run' || pl.round !== c.round) return;
+  const id = cleanId(pl.id);
+  if (!(c.riders || []).includes(id) || c.cashed[id]) return;
+  crashCheck(); if (c.phase !== 'run') return;
+  let o; try { o = await unseal(secrets[+id.slice(1) - 1], pl.box) } catch (e) { return }
+  if (!o || o.round !== c.round) return;
+  crashCheck(); if (c.phase !== 'run' || c.cashed[id]) return;
+  const hostPts = crashPts((Date.now() - c.startAt) / 1000);
+  if (hostPts <= 0) return;                               // noch Countdown
+  const pts = Math.max(1, Math.min(Math.floor(+o.pts || 0), hostPts, crashSecret.at - 1));   // nie mehr als der Host gerade sieht
+  c.cashed[id] = { pts, t: crashTimeOf(pts) };
+  push(); render();
+}
+/* Host: Spieler wählt ein Icon (jedes Icon nur einmal) */
+function crashReceiveIcon(pl) {
+  const c = state.crash;
+  if (ROLE !== 'host' || !pl || !c || c.phase === 'run' || c.phase === 'over') return;
+  const id = cleanId(pl.id), icon = pl.icon;
+  if (!/^p\d+$/.test(id) || !CRASH_ICONS.includes(icon)) return;
+  if (Object.entries(c.icons).some(([k, v]) => v === icon && k !== id)) return;
+  c.icons[id] = icon; push(); render();
+}
+
+/* ----- Spieler: Aussteigen ----- */
+let crashPending = 0;
+async function crashCashOut() {
+  const c = state.crash;
+  if (!me || !c || c.phase !== 'run' || !(c.riders || []).includes(me.id) || c.cashed[me.id] || crashPending === c.round) return;
+  const pts = crashNow(); if (pts <= 0) return;
+  crashPending = c.round; render();
+  try {
+    const box = await seal(me.secret, { round: c.round, pts });
+    if (ch && status === 'SUBSCRIBED') ch.send({ type: 'broadcast', event: 'cashout', payload: { id: me.id, round: c.round, box } });
+  } catch (e) {}
+}
+
+/* ----- Diagramm (Canvas) – Aussehen HIER ANPASSEN ----- */
+const CRASH_CHART = {
+  line: '#ffe600', lineCrash: '#ff2d55', grid: 'rgba(255,43,214,.25)', label: '#b9a8e8', cashed: '#39ff14',
+  iconSize: 46, font: '"Press Start 2P", monospace'
+};
+function niceStep(r) { const p = Math.pow(10, Math.floor(Math.log10(r || 1))); return [1, 2, 5, 10].map(m => m * p).find(s => s >= r) || p * 10 }
+function drawCrashChart(cv) {
+  const c = state.crash, x = cv.getContext && cv.getContext('2d');
+  if (!c || !x) return;
+  const W = cv.width, H = cv.height, L = 100, R = 40, T = 70, B = 40;
+  const crashed = c.phase !== 'run' && c.crashValue != null;
+  const el = crashed ? c.crashT : Math.max(0, crashElapsed());
+  const cur = crashed ? c.crashValue : crashNow();
+  const cashedPts = Object.values(c.cashed || {}).map(v => v.pts);
+  const ymax = Math.max(100, cur * 1.25, ...cashedPts.map(p => p * 1.15));
+  const xmax = Math.max(8, el * 1.12);
+  const X = t => L + (W - L - R) * t / xmax, Y = p => H - B - (H - T - B) * p / ymax;
+  x.clearRect(0, 0, W, H);
+  // Gitter + Beschriftung
+  x.lineWidth = 2; x.strokeStyle = CRASH_CHART.grid; x.fillStyle = CRASH_CHART.label; x.font = '16px ' + CRASH_CHART.font; x.textAlign = 'right';
+  const step = niceStep(ymax / 5);
+  for (let v = 0; v <= ymax; v += step) { x.beginPath(); x.moveTo(L, Y(v)); x.lineTo(W - R, Y(v)); x.stroke(); x.fillText(String(v), L - 14, Y(v) + 6) }
+  // Kurve
+  if (el > 0) {
+    x.beginPath();
+    for (let i = 0; i <= 90; i++) { const t = el * i / 90, px = X(t), py = Y(crashPts(t)); i ? x.lineTo(px, py) : x.moveTo(px, py) }
+    x.strokeStyle = crashed ? CRASH_CHART.lineCrash : CRASH_CHART.line; x.lineWidth = 8;
+    x.shadowColor = x.strokeStyle; x.shadowBlur = 18; x.stroke(); x.shadowBlur = 0;
+  }
+  // Icons: Ausgestiegene bleiben auf ihrer Höhe stehen, alle anderen fahren an der Spitze mit
+  x.textAlign = 'center';
+  let k = 0;
+  (c.riders || []).forEach(id => {
+    const icon = c.icons[id] || '❔', cs = c.cashed && c.cashed[id];
+    x.font = CRASH_CHART.iconSize + 'px serif';
+    if (cs) {
+      const px = X(cs.t), py = Y(cs.pts);
+      x.fillText(icon, px, py - 12);
+      x.font = '15px ' + CRASH_CHART.font; x.fillStyle = CRASH_CHART.cashed; x.fillText(String(cs.pts), px, py - CRASH_CHART.iconSize - 18);
+    } else {
+      x.fillText(crashed ? '💥' : icon, X(el) - k * (CRASH_CHART.iconSize + 6), Y(cur) - 12); k++;
+    }
+  });
+}
+
+/* Läuft dauerhaft: Punktzahl-Text + Diagramme aktualisieren */
+const crashRaf = typeof requestAnimationFrame === 'function' ? requestAnimationFrame : f => setTimeout(f, 50);
+(function crashLoop() {
+  const c = state.crash;
+  if (state.activeGame === 'crash' && c) {
+    const el = crashElapsed();
+    const txt = c.phase === 'run' ? (el < 0 ? 'START IN ' + Math.ceil(-el) : String(crashNow()))
+              : c.crashValue != null ? 'CRASH BEI ' + c.crashValue : '0';
+    document.querySelectorAll('.crash-score').forEach(e => {
+      if (e.textContent !== txt) e.textContent = txt;
+      e.classList && e.classList.toggle('boom', c.phase !== 'run' && c.crashValue != null);
+    });
+    document.querySelectorAll('canvas.crash-canvas').forEach(drawCrashChart);
+  }
+  crashRaf(crashLoop);
+})();
+
+/* ----- Bausteine ----- */
+function crashIds() {
+  const c = state.crash; if (!c) return [];
+  return [...new Set([...Object.keys(c.icons || {}), ...(c.riders || []), ...Object.keys(c.totals || {}),
+    ...(state.players || []).map(p => p.id).filter(id => /^p\d+$/.test(id))])];
+}
+function crashTotals(big) {
+  const c = state.crash, ids = crashIds().sort((a, b) => (c.totals[b] || 0) - (c.totals[a] || 0) || crashName(a).localeCompare(crashName(b)));
+  if (!ids.length) return '<p class="mu">Noch keine Spieler.</p>';
+  return `<div class="scores ${big ? 'big' : ''}">${ids.map((id, i) => {
+    const t = c.totals[id] || 0, win = (c.winners || []).includes(id);
+    return `<div class="srow ${win ? 'win' : ''} ${me && id === me.id ? 'mine' : ''}"><i>${c.icons[id] || '·'}</i><b>${esc(crashName(id))}</b><span>${t} / ${c.target}</span></div>`;
+  }).join('')}</div>`;
+}
+const crashChart = cls => `<div class="crash-chart ${cls || ''}"><div class="crash-score">0</div><canvas class="crash-canvas" width="1200" height="560"></canvas></div>`;
+
+/* ----- Spieler-Ansicht – Aussehen HIER ANPASSEN ----- */
+function crashPlayerView() {
+  const c = state.crash;
+  if (!c) return `<div class="card crash-card"><h3>Crash</h3><div class="stage"><div><b>Crash</b>Warte, bis der Quizmaster das Spiel startet …</div></div></div>`;
+  if (crashPending && (c.round !== crashPending || c.phase !== 'run' || c.cashed[me.id])) crashPending = 0;
+  const mine = c.icons[me.id], rider = (c.riders || []).includes(me.id), cs = c.cashed[me.id];
+  const head = `<div class="crash-head"><b>CRASH</b><span>ZIEL ${c.target}</span>${c.round ? `<span>RUNDE ${c.round}</span>` : ''}<span class="mine">DEINE PUNKTE: ${c.totals[me.id] || 0}</span></div>`;
+  if (c.phase === 'over') {
+    const w = (c.winners || []).map(crashName).join(' & ');
+    return `<div class="card crash-card">${head}<div class="crash-win"><small>GEWONNEN HAT</small><b>${esc(w)}</b></div>${crashTotals(true)}</div>`;
+  }
+  // Icon-Auswahl (nicht während einer laufenden Runde)
+  const picker = c.phase !== 'run' ? `<div class="crash-pick"><small>${mine ? 'DEIN ICON – du kannst bis zum Rundenstart wechseln' : 'WÄHLE DEIN ICON'}</small>
+    <div class="icons">${CRASH_ICONS.map(ic => {
+      const owner = Object.keys(c.icons).find(k => c.icons[k] === ic), taken = owner && owner !== me.id;
+      return `<button class="icon ${owner === me.id ? 'on' : ''}" ${taken ? 'disabled' : ''} onclick="A.pickIcon('${ic}')"><span>${ic}</span><em>${taken ? esc(crashName(owner)) : owner === me.id ? 'DU' : ''}</em></button>`;
+    }).join('')}</div></div>` : '';
+  let action = '';
+  if (c.phase === 'run') {
+    action = !rider ? `<div class="crash-btn wait">Du fährst diese Runde nicht mit</div>`
+      : cs ? `<div class="crash-btn safe">✓ GESICHERT: ${cs.pts}</div>`
+      : crashPending ? `<div class="crash-btn wait">Wird gesichert …</div>`
+      : `<button class="crash-btn go" onclick="A.cashOut()">${mine || ''} AUSSTEIGEN</button>`;
+  }
+  if (c.phase === 'crashed' && rider) {
+    const g = (c.last || {})[me.id] || 0;
+    action = g ? `<div class="crash-btn safe">✓ +${g} PUNKTE GESICHERT</div>` : `<div class="crash-btn boom">💥 CRASH – 0 PUNKTE</div>`;
+  }
+  const chart = c.phase === 'pick' ? '' : crashChart();
+  return `<div class="card crash-card">${head}${chart}${action}${picker}
+    ${c.phase === 'pick' ? '<p class="mu">Der Quizmaster startet gleich die erste Runde.</p>' : ''}
+    <div class="crash-tot"><small>PUNKTESTAND</small>${crashTotals(false)}</div></div>`;
+}
+
+/* ----- Host-Ansicht ----- */
+function crashHostCard() {
+  const c = state.crash;
+  if (!c) return `<div class="card crash-card"><h3>Crash · Einstellungen</h3>
+    ${crashMsg ? `<div class="warn">${esc(crashMsg)}</div>` : ''}
+    <div class="setup"><label><span>Zielpunktzahl</span><small>wer sie zuerst erreicht, gewinnt</small>
+      <input class="input" type="number" min="50" max="100000" step="50" value="${crashCfg.target}" onchange="A.crashCfg(this.value)"></label></div>
+    <div class="row"><button class="btn pk big" onclick="A.crashNewGame()">▶ Spiel starten</button></div></div>`;
+  const rows = crashIds().map(id => {
+    const rider = (c.riders || []).includes(id), cs = c.cashed[id];
+    let st = c.icons[id] ? 'Icon gewählt' : 'wählt noch …';
+    if (c.phase === 'run' && rider) st = cs ? `✓ ausgestiegen bei ${cs.pts}` : 'fährt …';
+    if ((c.phase === 'crashed' || c.phase === 'over') && rider) st = (c.last || {})[id] ? `✓ +${c.last[id]}` : '💥 0';
+    return `<div class="crow ${cs ? 'safe' : ''} ${c.phase !== 'run' && rider && !(c.last || {})[id] && c.crashValue != null ? 'lost' : ''}">
+      <i>${c.icons[id] || '·'}</i><b>${esc(crashName(id))}</b><span>${st}</span><em>${c.totals[id] || 0}</em></div>`;
+  }).join('');
+  let ctl = '';
+  if (c.phase === 'pick') ctl = `<button class="btn pk big" onclick="A.crashStart()">▶ Runde 1 starten</button>`;
+  if (c.phase === 'crashed') ctl = `<button class="btn pk big" onclick="A.crashStart()">▶ Runde ${c.round + 1} starten</button>`;
+  if (c.phase === 'over') ctl = `<button class="btn pk big" onclick="A.crashEnd()">Neues Spiel</button>`;
+  return `<div class="card crash-card"><h3>Crash · Ziel ${c.target}${c.round ? ' · Runde ' + c.round : ''}</h3>
+    ${crashMsg ? `<div class="warn">${esc(crashMsg)}</div>` : ''}
+    ${c.phase === 'over' ? `<div class="crash-win"><small>GEWONNEN HAT</small><b>${esc((c.winners || []).map(crashName).join(' & '))}</b></div>` : ''}
+    ${c.phase === 'pick' ? '<p class="mu">Die Spieler wählen jetzt ihre Icons. Wer beim Start noch keins hat, bekommt ein freies.</p>' : crashChart('host')}
+    <div class="crows">${rows || '<p class="mu">Noch keine Spieler verbunden.</p>'}</div>
+    <div class="row" style="margin-top:14px">${ctl}${c.phase !== 'over' ? `<button class="btn" onclick="A.crashEnd()">Spiel beenden</button>` : ''}</div>
+    <p class="mu">Der Crash-Punkt ist geheim – auch für dich, damit er nicht im Stream landet.</p>
+  </div>`;
+}
+
+/* ----- Overlay ----- */
+OVERLAY_GAMES.crash = {
+  game: () => {
+    const c = state.crash;
+    const head = `<div class="o-head"><b>CRASH</b>${c ? `<span>ZIEL ${c.target}${c.round ? ' · RUNDE ' + c.round : ''}</span>` : ''}</div>`;
+    if (!c) return head + `<div class="o-panel o-center"><div class="o-big">Gleich geht’s los …</div></div>`;
+    if (c.phase === 'over') return head + `<div class="o-panel o-center"><small>GEWONNEN HAT</small><div class="o-big o-win">${esc((c.winners || []).map(id => (c.icons[id] || '') + ' ' + crashName(id)).join(' & '))}</div></div>`;
+    if (c.phase === 'pick') return head + `<div class="o-panel o-center"><div class="o-big">Wählt eure Icons!</div>
+      <div class="o-icons">${CRASH_ICONS.map(ic => { const o = Object.keys(c.icons).find(k => c.icons[k] === ic); return `<div class="${o ? 'on' : ''}"><span>${ic}</span><em>${o ? esc(crashName(o)) : ''}</em></div>` }).join('')}</div></div>`;
+    return head + `<div class="o-panel o-crash">${crashChart('ov')}</div>`;
+  },
+  side: () => state.crash ? `<div class="o-scores"><div class="vsh"><small>PUNKTE</small><small>ZIEL ${state.crash.target}</small></div>${crashTotals(false)}</div>` : ''
+};
 
 /* Host-Hauptmenü: fester OBS-Link */
 function obsCard() {
@@ -1625,6 +1990,7 @@ function hostView() {
     </div>
     ${!state.activeGame ? obsCard() : ''}
     ${state.activeGame === 'imposter' ? impHostCard() : ''}
+    ${state.activeGame === 'crash' ? crashHostCard() : ''}
   </div>`;
 }
 
@@ -1665,6 +2031,7 @@ function playerView() {
     </div>`;
   // Imposter: Rolle steht im Infokasten oben (in #vdo), hier nur noch Name + Spielerliste
   if (g === 'imposter') return `<div class="wrap wrap-b">${statusChip()}${warn()}</div>`;
+  if (g === 'crash') return `<div class="wrap">${statusChip()}${warn()}${crashPlayerView()}</div>`;
   return `<div class="wrap">${logo()}${statusChip()}${warn()}
     <div class="card"><h3>Aktives Spiel</h3>
       <div class="now">${g ? esc(gameName(g)) : gotState ? 'Hauptmenü' : 'Warte auf den Host …'}</div>
@@ -1730,6 +2097,7 @@ addEventListener('storage', e => { if (ROLE === 'host' && e.key === 'qs-round' &
   } catch (e) {}
   render();
   if (authed) connect();
+  if (ROLE === 'host') { crashSync(); crashSchedule() }
 })();
 </script>
 
@@ -1749,6 +2117,8 @@ addEventListener('storage', e => { if (ROLE === 'host' && e.key === 'qs-round' &
   4. Runden: Vor jedem Quiz "Neue Runde · neue Links" drücken und die neuen Links verschicken.
   5. Nur EIN Host gleichzeitig und immer im selben Browser (Runde, Schlüssel, Namen im localStorage).
   6. Falls Supabase unter Realtime → Settings "Private channels only" aktiv ist: ausschalten.
+  6b. Crash: Icons, Geschwindigkeit (CRASH_SPEED/CRASH_ACCEL) und Crash-Wahrscheinlichkeit (CRASH_MIN/MEAN/MAX)
+     oben im Abschnitt "Crash – HIER ANPASSEN", Aussehen im CSS unter "Crash" und im Diagramm bei CRASH_CHART.
   7. Imposter: Wörter, Kategorie, Anzahl Imposter, Mindestspieler, Redezeit (IMPOSTER_TURN_SEC),
      Anzahl Durchgänge (IMPOSTER_TURN_ROUNDS) und Abstimmungszeit (IMPOSTER_VOTE_SEC) oben unter "Imposter – HIER ANPASSEN".
      Rollen werden pro Spieler verschlüsselt – Spieler-Links aus dem Host nehmen (sie enthalten den Schlüssel &s=…).
