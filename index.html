@@ -508,6 +508,27 @@ img.avi{width:var(--avi-inline);height:var(--avi-inline);border-radius:50%;objec
 #ostage[data-game="dumm"] .vsr .lives{font-size:18px}
 #ostage .oname .lives{font-size:16px;margin-left:6px}
 
+/* ===== Flaggen-Bilder – GRÖSSE HIER ANPASSEN (--flag-w = Breite der Flagge) ===== */
+.dflag{--flag-w:280px;position:relative;width:var(--flag-w);max-width:100%;aspect-ratio:3/2;margin:4px auto;display:grid;place-items:center;
+  background:#000;border:4px solid #fff;box-shadow:6px 6px 0 #000;overflow:hidden}
+.dflag img{width:100%;height:100%;object-fit:contain;display:block;background:#fff}
+.dflag-fb{display:none;flex-direction:column;align-items:center;gap:8px;font-family:'Noto Color Emoji',sans-serif}
+.dflag-fb b{font-size:calc(var(--flag-w) * .38);line-height:1}
+.dflag-fb small{font:8px var(--px);color:var(--mu)}
+.dflag.err img{display:none}.dflag.err .dflag-fb{display:flex}
+.dflag.big{--flag-w:280px}                                   /* Spieler-Ansicht */
+.dflag.host{--flag-w:200px;margin:6px 0}                     /* Host-Steuerung */
+.dq.hasflag{justify-items:center;text-align:center}
+.vgrid.dfin .dflag.big{--flag-w:240px}
+#ostage .dflag.ovbar{--flag-w:240px;flex:none;margin:0;border-width:5px}   /* Overlay Hauptrunde (Leiste unten) */
+#ostage .dflag.ovfin{--flag-w:240px;flex:none;margin:0;border-width:5px}   /* Overlay Finale (Fragekasten) */
+#ostage .dflag-fb small{font-size:12px}
+/* Overlay: Leiste wird bei Flaggen-Fragen höher und ragt nach oben (Kameras bleiben frei) */
+.o-dbar.flag{height:220px;transform:translateY(-80px);padding:14px 26px}
+.o-flagrow{display:flex;align-items:center;justify-content:center;gap:28px;text-align:left}
+#ostage[data-game="dumm"] .o-flagrow .o-q{margin:0;font-size:28px}
+#ostage[data-game="dumm"][data-sub="final"] .o-dq{padding:16px 26px;gap:10px}
+
 /* Player */
 .input{font:12px var(--px);background:#000;color:#fff;border:3px solid var(--cyan);padding:12px;width:100%;max-width:340px}
 .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
@@ -541,7 +562,7 @@ img.avi{width:var(--avi-inline);height:var(--avi-inline);border-radius:50%;objec
 
 <script>
 /* ===== Konfiguration ===== */
-const APP_VERSION = 'v26.10.2026-11';   // Versionsnummer – steht unten auf jeder Seite, so siehst du, ob GitHub die neue Datei ausliefert
+const APP_VERSION = 'v26.10.2026-12';   // Versionsnummer – steht unten auf jeder Seite, so siehst du, ob GitHub die neue Datei ausliefert
 const SUPABASE_URL = 'https://oufoopkyhdxbmvjngngd.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im91Zm9vcGt5aGR4Ym12am5nbmdkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTI5MzI0NTUsImV4cCI6MjEwODUwODQ1NX0.yeKbvsNwgqErfFNmHKsIrRc-SNVWD3SEfyqmR1X2BWM';
 const CHANNEL = 'raum-eins';   // Basisname; jede Runde läuft in "raum-eins-<Rundencode>"
@@ -2446,49 +2467,49 @@ const duemmsteFliegtQuestions = [
   { category: "Allgemeinwissen", question: "Welche Sprache sprachen die alten Römer?", answer: "Latein", type: "normal" },
 
   // Flaggen
-  { category: "Flaggen", question: "Welches Land hat diese Flagge? 🇩🇪", answer: "Deutschland", type: "normal" },
-  { category: "Flaggen", question: "Welches Land hat diese Flagge? 🇫🇷", answer: "Frankreich", type: "normal" },
-  { category: "Flaggen", question: "Welches Land hat diese Flagge? 🇮🇹", answer: "Italien", type: "normal" },
-  { category: "Flaggen", question: "Welches Land hat diese Flagge? 🇪🇸", answer: "Spanien", type: "normal" },
-  { category: "Flaggen", question: "Welches Land hat diese Flagge? 🇯🇵", answer: "Japan", type: "normal" },
-  { category: "Flaggen", question: "Welches Land hat diese Flagge? 🇧🇷", answer: "Brasilien", type: "normal" },
-  { category: "Flaggen", question: "Welches Land hat diese Flagge? 🇺🇸", answer: "USA", type: "normal" },
-  { category: "Flaggen", question: "Welches Land hat diese Flagge? 🇬🇧", answer: "Großbritannien", type: "normal" },
-  { category: "Flaggen", question: "Welches Land hat diese Flagge? 🇨🇦", answer: "Kanada", type: "normal" },
-  { category: "Flaggen", question: "Welches Land hat diese Flagge? 🇦🇺", answer: "Australien", type: "normal" },
-  { category: "Flaggen", question: "Welches Land hat diese Flagge? 🇨🇭", answer: "Schweiz", type: "normal" },
-  { category: "Flaggen", question: "Welches Land hat diese Flagge? 🇦🇹", answer: "Österreich", type: "normal" },
-  { category: "Flaggen", question: "Welches Land hat diese Flagge? 🇳🇱", answer: "Niederlande", type: "normal" },
-  { category: "Flaggen", question: "Welches Land hat diese Flagge? 🇸🇪", answer: "Schweden", type: "normal" },
-  { category: "Flaggen", question: "Welches Land hat diese Flagge? 🇳🇴", answer: "Norwegen", type: "normal" },
-  { category: "Flaggen", question: "Welches Land hat diese Flagge? 🇵🇱", answer: "Polen", type: "normal" },
-  { category: "Flaggen", question: "Welches Land hat diese Flagge? 🇧🇪", answer: "Belgien", type: "normal" },
-  { category: "Flaggen", question: "Welches Land hat diese Flagge? 🇩🇰", answer: "Dänemark", type: "normal" },
-  { category: "Flaggen", question: "Welches Land hat diese Flagge? 🇫🇮", answer: "Finnland", type: "normal" },
-  { category: "Flaggen", question: "Welches Land hat diese Flagge? 🇮🇪", answer: "Irland", type: "normal" },
-  { category: "Flaggen", question: "Welches Land hat diese Flagge? 🇵🇹", answer: "Portugal", type: "normal" },
-  { category: "Flaggen", question: "Welches Land hat diese Flagge? 🇬🇷", answer: "Griechenland", type: "normal" },
-  { category: "Flaggen", question: "Welches Land hat diese Flagge? 🇹🇷", answer: "Türkei", type: "normal" },
-  { category: "Flaggen", question: "Welches Land hat diese Flagge? 🇷🇺", answer: "Russland", type: "normal" },
-  { category: "Flaggen", question: "Welches Land hat diese Flagge? 🇺🇦", answer: "Ukraine", type: "normal" },
-  { category: "Flaggen", question: "Welches Land hat diese Flagge? 🇨🇿", answer: "Tschechien", type: "normal" },
-  { category: "Flaggen", question: "Welches Land hat diese Flagge? 🇭🇺", answer: "Ungarn", type: "normal" },
-  { category: "Flaggen", question: "Welches Land hat diese Flagge? 🇭🇷", answer: "Kroatien", type: "normal" },
-  { category: "Flaggen", question: "Welches Land hat diese Flagge? 🇮🇸", answer: "Island", type: "normal" },
-  { category: "Flaggen", question: "Welches Land hat diese Flagge? 🇲🇽", answer: "Mexiko", type: "normal" },
-  { category: "Flaggen", question: "Welches Land hat diese Flagge? 🇦🇷", answer: "Argentinien", type: "normal" },
-  { category: "Flaggen", question: "Welches Land hat diese Flagge? 🇨🇳", answer: "China", type: "normal" },
-  { category: "Flaggen", question: "Welches Land hat diese Flagge? 🇰🇷", answer: "Südkorea", type: "normal" },
-  { category: "Flaggen", question: "Welches Land hat diese Flagge? 🇿🇦", answer: "Südafrika", type: "normal" },
-  { category: "Flaggen", question: "Welches Land hat diese Flagge? 🇪🇬", answer: "Ägypten", type: "normal" },
-  { category: "Flaggen", question: "Welches Land hat diese Flagge? 🇳🇿", answer: "Neuseeland", type: "normal" },
-  { category: "Flaggen", question: "Welches Land hat diese Flagge? 🇯🇲", answer: "Jamaika", type: "normal" },
-  { category: "Flaggen", question: "Welches Land hat diese Flagge? 🇮🇱", answer: "Israel", type: "normal" },
-  { category: "Flaggen", question: "Welches Land hat diese Flagge? 🇹🇭", answer: "Thailand", type: "normal" },
-  { category: "Flaggen", question: "Welches Land hat diese Flagge? 🇻🇳", answer: "Vietnam", type: "normal" },
-  { category: "Flaggen", question: "Welches Land hat diese Flagge? 🇳🇬", answer: "Nigeria", type: "normal" },
-  { category: "Flaggen", question: "Welches Land hat diese Flagge? 🇨🇱", answer: "Chile", type: "normal" },
-  { category: "Flaggen", question: "Welches Land hat diese Flagge? 🇰🇪", answer: "Kenia", type: "normal" },
+  { category: "Flaggen", question: "Welches Land hat diese Flagge?", answer: "Deutschland", countryCode: "de", type: "normal" },
+  { category: "Flaggen", question: "Welches Land hat diese Flagge?", answer: "Frankreich", countryCode: "fr", type: "normal" },
+  { category: "Flaggen", question: "Welches Land hat diese Flagge?", answer: "Italien", countryCode: "it", type: "normal" },
+  { category: "Flaggen", question: "Welches Land hat diese Flagge?", answer: "Spanien", countryCode: "es", type: "normal" },
+  { category: "Flaggen", question: "Welches Land hat diese Flagge?", answer: "Japan", countryCode: "jp", type: "normal" },
+  { category: "Flaggen", question: "Welches Land hat diese Flagge?", answer: "Brasilien", countryCode: "br", type: "normal" },
+  { category: "Flaggen", question: "Welches Land hat diese Flagge?", answer: "USA", countryCode: "us", type: "normal" },
+  { category: "Flaggen", question: "Welches Land hat diese Flagge?", answer: "Großbritannien", countryCode: "gb", type: "normal" },
+  { category: "Flaggen", question: "Welches Land hat diese Flagge?", answer: "Kanada", countryCode: "ca", type: "normal" },
+  { category: "Flaggen", question: "Welches Land hat diese Flagge?", answer: "Australien", countryCode: "au", type: "normal" },
+  { category: "Flaggen", question: "Welches Land hat diese Flagge?", answer: "Schweiz", countryCode: "ch", type: "normal" },
+  { category: "Flaggen", question: "Welches Land hat diese Flagge?", answer: "Österreich", countryCode: "at", type: "normal" },
+  { category: "Flaggen", question: "Welches Land hat diese Flagge?", answer: "Niederlande", countryCode: "nl", type: "normal" },
+  { category: "Flaggen", question: "Welches Land hat diese Flagge?", answer: "Schweden", countryCode: "se", type: "normal" },
+  { category: "Flaggen", question: "Welches Land hat diese Flagge?", answer: "Norwegen", countryCode: "no", type: "normal" },
+  { category: "Flaggen", question: "Welches Land hat diese Flagge?", answer: "Polen", countryCode: "pl", type: "normal" },
+  { category: "Flaggen", question: "Welches Land hat diese Flagge?", answer: "Belgien", countryCode: "be", type: "normal" },
+  { category: "Flaggen", question: "Welches Land hat diese Flagge?", answer: "Dänemark", countryCode: "dk", type: "normal" },
+  { category: "Flaggen", question: "Welches Land hat diese Flagge?", answer: "Finnland", countryCode: "fi", type: "normal" },
+  { category: "Flaggen", question: "Welches Land hat diese Flagge?", answer: "Irland", countryCode: "ie", type: "normal" },
+  { category: "Flaggen", question: "Welches Land hat diese Flagge?", answer: "Portugal", countryCode: "pt", type: "normal" },
+  { category: "Flaggen", question: "Welches Land hat diese Flagge?", answer: "Griechenland", countryCode: "gr", type: "normal" },
+  { category: "Flaggen", question: "Welches Land hat diese Flagge?", answer: "Türkei", countryCode: "tr", type: "normal" },
+  { category: "Flaggen", question: "Welches Land hat diese Flagge?", answer: "Russland", countryCode: "ru", type: "normal" },
+  { category: "Flaggen", question: "Welches Land hat diese Flagge?", answer: "Ukraine", countryCode: "ua", type: "normal" },
+  { category: "Flaggen", question: "Welches Land hat diese Flagge?", answer: "Tschechien", countryCode: "cz", type: "normal" },
+  { category: "Flaggen", question: "Welches Land hat diese Flagge?", answer: "Ungarn", countryCode: "hu", type: "normal" },
+  { category: "Flaggen", question: "Welches Land hat diese Flagge?", answer: "Kroatien", countryCode: "hr", type: "normal" },
+  { category: "Flaggen", question: "Welches Land hat diese Flagge?", answer: "Island", countryCode: "is", type: "normal" },
+  { category: "Flaggen", question: "Welches Land hat diese Flagge?", answer: "Mexiko", countryCode: "mx", type: "normal" },
+  { category: "Flaggen", question: "Welches Land hat diese Flagge?", answer: "Argentinien", countryCode: "ar", type: "normal" },
+  { category: "Flaggen", question: "Welches Land hat diese Flagge?", answer: "China", countryCode: "cn", type: "normal" },
+  { category: "Flaggen", question: "Welches Land hat diese Flagge?", answer: "Südkorea", countryCode: "kr", type: "normal" },
+  { category: "Flaggen", question: "Welches Land hat diese Flagge?", answer: "Südafrika", countryCode: "za", type: "normal" },
+  { category: "Flaggen", question: "Welches Land hat diese Flagge?", answer: "Ägypten", countryCode: "eg", type: "normal" },
+  { category: "Flaggen", question: "Welches Land hat diese Flagge?", answer: "Neuseeland", countryCode: "nz", type: "normal" },
+  { category: "Flaggen", question: "Welches Land hat diese Flagge?", answer: "Jamaika", countryCode: "jm", type: "normal" },
+  { category: "Flaggen", question: "Welches Land hat diese Flagge?", answer: "Israel", countryCode: "il", type: "normal" },
+  { category: "Flaggen", question: "Welches Land hat diese Flagge?", answer: "Thailand", countryCode: "th", type: "normal" },
+  { category: "Flaggen", question: "Welches Land hat diese Flagge?", answer: "Vietnam", countryCode: "vn", type: "normal" },
+  { category: "Flaggen", question: "Welches Land hat diese Flagge?", answer: "Nigeria", countryCode: "ng", type: "normal" },
+  { category: "Flaggen", question: "Welches Land hat diese Flagge?", answer: "Chile", countryCode: "cl", type: "normal" },
+  { category: "Flaggen", question: "Welches Land hat diese Flagge?", answer: "Kenia", countryCode: "ke", type: "normal" },
   { category: "Flaggen", question: "Wie viele Sterne hat die Flagge der USA?", answer: "50", type: "normal" },
   { category: "Flaggen", question: "Welches Blatt ist auf der Flagge Kanadas abgebildet?", answer: "Ahornblatt", type: "normal" },
   { category: "Flaggen", question: "Welches Land hat einen Zedernbaum auf seiner Flagge?", answer: "Libanon", type: "normal" },
@@ -2886,7 +2907,21 @@ const duemmsteFliegtQuestions = [
   { category: "Natur", question: "Wie nennt man Tiere, die vor allem nachts aktiv sind?", answer: "Nachtaktiv", type: "normal" },
   { category: "Natur", question: "Wie heißt das Jungtier eines Hundes?", answer: "Welpe", type: "normal" }
 ];
-const DUMM_QUESTIONS = duemmsteFliegtQuestions.filter(x => x.type === 'normal').map(x => ({ q: x.question, a: x.answer, cat: x.category }));
+const DUMM_QUESTIONS = duemmsteFliegtQuestions.filter(x => x.type === 'normal').map(x => ({ q: x.question, a: x.answer, cat: x.category, flag: x.countryCode || '' }));
+
+/* ----- Flaggen-Bilder – BILDQUELLE HIER ÄNDERN (Größe im CSS unter „Flaggen-Bilder“) -----
+   flagcdn.com liefert Flaggen als PNG in festen Breiten (20, 40, 80, 160, 320, 640, 1280 px).
+   Ländercodes nach ISO 3166-1 alpha-2, klein geschrieben (de, fr, jp, gb …). */
+const FLAG_URL = code => 'https://flagcdn.com/w320/' + code + '.png';
+const FLAG_URL_2X = code => 'https://flagcdn.com/w640/' + code + '.png';   // für scharfe Darstellung auf großen/hochauflösenden Bildschirmen
+const cleanFlag = c => /^[a-z]{2}$/.test(c || '') ? c : '';
+// Flagge als Bild – lädt es nicht, erscheint ein Ersatz (Flaggen-Emoji + Hinweis)
+function flagImg(code, cls) {
+  const c = cleanFlag(code); if (!c) return '';
+  const emoji = String.fromCodePoint(...[...c.toUpperCase()].map(ch => 0x1F1E6 + ch.charCodeAt(0) - 65));
+  return `<div class="dflag ${cls || ''}"><img src="${FLAG_URL(c)}" srcset="${FLAG_URL_2X(c)} 2x" alt="Flagge" draggable="false" referrerpolicy="no-referrer"
+    onerror="this.parentNode.classList.add('err')"><span class="dflag-fb"><b>${emoji}</b><small>Bild lädt nicht</small></span></div>`;
+}
 const DUMM_ESTIMATES = [
   { q: 'Wie hoch ist der Eiffelturm (mit Antennen) in Metern?', a: 330 },
   { q: 'Wie viele Knochen hat ein erwachsener Mensch?', a: 206 },
@@ -2950,11 +2985,11 @@ function dummDraw(estimate) {
   let free = db.map((_, i) => i).filter(i => !dummHost[key].includes(i));
   if (!free.length) { dummHost[key] = []; free = db.map((_, i) => i) }
   const i = free[rint(free.length)]; dummHost[key].push(i);
-  return { text: db[i].q, answer: db[i].a, cat: db[i].cat || '' };
+  return { text: db[i].q, answer: db[i].a, cat: db[i].cat || '', flag: db[i].flag || '' };
 }
 function dummAsk(q, estimate) {      // Frage stellen: Text geht an alle, Antwort bleibt beim Host
   const d = D(); d.qNo = (d.qNo || 0) + 1;
-  d.q = { text: q.text, cat: q.cat || '', type: estimate ? 'estimate' : 'normal', no: d.qNo };
+  d.q = { text: q.text, cat: q.cat || '', flag: cleanFlag(q.flag), type: estimate ? 'estimate' : 'normal', no: d.qNo };
   dummHost.ans = { no: d.qNo, answer: q.answer }; dummSave();
 }
 
@@ -3136,7 +3171,7 @@ function dummPanel() {
   const d = D(), mine = me && dummIn(me.id) ? d.lives[me.id] : null, out = mine === 0;
   if (myDummVoteNo !== d.voteNo) { myDummVote = ''; myDummVoteNo = d.voteNo }
   let main = '';
-  const qBox = (who) => d.q ? `<div class="dq"><small>${who}${d.q.cat ? ' · ' + esc(d.q.cat).toUpperCase() : ''}</small><b>${esc(d.q.text)}</b></div>` : '';
+  const qBox = (who) => d.q ? `<div class="dq ${d.q.flag ? 'hasflag' : ''}"><small>${who}${d.q.cat ? ' · ' + esc(d.q.cat).toUpperCase() : ''}</small>${flagImg(d.q.flag, 'big')}<b>${esc(d.q.text)}</b></div>` : '';
   if (d.phase === 'ready') main = `<div class="dmsg">${d.round ? 'Gleich startet die nächste Runde …' : 'Gleich geht’s los …'}</div>`;
   if (d.phase === 'round') main = qBox(me && d.turn === me.id ? 'DU BIST DRAN!' : 'FRAGE AN ' + esc(dummName(d.turn)).toUpperCase());
   if (d.phase === 'vote') {
@@ -3174,7 +3209,7 @@ function dummHostCard() {
     </div>
     <div class="row"><button class="btn pk big" onclick="DA.start()">▶ Spiel starten</button></div></div>`;
   const ans = dummHost.ans && d.q && dummHost.ans.no === d.q.no ? dummHost.ans.answer : null;
-  const qPanel = d.q ? `<div class="dqh"><small>${d.phase === 'estimate' ? 'SCHÄTZFRAGE' : 'FRAGE AN ' + esc(dummName(d.turn)).toUpperCase()}${d.q.cat ? ' · ' + esc(d.q.cat).toUpperCase() : ''}</small><b>${esc(d.q.text)}</b>
+  const qPanel = d.q ? `<div class="dqh"><small>${d.phase === 'estimate' ? 'SCHÄTZFRAGE' : 'FRAGE AN ' + esc(dummName(d.turn)).toUpperCase()}${d.q.cat ? ' · ' + esc(d.q.cat).toUpperCase() : ''}</small>${flagImg(d.q.flag, 'host')}<b>${esc(d.q.text)}</b>
       <div class="dans"><span class="mu">ANTWORT</span><em>${ans != null ? esc(ans) : '—'}</em></div></div>` : '';
   const manual = `<details class="dman"><summary class="mu">Eigene ${d.phase === 'estimate' ? 'Schätzfrage' : 'Frage'} eingeben</summary>
       <div class="row"><input class="input" id="dq-text" placeholder="Frage"><input class="input" id="dq-ans" placeholder="${d.phase === 'estimate' ? 'Antwort (Zahl)' : 'Antwort'}"><button class="btn y sm" onclick="DA.manual()">Stellen</button></div></details>`;
@@ -3229,7 +3264,7 @@ OVERLAY_GAMES.dumm = {
     if (dummFinalOn()) {                                   // Finale: Fragekasten
       let q = '';
       if (d.phase === 'over') q = `<small>GEWONNEN HAT</small><div class="o-big o-win">${iconHtml(d.winner, '')} ${esc(dummName(d.winner))}</div>`;
-      else if (d.q) q = `<small>${d.phase === 'estimate' ? 'SCHÄTZFRAGE' : 'FRAGE AN ' + esc(dummName(d.turn)).toUpperCase()}</small><div class="o-q">${esc(d.q.text)}</div>`;
+      else if (d.q) q = `<small>${d.phase === 'estimate' ? 'SCHÄTZFRAGE' : 'FRAGE AN ' + esc(dummName(d.turn)).toUpperCase()}</small>${d.q.flag ? `<div class="o-flagrow">${flagImg(d.q.flag, 'ovfin')}<div class="o-q">${esc(d.q.text)}</div></div>` : `<div class="o-q">${esc(d.q.text)}</div>`}`;
       return `<div class="o-dq"><div class="o-dqh"><b>FINALE</b><span>${phase}</span><em>${DUMM_FINAL_WINS} richtige gewinnen</em></div>${q}</div>`;
     }
     const timer = d.phase === 'round' || d.phase === 'vote' ? `<div class="vtimer o-timer"><div class="vtbar"><i></i></div><span class="vtt"></span></div>` : '';
@@ -3239,7 +3274,8 @@ OVERLAY_GAMES.dumm = {
     if (d.phase === 'vote') txt = `<small>ABSTIMMUNG · ${d.voted}/${dummActive().length} STIMMEN</small><b class="o-vote">Wer verliert ein Leben?</b>`;
     if (d.phase === 'result') txt = `<small>ERGEBNIS · ${Object.keys(d.tally || {}).sort((a, b) => d.tally[b] - d.tally[a]).map(id => esc(dummName(id)) + ' ' + d.tally[id]).join(' · ')}</small><b>${d.loser ? esc(dummName(d.loser)) + ' verliert ein Leben' : 'Gleichstand!'}</b>`;
     if (d.phase === 'over') txt = `<small>GEWONNEN HAT</small><b class="o-win">${iconHtml(d.winner, '')} ${esc(dummName(d.winner))}</b>`;
-    return `<div class="o-dbar"><div class="o-dtxt">${txt}</div>${timer}</div>`;
+    const fl = d.phase === 'round' && d.q && d.q.flag ? flagImg(d.q.flag, 'ovbar') : '';
+    return `<div class="o-dbar ${fl ? 'flag' : ''}">${fl}<div class="o-dtxt">${txt}</div>${timer}</div>`;
   },
   side: () => ''                                           // Leben stehen direkt in den Kamera-Kacheln
 };
