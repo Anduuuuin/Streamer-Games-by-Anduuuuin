@@ -541,7 +541,7 @@ img.avi{width:var(--avi-inline);height:var(--avi-inline);border-radius:50%;objec
 
 <script>
 /* ===== Konfiguration ===== */
-const APP_VERSION = 'v26.10.2026-9';   // Versionsnummer – steht unten auf jeder Seite, so siehst du, ob GitHub die neue Datei ausliefert
+const APP_VERSION = 'v26.10.2026-11';   // Versionsnummer – steht unten auf jeder Seite, so siehst du, ob GitHub die neue Datei ausliefert
 const SUPABASE_URL = 'https://oufoopkyhdxbmvjngngd.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im91Zm9vcGt5aGR4Ym12am5nbmdkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTI5MzI0NTUsImV4cCI6MjEwODUwODQ1NX0.yeKbvsNwgqErfFNmHKsIrRc-SNVWD3SEfyqmR1X2BWM';
 const CHANNEL = 'raum-eins';   // Basisname; jede Runde läuft in "raum-eins-<Rundencode>"
@@ -1512,6 +1512,7 @@ const A = {
     crashMsg = ''; c.round++; c.riders = riders; c.cashed = {}; c.last = {}; c.crashValue = null; c.crashT = null;
     riders.forEach(id => c.names[id] = impName(id));
     crashSecret = { round: c.round, at: crashDraw() }; ls.set('qs-crash', JSON.stringify(crashSecret));   // geheim, bleibt beim Host
+    c.rate = crashRandRate();   // jede Runde ein anderes Tempo
     c.startAt = Date.now() + CRASH_COUNTDOWN_SEC * 1000; c.phase = 'run';
     crashSync(); push(); render(); crashSchedule();
   },
@@ -2025,23 +2026,53 @@ function drawIcon(x, id, emoji, cx, baseY, size) {
 /* ----- Crash – HIER ANPASSEN ----- */
 const CRASH_ICONS = ['🚀', '💎', '🍀', '🔥', '⭐', '🎯', '💰', '🦄'];   // Icons zur Auswahl (Anzahl beliebig)
 const CRASH_TARGET_DEFAULT = 1000;   // Standard-Zielpunktzahl im Host-Menü
-// Geschwindigkeit des Anstiegs:  Punkte(t) = CRASH_SPEED · t + CRASH_ACCEL · t²   (t in Sekunden)
-const CRASH_SPEED = 25;              // Punkte pro Sekunde am Anfang
-const CRASH_ACCEL = 6;               // Beschleunigung – höher = wird immer schneller
+// ===== GESCHWINDIGKEIT – HIER ANPASSEN =====
+// Die Punktzahl wächst exponentiell: langsam am Anfang, dann immer schneller.
+//   Punkte(t) = CRASH_BASE · (e^(Tempo · t) − 1)        t = Sekunden seit dem Start
+// Bei normalem Tempo (0,12):  5 s ≈ 33 · 10 s ≈ 93 · 15 s ≈ 200 · 20 s ≈ 400 · 25 s ≈ 760 Punkte
+const CRASH_BASE = 40;               // größer = am Anfang schneller
+const CRASH_RATE = 0.12;             // normales Tempo – größer = wird schneller steil
+// Jede Runde wird das Tempo zufällig zwischen diesen Faktoren gewählt (1 = normal).
+// 0,8 = gemütliche Runde, 1,35 = flotte Runde. Beide Werte gleich = jede Runde gleich schnell.
+const CRASH_RATE_VARIATION = [0.8, 1.35];
 const CRASH_COUNTDOWN_SEC = 3;       // Countdown vor dem Start
-// Crash-Wahrscheinlichkeit: Crash-Punkt = CRASH_MIN + Zufall (exponentiell verteilt, Durchschnitt CRASH_MEAN), höchstens CRASH_MAX
-//   kleiner CRASH_MEAN = es crasht früher/öfter, größer = Runden dauern länger
-const CRASH_MIN = 10;
-const CRASH_MEAN = 250;
-const CRASH_MAX = 2000;
+// ===== CRASH-WAHRSCHEINLICHKEIT – HIER ANPASSEN =====
+// Der Crash-Punkt wird aus einem dieser Bereiche gezogen. „weight“ = wie oft (relativ zu den anderen),
+// innerhalb des Bereichs ist jeder Wert gleich wahrscheinlich. Die Gewichte müssen nicht 100 ergeben.
+// Abwechslung: Der erste Bereich (früher Crash) kommt nie zweimal hintereinander,
+// und kein Bereich kommt mehr als CRASH_MAX_SAME_IN_A_ROW-mal hintereinander.
+const CRASH_RANGES = [
+  { min: 10,  max: 50,   weight: 8  },   // früher Crash – selten (8 %)
+  { min: 50,  max: 150,  weight: 40 },   // mittel – häufig (40 %)
+  { min: 150, max: 300,  weight: 32 },   // mittel-hoch – häufig (32 %)
+  { min: 300, max: 600,  weight: 15 },   // hoch – seltener (15 %)
+  { min: 600, max: 1500, weight: 5  }    // sehr hoch – selten (5 %)
+];
+const CRASH_MAX_SAME_IN_A_ROW = 2;
 
-const crashPts = t => t <= 0 ? 0 : Math.floor(CRASH_SPEED * t + CRASH_ACCEL * t * t);
-const crashTimeOf = p => p <= 0 ? 0 : (-CRASH_SPEED + Math.sqrt(CRASH_SPEED * CRASH_SPEED + 4 * CRASH_ACCEL * p)) / (2 * CRASH_ACCEL);
+const crashRate = () => (state.crash && state.crash.rate) || CRASH_RATE;   // Tempo der aktuellen Runde (steht im State, damit alle gleich rechnen)
+const crashPts = t => t <= 0 ? 0 : Math.floor(CRASH_BASE * (Math.exp(crashRate() * t) - 1));
+const crashTimeOf = p => p <= 0 ? 0 : Math.log(p / CRASH_BASE + 1) / crashRate();
 const crashName = id => (state.crash && state.crash.names && state.crash.names[id]) || impName(id);
+let crashHist = [];                  // nur Host: Bereiche der letzten Runden (für die Abwechslung)
+try { crashHist = JSON.parse(ls.get('qs-crash-hist') || '[]') || [] } catch (e) {}
 function crashDraw() {
-  const u = crypto.getRandomValues(new Uint32Array(1))[0] / 4294967296;
-  return Math.min(CRASH_MAX, Math.max(CRASH_MIN, CRASH_MIN + Math.round(-Math.log(1 - u) * CRASH_MEAN)));
+  const rnd01 = () => crypto.getRandomValues(new Uint32Array(1))[0] / 4294967296;
+  const total = CRASH_RANGES.reduce((s, r) => s + r.weight, 0);
+  const pick = () => { let x = rnd01() * total; for (let i = 0; i < CRASH_RANGES.length; i++) { if (x < CRASH_RANGES[i].weight) return i; x -= CRASH_RANGES[i].weight } return CRASH_RANGES.length - 1 };
+  const last = crashHist.slice(-CRASH_MAX_SAME_IN_A_ROW);
+  let i = pick();
+  for (let k = 0; k < 50; k++) {
+    const earlyAgain = i === 0 && crashHist[crashHist.length - 1] === 0;                     // früher Crash nie zweimal hintereinander
+    const sameStreak = last.length >= CRASH_MAX_SAME_IN_A_ROW && last.every(x => x === i);    // nicht zu oft derselbe Bereich
+    if (!earlyAgain && !sameStreak) break;
+    i = pick();
+  }
+  crashHist = [...crashHist, i].slice(-10); ls.set('qs-crash-hist', JSON.stringify(crashHist));
+  const r = CRASH_RANGES[i];
+  return Math.round(r.min + rnd01() * (r.max - r.min));
 }
+const crashRandRate = () => { const [a, b] = CRASH_RATE_VARIATION, u = crypto.getRandomValues(new Uint32Array(1))[0] / 4294967296; return CRASH_RATE * (a + u * (b - a)) };
 
 /* Einstellungen (Host) */
 let crashCfg = { target: CRASH_TARGET_DEFAULT };
@@ -2157,7 +2188,7 @@ function drawCrashChart(cv) {
   const cur = crashed ? c.crashValue : crashNow();
   const cashedPts = Object.values(c.cashed || {}).map(v => v.pts);
   const ymax = Math.max(100, cur * 1.25, ...cashedPts.map(p => p * 1.15));
-  const xmax = Math.max(8, el * 1.12);
+  const xmax = Math.max(15, el * 1.12);   // Diagramm zeigt anfangs 15 Sekunden
   const X = t => L + (W - L - R) * t / xmax, Y = p => H - B - (H - T - B) * p / ymax;
   x.clearRect(0, 0, W, H);
   // Gitter + Beschriftung
@@ -3387,7 +3418,7 @@ addEventListener('storage', e => { if (ROLE === 'host' && e.key === 'qs-round' &
       Freigabe-Logik in pushAvatars/receiveAvatar/avatarDecide – nur freigegebene Bilder verlassen den Host.
   6c. Der Dümmste fliegt: Leben/Timer oben bei DUMM_LIVES/DUMM_ROUND_SEC/DUMM_VOTE_SEC (im Host änderbar),
       Herzen bei DUMM_HEART, Fragen in DUMM_QUESTIONS/DUMM_ESTIMATES, RAUS-Overlay im CSS unter "RAUS-Overlay".
-  6b. Crash: Icons, Geschwindigkeit (CRASH_SPEED/CRASH_ACCEL) und Crash-Wahrscheinlichkeit (CRASH_MIN/MEAN/MAX)
+  6b. Crash: Icons, Geschwindigkeit (CRASH_BASE/CRASH_RATE/CRASH_RATE_VARIATION) und Crash-Wahrscheinlichkeit (CRASH_RANGES)
      oben im Abschnitt "Crash – HIER ANPASSEN", Aussehen im CSS unter "Crash" und im Diagramm bei CRASH_CHART.
   7. Imposter: Wörter, Kategorie, Anzahl Imposter, Mindestspieler, Redezeit (IMPOSTER_TURN_SEC),
      Anzahl Durchgänge (IMPOSTER_TURN_ROUNDS) und Abstimmungszeit (IMPOSTER_VOTE_SEC) oben unter "Imposter – HIER ANPASSEN".
