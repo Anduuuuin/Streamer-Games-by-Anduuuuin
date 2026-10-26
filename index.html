@@ -403,6 +403,113 @@ img.avi{width:var(--avi-inline);height:var(--avi-inline);border-radius:50%;objec
 .vframe.avi-bg span,.oframe.avi-bg span{font-size:0;align-self:end;margin-bottom:8px}   /* Text „Keine Kamera“ ausblenden, Knopf bleibt */
 #ostage .oname img.avi{--avi-inline:1.4em}
 
+/* ===== Der Dümmste fliegt – AUSSEHEN HIER ANPASSEN ===== */
+.dumm-card{border-color:var(--red)}
+.dhead{display:flex;flex-wrap:wrap;align-items:baseline;gap:8px 18px;flex-basis:100%}
+.dhead b{font-size:18px;color:var(--yellow);text-shadow:3px 3px 0 var(--pink)}
+.dhead span{font-size:10px;color:var(--cyan)}
+.vinfo.dummbox{display:grid;gap:14px;align-content:start;border-color:var(--red)}
+.dme .dst{font-size:11px;color:var(--green)}.dme .dst.out{color:var(--red);font-size:16px}
+.dq{display:grid;gap:12px}
+.dq small{font-size:9px;color:var(--mu);letter-spacing:1px}
+.dq b{font-size:clamp(13px,2vw,20px);line-height:1.6;color:#fff;text-transform:none}
+.dmsg{font-size:11px;line-height:1.9;color:#fff}
+.dtally{display:flex;flex-wrap:wrap;gap:8px}
+.dtally span{font-size:10px;background:#000;border:2px solid var(--yellow);color:var(--yellow);padding:6px 10px}
+.dfinal{display:flex;align-items:center;justify-content:center;gap:16px;flex-wrap:wrap}
+.dfinal div{display:flex;align-items:center;gap:10px;border:4px solid var(--mu);background:#000;padding:10px 14px}
+.dfinal div.on{border-color:var(--yellow);box-shadow:0 0 14px var(--yellow)}
+.dfinal b{font-size:11px;text-transform:uppercase}.dfinal em{font-style:normal;font-size:28px;color:var(--yellow)}.dfinal i{font-style:normal;font-size:26px}
+.dsub{display:block;text-align:center;font-size:8px;color:var(--mu)}
+.dqh{background:#000;border:4px solid var(--yellow);box-shadow:5px 5px 0 #000;padding:14px;display:grid;gap:10px;margin:12px 0}
+.dqh small{font-size:9px;color:var(--mu)}.dqh b{font-size:14px;line-height:1.6;color:#fff;text-transform:none}
+.dans{display:flex;gap:12px;align-items:baseline}.dans em{font-style:normal;font-size:16px;color:var(--green)}
+.dman{margin-top:10px}.dman summary{cursor:pointer}.dman .row{margin-top:8px}
+.dcrows .crow em{display:flex;gap:6px;justify-content:flex-end}
+.vsr.dl.out b{color:var(--red);text-decoration:line-through}.vsr.dl.out span{color:var(--red)}
+/* Leben-Anzeige (Herzen) */
+.lives{letter-spacing:1px;white-space:nowrap;font-size:.95em}
+.lives.zero{opacity:.6}
+/* RAUS-Overlay: Kamera ausgeblendet, Profilbild + großes rotes RAUS (Größe/Farbe/Drehung HIER) */
+.vframe,.oframe{position:relative}
+.vtile.out iframe,.otile.out iframe{visibility:hidden}
+.vtile.out .vframe,.otile.out .oframe{border-color:var(--red);background-color:#1a0005}
+.raus{position:absolute;inset:0;display:grid;place-items:center;pointer-events:none;z-index:2;
+  font:clamp(18px,4.5vw,44px) var(--px);color:#ff1a1a;transform:rotate(-14deg);letter-spacing:2px;
+  -webkit-text-stroke:3px #000;paint-order:stroke fill;
+  text-shadow:4px 4px 0 #000,-2px -2px 0 #000,2px -2px 0 #000,-2px 2px 0 #000,0 0 18px rgba(255,0,0,.85)}
+.otile .raus{font-size:52px;-webkit-text-stroke:4px #000}
+.o-hostcam .raus{font-size:70px}
+.vtile.out .vname,.otile.out .oname{border-color:var(--red);color:var(--red)}
+/* Leben-/Punkte-Abzeichen oben rechts in der Kamera-Kachel – HIER ANPASSEN */
+.vlives{position:absolute;top:6px;right:6px;z-index:3;background:rgba(0,0,0,.6);border:2px solid #000;padding:4px 6px;font-size:14px;line-height:1;display:flex;align-items:baseline;gap:6px}
+.vlives .lives{font-size:inherit}
+.vlives b{font:18px var(--px);color:var(--yellow)}.vlives small{font:7px var(--px);color:#fff}
+
+/* Der Dümmste fliegt – Spieler-Ansicht nach Skizze
+   Hauptrunde: 3 Spalten – Quizmaster, Kamera 1, Kamera 2 / Kamera 3, 4, 5 – darunter Infokasten + Timer */
+.vgrid.imp.dumm{grid-template-columns:repeat(3,minmax(0,1fr))}
+.vgrid.imp.dumm .vtile{grid-column:auto;grid-row:auto}
+.vgrid.imp.dumm .vtile.host{width:82%;justify-self:start}
+.vgrid.imp.dumm .vinfo{order:50;grid-column:1 / -1;grid-row:auto;min-height:0}
+.vgrid.imp.dumm .vtimer{order:60}
+.vgrid.imp.dumm .vscore{display:none !important}
+/* Finale: Quizmaster klein oben links, Fragekasten oben rechts, 2 Finalisten groß darunter */
+.vgrid.imp.dumm.dfin{grid-template-columns:repeat(6,minmax(0,1fr))}
+.vgrid.imp.dumm.dfin .vtile.host{grid-column:1 / 3;grid-row:1;width:85%}
+.vgrid.imp.dumm.dfin .vinfo{grid-column:3 / -1;grid-row:1;order:0;align-self:start}
+.vgrid.imp.dumm.dfin .vtile.fin{grid-column:span 3;grid-row:2}
+.vgrid.imp.dumm.dfin .vtile:not(.host):not(.fin){display:none}
+.vgrid.imp.dumm.dfin .vtile.fin .vframe{border-color:var(--yellow)}
+.vgrid.imp.dumm.dfin .vtile.fin .vlives b{font-size:28px}
+@media (max-width:700px){.vgrid.imp.dumm{grid-template-columns:repeat(2,minmax(0,1fr))}.vgrid.imp.dumm.dfin .vtile.host,.vgrid.imp.dumm.dfin .vinfo{grid-column:1 / -1;grid-row:auto}}
+
+/* Der Dümmste fliegt im Overlay */
+#ostage[data-game="dumm"] .o-side{display:none}
+#ostage .vlives{top:10px;right:10px;padding:6px 10px;font-size:26px;border-width:3px}
+#ostage .vlives b{font-size:40px}#ostage .vlives small{font-size:12px}
+/* Overlay Hauptrunde: Quizmaster | Kamera 1 | Kamera 2 / Kamera 3 | 4 | 5, Leiste unten */
+#ostage[data-game="dumm"][data-sub="main"] .o-hostcam{left:40px;top:30px;width:540px}
+#ostage[data-game="dumm"][data-sub="main"] .o-hostcam .otile{width:470px}
+#ostage[data-game="dumm"][data-sub="main"] .o-row{left:40px;right:40px;top:30px;bottom:auto;height:auto;display:grid;grid-template-columns:repeat(3,540px);justify-content:space-between;align-items:start;row-gap:34px}
+#ostage[data-game="dumm"][data-sub="main"] .o-row::before{content:'';order:0}
+#ostage[data-game="dumm"][data-sub="main"] .o-row .otile{width:540px}
+#ostage[data-game="dumm"][data-sub="main"] .oframe{aspect-ratio:16/10}
+#ostage[data-game="dumm"][data-sub="main"] .o-game{left:40px;right:40px;top:auto;bottom:24px;height:140px;gap:0}
+.o-dbar{height:100%;display:flex;align-items:center;gap:30px;background:#000c;border:6px solid var(--cyan);box-shadow:8px 8px 0 #000;padding:16px 26px;box-sizing:border-box}
+.o-dtxt{flex:1;min-width:0;display:grid;gap:12px}
+.o-dtxt small{font-size:15px;color:var(--mu)}
+.o-dtxt b{font-size:26px;line-height:1.4;color:#fff;overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+.o-dbar .o-timer{width:520px;flex:none;border-width:4px}
+#ostage[data-game="dumm"] .o-dtxt .o-vote{color:var(--red)}
+/* Overlay Finale: Quizmaster klein oben links, Fragekasten oben rechts, 2 Finalisten groß */
+#ostage[data-game="dumm"][data-sub="final"] .o-hostcam{left:40px;top:30px;width:380px}
+#ostage[data-game="dumm"][data-sub="final"] .o-hostcam .otile{width:380px}
+#ostage[data-game="dumm"][data-sub="final"] .o-game{left:460px;right:40px;top:30px;height:300px}
+#ostage[data-game="dumm"][data-sub="final"] .o-row{left:40px;right:40px;top:380px;bottom:30px;height:auto;display:flex;justify-content:space-between;align-items:flex-start;gap:40px}
+#ostage[data-game="dumm"][data-sub="final"] .o-row .otile:not(.fin){display:none}
+#ostage[data-game="dumm"][data-sub="final"] .o-row .otile.fin{width:880px}
+#ostage[data-game="dumm"][data-sub="final"] .o-row .otile.fin .oframe{aspect-ratio:16/10;border-color:var(--yellow)}
+#ostage[data-game="dumm"][data-sub="final"] .o-row .oname{font-size:20px}
+.o-dq{height:100%;box-sizing:border-box;background:#1b0b4dcc;border:6px solid var(--yellow);box-shadow:8px 8px 0 #000;padding:22px 30px;display:grid;gap:16px;align-content:center;text-align:center}
+.o-dqh{display:flex;align-items:baseline;justify-content:center;gap:26px}
+.o-dqh b{font-size:40px;color:var(--yellow);text-shadow:5px 5px 0 var(--pink)}
+.o-dqh span{font-size:20px;color:var(--cyan)}.o-dqh em{font-style:normal;font-size:14px;color:var(--mu)}
+.o-dq small{font-size:16px;color:var(--mu)}
+#ostage[data-game="dumm"] .o-dq .o-q{font-size:30px;line-height:1.5;margin:0 auto}
+#ostage[data-game="dumm"] .o-dq .o-big{font-size:40px}
+#ostage[data-game="dumm"] .o-head b{font-size:46px}
+#ostage[data-game="dumm"] .o-q{font-size:30px;line-height:1.6;max-width:1100px}
+#ostage[data-game="dumm"] .o-turn{color:var(--yellow);text-shadow:5px 5px 0 var(--pink)}
+#ostage[data-game="dumm"] .o-vote{color:var(--red);animation:glow 1.2s ease-in-out infinite alternate}
+#ostage[data-game="dumm"] .o-win{color:var(--yellow);animation:glow 1s ease-in-out infinite alternate}
+#ostage[data-game="dumm"] .dtally span{font-size:18px;padding:10px 14px}
+#ostage[data-game="dumm"] .dfinal div{padding:16px 24px;border-width:6px}
+#ostage[data-game="dumm"] .dfinal b{font-size:20px}#ostage[data-game="dumm"] .dfinal em{font-size:54px}#ostage[data-game="dumm"] .dfinal i{font-size:46px}
+#ostage[data-game="dumm"] .dsub{font-size:14px}
+#ostage[data-game="dumm"] .vsr .lives{font-size:18px}
+#ostage .oname .lives{font-size:16px;margin-left:6px}
+
 /* Player */
 .input{font:12px var(--px);background:#000;color:#fff;border:3px solid var(--cyan);padding:12px;width:100%;max-width:340px}
 .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
@@ -436,11 +543,11 @@ img.avi{width:var(--avi-inline);height:var(--avi-inline);border-radius:50%;objec
 
 <script>
 /* ===== Konfiguration ===== */
-const APP_VERSION = 'v26.10.2026-4';   // Versionsnummer – steht unten auf jeder Seite, so siehst du, ob GitHub die neue Datei ausliefert
+const APP_VERSION = 'v26.10.2026-6';   // Versionsnummer – steht unten auf jeder Seite, so siehst du, ob GitHub die neue Datei ausliefert
 const SUPABASE_URL = 'https://oufoopkyhdxbmvjngngd.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im91Zm9vcGt5aGR4Ym12am5nbmdkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTI5MzI0NTUsImV4cCI6MjEwODUwODQ1NX0.yeKbvsNwgqErfFNmHKsIrRc-SNVWD3SEfyqmR1X2BWM';
 const CHANNEL = 'raum-eins';   // Basisname; jede Runde läuft in "raum-eins-<Rundencode>"
-const GAMES = { imposter: 'Imposter', werwolf: 'Werwolf', crash: 'Crash' };   // Spiele im Hauptmenü – hier weitere ergänzen
+const GAMES = { imposter: 'Imposter', werwolf: 'Werwolf', crash: 'Crash', dumm: 'Der Dümmste fliegt' };   // Spiele im Hauptmenü – hier weitere ergänzen
 const MAX_SLOTS = 6;
 
 /* ===== Imposter – HIER ANPASSEN ===== */
@@ -694,6 +801,8 @@ function joinPlayerChannel() {
    .on('broadcast', { event: 'answer' }, ({ payload }) => { if (c === ch) receiveAnswer(payload) })
    .on('broadcast', { event: 'icon' }, ({ payload }) => { if (c === ch) crashReceiveIcon(payload) })
    .on('broadcast', { event: 'cashout' }, ({ payload }) => { if (c === ch) crashReceiveCash(payload) })
+   .on('broadcast', { event: 'dvote' }, ({ payload }) => { if (c === ch) dummReceiveVote(payload) })
+   .on('broadcast', { event: 'dest' }, ({ payload }) => { if (c === ch) dummReceiveEst(payload) })
    .on('broadcast', { event: 'frame' }, ({ payload }) => {
      if (c !== ch || !payload) return;
      const id = cleanId(payload.id);
@@ -1186,7 +1295,8 @@ function updateVdo(force) {
   //   Crash:    Zielpunktzahl oben rechts, Quizmaster + Punkte links, Diagramm rechts, Spieler-Kameras unten
   const imp = show && ROLE === 'player' && state.activeGame === 'imposter';
   const crm = show && ROLE === 'player' && state.activeGame === 'crash' && !!state.crash;
-  const lay = imp || crm;
+  const dm = show && ROLE === 'player' && state.activeGame === 'dumm' && !!state.dumm;   // Der Dümmste fliegt: Anordnung wie Imposter
+  const lay = imp || crm || dm;
   document.body.classList.toggle('imp-mode', lay);
   box.style.display = show ? '' : 'none';
   if (!show) return;
@@ -1212,6 +1322,8 @@ function updateVdo(force) {
   const grid = box.querySelector('.vgrid');
   grid.classList.toggle('imp', lay);     // gemeinsames Spiel-Raster
   grid.classList.toggle('crash', crm);   // Crash-Anordnung
+  grid.classList.toggle('dumm', dm);
+  grid.classList.toggle('dfin', dm && dummFinalOn());   // Finale: Quizmaster + Frage oben, 2 große Kameras
 
   // Kacheln abgleichen: neue anlegen, alte entfernen, Namen aktualisieren – iframes nie neu laden
   const list = vdoList(lay), want = new Set(list.map(p => p.key));
@@ -1235,7 +1347,7 @@ function updateVdo(force) {
     t.style.order = lay ? (p.host ? 0 : 10 + p.slot) : (p.own ? 0 : p.host ? 1 : p.slot + 1);
     const label = (p.own ? 'DU · ' : '') + (cr && cr.icons[p.pid] ? iconHtml(p.pid, cr.icons[p.pid]) + ' ' : '') + esc(p.name);
     const nm = t.querySelector('.vname'); if (nm._lbl !== label) { nm.innerHTML = label; nm._lbl = label }
-    if (p.ph) aviBackground(t.querySelector('.vframe'), p.pid);   // Kamera aus → Profilbild
+    dummDecorate(t, '.vframe', p.pid, p.ph);   // Kamera aus → Profilbild · 0 Leben → Kamera weg, Profilbild + RAUS
     t.classList.toggle('turn', !!turnPid && p.pid === turnPid);                 // wer gerade dran ist
     const an = t.querySelector('.vans');                                         // Blase über der Kamera
     const dl = rev && im.result && p.pid in im.result ? ' · ' + fmtPts(im.result[p.pid]) : '';
@@ -1253,13 +1365,13 @@ function updateVdo(force) {
   if (!tim.querySelector || !tim.querySelector('.vtbar')) tim.innerHTML = '<div class="vtbar"><i></i></div><span class="vtt"></span>';
   const showSc = (imp && scoreOn()) || crm;
   sc.style.display = showSc ? '' : 'none';
-  if (showSc) { const sh = crm ? crashScoreBoard() : scoreBoard(); if (sc.innerHTML !== sh) sc.innerHTML = sh }
+  if (showSc) { const sh = dm ? dummBoard() : crm ? crashScoreBoard() : scoreBoard(); if (sc.innerHTML !== sh) sc.innerHTML = sh }
   info.style.display = lay ? '' : 'none';
-  tim.style.display = imp ? '' : 'none';
+  tim.style.display = imp || dm ? '' : 'none';
   tg.style.display = crm ? '' : 'none';
   if (crm) { const th = crashTargetBar(); if (tg.innerHTML !== th) tg.innerHTML = th }
   if (lay) {
-    const ii = imp ? impInfo() : { cls: 'crashbox', html: crashPanel() };
+    const ii = imp ? impInfo() : dm ? { cls: 'dummbox', html: dummPanel() } : { cls: 'crashbox', html: crashPanel() };
     info.className = 'vinfo ' + ii.cls;
     if (ii.html !== vdoInfoHtml) {
       const focused = document.activeElement && document.activeElement.classList && document.activeElement.classList.contains('vin');
@@ -1267,7 +1379,7 @@ function updateVdo(force) {
       const inp = info.querySelector && info.querySelector('.vin');
       if (inp) { inp.value = draft; if (focused) inp.focus() }
     }
-    if (imp) tickTimer();
+    if (imp || dm) tickTimer();
   }
 
   let empty = grid.querySelector('.empty');
@@ -1296,8 +1408,11 @@ function tickTimer() {
   const els = document.querySelectorAll('.vtimer, #htimer');
   if (!els.length) return;
   const im = state.imposter;
-  const label = im && im.phase === 'turns' ? impName(impTurnPid()).toUpperCase() + ' · ' : im && im.phase === 'vote' ? 'ABSTIMMUNG · ' : '';
-  const idle = !im ? 'TIMER' : im.phase === 'dealt' ? 'WARTE AUF START' : im.phase === 'reveal' ? 'AUFLÖSUNG' : 'TIMER';
+  const dmT = state.activeGame === 'dumm' && state.dumm;
+  const label = dmT ? (dmT.phase === 'vote' ? 'ABSTIMMUNG · ' : dmT.phase === 'round' ? 'RUNDE ' + dmT.round + ' · ' : '')
+    : im && im.phase === 'turns' ? impName(impTurnPid()).toUpperCase() + ' · ' : im && im.phase === 'vote' ? 'ABSTIMMUNG · ' : '';
+  const idle = dmT ? ({ ready: 'WARTE AUF START', result: 'ERGEBNIS', final: 'FINALE', estimate: 'SCHÄTZFRAGE', over: 'ENDE' }[dmT.phase] || 'TIMER')
+    : !im ? 'TIMER' : im.phase === 'dealt' ? 'WARTE AUF START' : im.phase === 'reveal' ? 'AUFLÖSUNG' : 'TIMER';
   const s = Math.ceil(rem / 1000), clock = Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0');
   const txt = !timerEnd ? idle : running ? label + clock : label + 'ZEIT UM!';
   const pct = !timerEnd ? 100 : rem / (timerDur * 1000) * 100;
@@ -1317,11 +1432,11 @@ function newTimer(sec) { return { id: (state.timer && state.timer.id || 0) + 1, 
 /* ===== Aktionen ===== */
 const A = {
   game(k) {
-    state = { ...state, activeGame: k, questionIndex: 0, buzzerWinner: null, imposter: null, timer: null, impGame: null, scores: {}, crash: null };
-    crashMsg = '';
+    state = { ...state, activeGame: k, questionIndex: 0, buzzerWinner: null, imposter: null, timer: null, impGame: null, scores: {}, crash: null, dumm: null };
+    crashMsg = ''; dummMsg = '';
     impMsg = ''; impAnswers = {}; push(); render();   // Imposter: erst Einstellungen, dann „Spiel starten“
   },
-  menu() { state = { ...state, activeGame: null, questionIndex: 0, buzzerWinner: null, imposter: null, timer: null, impGame: null, scores: {}, crash: null }; impMsg = ''; push(); render() },
+  menu() { state = { ...state, activeGame: null, questionIndex: 0, buzzerWinner: null, imposter: null, timer: null, impGame: null, scores: {}, crash: null, dumm: null }; impMsg = ''; push(); render() },
   cfg(k, v) {
     if (k === 'category') { impCfg.category = v in imposterDatabase ? v : 'random'; ls.set('qs-impcfg', JSON.stringify(impCfg)); render(); return }
     const max = k === 'rounds' ? 20 : 10;
@@ -1687,6 +1802,7 @@ function renderOverlay() {
   const def = OVERLAY_GAMES[state.activeGame] || (state.activeGame ? {
     game: () => `<div class="o-head"><b>${esc(gameName(state.activeGame))}</b></div>`, side: () => '' } : OVERLAY_GAMES.none);
   st.dataset.game = state.activeGame || 'none';           // für CSS pro Spiel: #ostage[data-game="imposter"] …
+  st.dataset.sub = def.sub ? def.sub() : '';              // Unter-Layout, z. B. #ostage[data-sub="final"]
   const g = def.game(), s = def.side();
   if (g !== ovGameHtml) { st.querySelector('.o-game').innerHTML = g; ovGameHtml = g }
   if (s !== ovSideHtml) { st.querySelector('.o-side').innerHTML = s; ovSideHtml = s }
@@ -1724,7 +1840,7 @@ function updateOverlayCams(st) {
     const cr = state.activeGame === 'crash' && state.crash;
     const label = (cr && cr.icons[w.pid] ? iconHtml(w.pid, cr.icons[w.pid]) + ' ' : '') + esc(w.name);
     const nm = t.querySelector('.oname'); if (nm._lbl !== label) { nm.innerHTML = label; nm._lbl = label }
-    if (!w.vdoId) aviBackground(t.querySelector('.oframe'), w.pid);   // Kamera aus → Profilbild
+    dummDecorate(t, '.oframe', w.pid, !w.vdoId);   // Kamera aus → Profilbild · 0 Leben → Profilbild + RAUS
     const an = t.querySelector('.vans');
     const dl = rev && im.result && w.pid in im.result ? ' · ' + fmtPts(im.result[w.pid]) : '';
     let at = rev && rev[w.pid] ? '„' + rev[w.pid] + '“' + dl : rev && impOrder().includes(w.pid) ? '— keine Antwort —' + dl : '';
@@ -1747,6 +1863,7 @@ function overlayState() {
     hostVdo: state.hostVdo || '', names: state.names || {}, scores: state.scores || {},
     impGame: state.impGame || null, impCfg: state.impCfg || null, timer: state.timer || null, sentAt: Date.now(),
     crash: state.crash || null,   // enthält nie den Crash-Punkt
+    dumm: state.dumm || null,     // enthält nie Antworten oder wer wen gewählt hat
     imposter: im ? { deal: im.deal, category: im.category, count: im.count, order: im.order, names: im.names, phase: im.phase,
       turn: im.turn, vote: im.vote, reveal: im.phase === 'reveal' ? im.reveal : null, result: im.phase === 'reveal' ? im.result : null } : null
   };
@@ -2227,6 +2344,405 @@ OVERLAY_GAMES.crash = {
   side: () => state.crash ? `<div class="o-scores"><div class="vsh"><small>PUNKTE</small><small>ZIEL ${state.crash.target}</small></div>${crashTotals(false)}</div>` : ''
 };
 
+/* ===================================================================================
+   DER DÜMMSTE FLIEGT
+   Phasen in state.dumm.phase:
+   'ready'    → wartet auf „Runde starten“
+   'round'    → Fragerunde (Timer), Fragen reihum, Host markiert richtig/falsch
+   'vote'     → Abstimmung (Timer): wer verliert ein Leben?
+   'result'   → Ergebnis, Host bestätigt (bei Gleichstand: Host entscheidet oder neu abstimmen)
+   'final'    → nur noch 2 übrig: wer zuerst DUMM_FINAL_WINS richtige hat
+   'estimate' → Gleichstand im Finale: Schätzfrage
+   'over'     → Sieger steht fest
+   Antworten auf Fragen und abgegebene Stimmen kennt nur der Host – sie werden nie verschickt.
+   =================================================================================== */
+
+/* ----- Der Dümmste fliegt – HIER ANPASSEN ----- */
+const DUMM_LIVES = 3;             // Leben pro Spieler (im Host änderbar)
+const DUMM_ROUND_SEC = 120;       // Timer Fragerunde in Sekunden (im Host änderbar)
+const DUMM_VOTE_SEC = 90;         // Timer Abstimmung in Sekunden (im Host änderbar)
+const DUMM_FINAL_WINS = 3;        // richtige Antworten zum Sieg im Finale
+// Leben-Anzeige
+const DUMM_HEART = '❤️';
+const DUMM_HEART_EMPTY = '🖤';
+// „RAUS“-Schriftzug über ausgeschiedenen Spielern (Aussehen im CSS unter „RAUS-Overlay“)
+const DUMM_OUT_TEXT = 'RAUS';
+
+/* ----- Fragen-Datenbank (Platzhalter – beliebig erweitern) ----- */
+const DUMM_QUESTIONS = [
+  { q: 'Wie viele Kontinente gibt es?', a: '7' },
+  { q: 'Wie heißt die Hauptstadt von Australien?', a: 'Canberra' },
+  { q: 'Welches chemische Element hat das Symbol „O“?', a: 'Sauerstoff' },
+  { q: 'Wie viele Spieler einer Fußballmannschaft stehen gleichzeitig auf dem Feld?', a: '11' },
+  { q: 'Wer schrieb „Faust“?', a: 'Johann Wolfgang von Goethe' },
+  { q: 'Welcher Planet ist der Sonne am nächsten?', a: 'Merkur' },
+  { q: 'In welcher Stadt steht der Eiffelturm?', a: 'Paris' },
+  { q: 'Wie viele Sekunden hat eine Stunde?', a: '3600' },
+  { q: 'Welches ist das größte Säugetier der Welt?', a: 'Blauwal' },
+  { q: 'Wie heißt die Hauptstadt von Kanada?', a: 'Ottawa' },
+  { q: 'Aus welchem Land stammt die Pizza ursprünglich?', a: 'Italien' },
+  { q: 'Wie viele Ecken hat ein Würfel?', a: '8' },
+  { q: 'Welche Farbe entsteht, wenn man Rot und Blau mischt?', a: 'Lila / Violett' },
+  { q: 'Welcher Fluss fließt durch Köln?', a: 'Rhein' },
+  { q: 'In welchem Jahr fiel die Berliner Mauer?', a: '1989' }
+];
+const DUMM_ESTIMATES = [
+  { q: 'Wie hoch ist der Eiffelturm (mit Antennen) in Metern?', a: 330 },
+  { q: 'Wie viele Knochen hat ein erwachsener Mensch?', a: 206 },
+  { q: 'Wie hoch ist die Zugspitze in Metern?', a: 2962 },
+  { q: 'In welchem Jahr wurde das erste iPhone vorgestellt?', a: 2007 },
+  { q: 'Wie lang ist die Chinesische Mauer laut Vermessung von 2012 in Kilometern?', a: 21196 }
+];
+
+/* ----- Host-Geheimnisse (nur im Host-Browser) ----- */
+let dummHost = { ans: null, votes: {}, est: {}, used: [], estUsed: [] };
+try { Object.assign(dummHost, JSON.parse(ls.get('qs-dumm') || '{}')) } catch (e) {}
+const dummSave = () => { if (ROLE === 'host') ls.set('qs-dumm', JSON.stringify(dummHost)) };
+let dummCfg = { lives: DUMM_LIVES, roundSec: DUMM_ROUND_SEC, voteSec: DUMM_VOTE_SEC };
+try { Object.assign(dummCfg, JSON.parse(ls.get('qs-dummcfg') || '{}')) } catch (e) {}
+let dummMsg = '', myDummVote = '', myDummVoteNo = 0, myDummEst = '';
+
+/* ----- Hilfen ----- */
+const D = () => state.dumm;
+const dummName = id => (D() && D().names && D().names[id]) || impName(id);
+const dummIn = id => !!(D() && D().lives && id in D().lives);
+const dummActive = () => D() ? D().order.filter(id => D().lives[id] > 0) : [];
+// Finale-Anordnung aktiv? (2 Finalisten groß, alle anderen ausgeblendet)
+const dummFinalOn = () => state.activeGame === 'dumm' && !!D() && !!D().finalists && ['final', 'estimate', 'over'].includes(D().phase);
+// Spieler mit 0 Leben → „eliminated“ (Kamera aus, Profilbild + RAUS)
+const dummOut = id => state.activeGame === 'dumm' && !!D() && dummIn(id) && D().lives[id] <= 0;
+function dummNext(from, pool) {
+  const o = D().order, list = pool || dummActive();
+  if (!list.length) return '';
+  let i = o.indexOf(from);
+  for (let k = 1; k <= o.length; k++) { const id = o[(i + k + o.length) % o.length]; if (list.includes(id)) return id }
+  return list[0];
+}
+/* Leben-Anzeige (Herzen) – HIER ANPASSEN */
+function dummHearts(id) {
+  if (state.activeGame !== 'dumm' || !dummIn(id)) return '';
+  const n = Math.max(0, D().lives[id]), max = D().maxLives || DUMM_LIVES;
+  return `<span class="lives ${n ? '' : 'zero'}">${DUMM_HEART.repeat(n)}${DUMM_HEART_EMPTY.repeat(Math.max(0, max - n))}</span>`;
+}
+/* RAUS-Overlay + Profilbild an einer Kamera-Kachel (Spieler-Ansicht und Overlay) */
+function dummDecorate(t, frameSel, pid, isPh) {
+  const fr = t.querySelector(frameSel); if (!fr) return;
+  const out = dummOut(pid);
+  t.classList.toggle('out', out);
+  let r = fr.querySelector('.raus');
+  if (out && !r) { r = document.createElement('div'); r.className = 'raus'; r.textContent = DUMM_OUT_TEXT; fr.appendChild(r) }
+  if (!out && r) r.remove();
+  aviBackground(fr, (isPh || out) ? pid : null);       // raus → Kamera ausgeblendet, Profilbild sichtbar
+  // Abzeichen oben rechts in der Kachel: Herzen (Hauptrunde) bzw. richtige Antworten (Finale) – HIER ANPASSEN
+  const fin = dummFinalOn() && D().finalists.includes(pid);
+  t.classList.toggle('fin', fin);
+  const bh = state.activeGame !== 'dumm' || !dummIn(pid) || out ? '' : fin ? `<b>${D().fs[pid] || 0}</b><small>RICHTIG</small>` : dummHearts(pid);
+  let lv = fr.querySelector('.vlives');
+  if (bh && !lv) { lv = document.createElement('div'); lv.className = 'vlives'; fr.appendChild(lv) }
+  if (!bh && lv) { lv.remove(); lv = null }
+  if (lv && lv._h !== bh) { lv.innerHTML = bh; lv._h = bh }
+}
+
+/* ----- Fragen ziehen (Host) ----- */
+function dummDraw(estimate) {
+  const db = estimate ? DUMM_ESTIMATES : DUMM_QUESTIONS, key = estimate ? 'estUsed' : 'used';
+  let free = db.map((_, i) => i).filter(i => !dummHost[key].includes(i));
+  if (!free.length) { dummHost[key] = []; free = db.map((_, i) => i) }
+  const i = free[rint(free.length)]; dummHost[key].push(i);
+  return { text: db[i].q, answer: db[i].a };
+}
+function dummAsk(q, estimate) {      // Frage stellen: Text geht an alle, Antwort bleibt beim Host
+  const d = D(); d.qNo = (d.qNo || 0) + 1;
+  d.q = { text: q.text, type: estimate ? 'estimate' : 'normal', no: d.qNo };
+  dummHost.ans = { no: d.qNo, answer: q.answer }; dummSave();
+}
+
+/* ----- Abstimmung ----- */
+async function dummReceiveVote(pl) {
+  const d = D();
+  if (ROLE !== 'host' || !pl || !d || d.phase !== 'vote' || pl.voteNo !== d.voteNo) return;
+  const id = cleanId(pl.id);
+  if (!(d.lives[id] > 0)) return;                               // nur aktive Spieler stimmen ab
+  if (timerEnd && Date.now() > timerEnd + 2000) return;        // zu spät
+  try {
+    const o = await unseal(secrets[+id.slice(1) - 1], pl.box);
+    if (o.voteNo !== d.voteNo || !d.cands.includes(o.target) || o.target === id) return;
+    dummHost.votes[id] = o.target; dummSave();
+    d.voted = Object.keys(dummHost.votes).length;             // nur die Anzahl geht raus
+    push(); render();
+  } catch (e) {}
+}
+function dummTally() {
+  const t = {}; D().cands.forEach(id => t[id] = 0);
+  Object.values(dummHost.votes).forEach(id => { if (id in t) t[id]++ });
+  return t;
+}
+/* Schätzfrage im Finale */
+async function dummReceiveEst(pl) {
+  const d = D();
+  if (ROLE !== 'host' || !pl || !d || d.phase !== 'estimate' || pl.qNo !== d.q.no) return;
+  const id = cleanId(pl.id);
+  if (!(d.finalists || []).includes(id)) return;
+  try {
+    const o = await unseal(secrets[+id.slice(1) - 1], pl.box);
+    const v = Number(o.value);
+    if (o.qNo !== d.q.no || !isFinite(v)) return;
+    dummHost.est[id] = v; dummSave();
+    d.estCount = Object.keys(dummHost.est).length; push(); render();
+  } catch (e) {}
+}
+
+/* ----- Finale: Sieger prüfen (gleich viele Fragen = faire Chance) ----- */
+function dummFinalCheck() {
+  const d = D(), [a, b] = d.finalists, T = DUMM_FINAL_WINS;
+  const sa = d.fs[a], sb = d.fs[b], qa = d.fq[a], qb = d.fq[b];
+  if (qa === qb) {
+    if (sa >= T && sb >= T) return 'estimate';
+    if (sa >= T) return a;
+    if (sb >= T) return b;
+    return '';
+  }
+  const lead = qa > qb ? a : b, lag = lead === a ? b : a;
+  if (d.fs[lead] >= T && d.fs[lag] + 1 < T) return lead;     // der andere kann nicht mehr gleichziehen
+  return '';
+}
+function dummStartEstimate() {
+  const d = D(); d.phase = 'estimate'; d.est = null; d.estCount = 0; dummHost.est = {};
+  dummAsk(dummDraw(true), true); state.timer = null;
+}
+function dummWin(id) {
+  const d = D(); d.phase = 'over'; d.winner = id; d.q = d.phase === 'over' && d.q && d.q.type === 'estimate' ? d.q : null;
+  if (dummHost.ans && d.q) d.est = { answer: dummHost.ans.answer, guesses: { ...dummHost.est } };   // Auflösung erst am Ende
+  state.timer = null;
+}
+
+/* ----- Host-Aktionen ----- */
+const DA = {
+  cfg(k, v) {
+    const lim = { lives: [1, 9], roundSec: [15, 900], voteSec: [10, 600] }[k];
+    dummCfg[k] = Math.max(lim[0], Math.min(lim[1], Math.round(+v) || lim[0]));
+    ls.set('qs-dummcfg', JSON.stringify(dummCfg)); render();
+  },
+  start() {
+    const ids = (state.players || []).filter(p => /^p\d+$/.test(p.id)).sort((a, b) => (a.slot || 99) - (b.slot || 99)).map(p => p.id);
+    if (ids.length < 3) { dummMsg = 'Mindestens 3 Spieler nötig – gerade ' + ids.length + ' verbunden.'; render(); return }
+    const lives = {}, status = {}, names = {}, stats = {};
+    ids.forEach(id => { lives[id] = dummCfg.lives; status[id] = 'active'; names[id] = impName(id); stats[id] = { r: 0, w: 0 } });
+    state.dumm = { phase: 'ready', round: 0, maxLives: dummCfg.lives, roundSec: dummCfg.roundSec, voteSec: dummCfg.voteSec,
+      lives, status, names, order: ids, stats, turn: '', q: null, qNo: 0, voteNo: 0, cands: [], voted: 0,
+      tally: null, tie: null, loser: null, lastStart: null, lastHit: null, finalists: null, fs: {}, fq: {}, winner: null, est: null };
+    dummHost = { ans: null, votes: {}, est: {}, used: [], estUsed: [] }; dummSave();
+    dummMsg = ''; state.timer = null; push(); render();
+  },
+  round() {
+    const d = D(); if (!d || (d.phase !== 'ready' && d.phase !== 'result')) return;
+    d.round++; d.phase = 'round'; d.tally = d.tie = d.loser = null;
+    Object.keys(d.stats).forEach(id => d.stats[id] = { r: 0, w: 0 });
+    d.turn = d.lastStart ? dummNext(d.lastStart) : dummActive()[rint(dummActive().length)];   // Startspieler wechselt
+    d.lastStart = d.turn;
+    dummAsk(dummDraw(false)); state.timer = newTimer(d.roundSec); push(); render();
+  },
+  mark(ok) {                                            // richtig / falsch → nächster Spieler, neue Frage
+    const d = D(); if (!d || !d.turn || (d.phase !== 'round' && d.phase !== 'final')) return;
+    if (d.phase === 'round') { d.stats[d.turn][ok ? 'r' : 'w']++; d.turn = dummNext(d.turn); dummAsk(dummDraw(false)) }
+    else {
+      d.fq[d.turn]++; if (ok) d.fs[d.turn]++;
+      const res = dummFinalCheck();
+      if (res === 'estimate') dummStartEstimate();
+      else if (res) dummWin(res);
+      else { d.turn = dummNext(d.turn, d.finalists); dummAsk(dummDraw(false)) }
+    }
+    push(); render();
+  },
+  skip() { const d = D(); if (!d || !d.q) return; dummAsk(dummDraw(d.q.type === 'estimate'), d.q.type === 'estimate'); if (d.phase === 'estimate') { dummHost.est = {}; d.estCount = 0 } push(); render() },
+  manual() {
+    const d = D(); if (!d) return;
+    const tx = ((document.getElementById('dq-text') || {}).value || '').trim(), an = ((document.getElementById('dq-ans') || {}).value || '').trim();
+    if (!tx) return;
+    const est = d.phase === 'estimate';
+    if (est && !isFinite(Number(an.replace(',', '.')))) { dummMsg = 'Bei Schätzfragen muss die Antwort eine Zahl sein.'; render(); return }
+    dummMsg = ''; dummAsk({ text: tx.slice(0, 200), answer: est ? Number(an.replace(',', '.')) : an.slice(0, 100) }, est);
+    if (est) { dummHost.est = {}; d.estCount = 0 }
+    push(); render();
+  },
+  vote(only) {                                          // Abstimmung starten (only = nur zwischen den Gleichstand-Spielern)
+    const d = D(); if (!d || (d.phase !== 'round' && d.phase !== 'result')) return;
+    d.phase = 'vote'; d.voteNo++; d.cands = only && d.tie ? [...d.tie] : dummActive();
+    d.voted = 0; d.tally = d.tie = d.loser = null; dummHost.votes = {}; dummSave();
+    d.q = null; state.timer = newTimer(d.voteSec); push(); render();
+  },
+  close() {                                             // Abstimmung beenden & auswerten
+    const d = D(); if (!d || d.phase !== 'vote') return;
+    const t = dummTally(), max = Math.max(0, ...Object.values(t)), top = Object.keys(t).filter(id => t[id] === max);
+    d.tally = t; d.phase = 'result'; state.timer = null;
+    if (max > 0 && top.length === 1) { d.loser = top[0]; d.tie = null } else { d.loser = null; d.tie = top }
+    push(); render();
+  },
+  hit(id) {                                             // Ergebnis bestätigen: Spieler verliert 1 Leben
+    const d = D(); if (!d || d.phase !== 'result' || !(d.lives[id] > 0)) return;
+    d.lives[id]--; d.lastHit = id;
+    if (d.lives[id] <= 0) d.status[id] = 'eliminated';
+    const act = dummActive();
+    if (act.length <= 1) dummWin(act[0] || id);
+    else if (act.length === 2) {                         // Finale
+      d.phase = 'final'; d.finalists = act; d.fs = { [act[0]]: 0, [act[1]]: 0 }; d.fq = { [act[0]]: 0, [act[1]]: 0 };
+      d.tally = d.tie = d.loser = null; d.turn = act[rint(2)]; dummAsk(dummDraw(false)); state.timer = null;
+    } else { d.phase = 'ready'; d.q = null; d.turn = '' }
+    push(); render();
+  },
+  life(id, delta) {                                     // Leben manuell korrigieren
+    const d = D(); if (!d || !dummIn(id) || d.phase === 'final' || d.phase === 'estimate' || d.phase === 'over') return;
+    d.lives[id] = Math.max(0, Math.min(d.maxLives, d.lives[id] + delta));
+    d.status[id] = d.lives[id] > 0 ? 'active' : 'eliminated';
+    push(); render();
+  },
+  estimate() { const d = D(); if (!d || d.phase !== 'final') return; dummStartEstimate(); push(); render() },
+  win(id) { const d = D(); if (!d || d.phase !== 'estimate' || !(d.finalists || []).includes(id)) return; dummWin(id); push(); render() },
+  end() {
+    if (D() && D().phase !== 'over' && !confirm('„Der Dümmste fliegt“ beenden? Der Spielstand geht verloren.')) return;
+    state.dumm = null; state.timer = null; dummHost = { ans: null, votes: {}, est: {}, used: [], estUsed: [] }; dummSave(); dummMsg = ''; push(); render();
+  },
+  // Spieler
+  async sendVote(target) {
+    const d = D(); if (!me || !d || d.phase !== 'vote' || !(d.lives[me.id] > 0) || target === me.id || !d.cands.includes(target) || !timerRunning()) return;
+    myDummVote = target; myDummVoteNo = d.voteNo; render();
+    try { const box = await seal(me.secret, { target, voteNo: d.voteNo }); if (ch && status === 'SUBSCRIBED') ch.send({ type: 'broadcast', event: 'dvote', payload: { id: me.id, voteNo: d.voteNo, box } }) } catch (e) {}
+  },
+  async sendEst() {
+    const d = D(); if (!me || !d || d.phase !== 'estimate' || !(d.finalists || []).includes(me.id)) return;
+    const v = Number(String((document.getElementById('dest') || {}).value || '').replace(',', '.'));
+    if (!isFinite(v) || String((document.getElementById('dest') || {}).value || '').trim() === '') return;
+    myDummEst = d.q.no + ':' + v; render();
+    try { const box = await seal(me.secret, { value: v, qNo: d.q.no }); if (ch && status === 'SUBSCRIBED') ch.send({ type: 'broadcast', event: 'dest', payload: { id: me.id, qNo: d.q.no, box } }) } catch (e) {}
+  }
+};
+
+/* ----- Bausteine ----- */
+// Leben-Tafel (unter der Quizmaster-Kamera bzw. im Overlay)
+function dummBoard() {
+  const d = D(); if (!d) return '';
+  return `<div class="vsh"><small>LEBEN</small><small>${d.phase === 'final' || d.phase === 'estimate' ? 'FINALE' : 'RUNDE ' + Math.max(1, d.round)}</small></div>` +
+    d.order.map(id => `<div class="vsr dl ${d.lives[id] > 0 ? '' : 'out'} ${me && id === me.id ? 'me' : ''}"><b>${iconHtml(id, '')} ${esc(dummName(id))}</b><span>${d.lives[id] > 0 ? dummHearts(id) : 'RAUS'}</span></div>`).join('');
+}
+const dummHead = () => { const d = D(); return `<div class="dhead"><b>DER DÜMMSTE FLIEGT</b><span>${{ ready: 'BEREIT', round: 'RUNDE ' + d.round, vote: 'ABSTIMMUNG', result: 'ERGEBNIS', final: 'FINALE', estimate: 'SCHÄTZFRAGE', over: 'SIEGER' }[d.phase]}</span></div>` };
+function dummFinalScore() {
+  const d = D(), [a, b] = d.finalists;
+  return `<div class="dfinal"><div class="${d.turn === a ? 'on' : ''}">${iconHtml(a, '')}<b>${esc(dummName(a))}</b><em>${d.fs[a]}</em></div><i>:</i><div class="${d.turn === b ? 'on' : ''}"><em>${d.fs[b]}</em><b>${esc(dummName(b))}</b>${iconHtml(b, '')}</div></div><small class="dsub">Wer zuerst ${DUMM_FINAL_WINS} richtige hat, gewinnt</small>`;
+}
+
+/* ----- Spieler-Ansicht (großer Infokasten) – Aussehen HIER ANPASSEN ----- */
+function dummPanel() {
+  const d = D(), mine = me && dummIn(me.id) ? d.lives[me.id] : null, out = mine === 0;
+  if (myDummVoteNo !== d.voteNo) { myDummVote = ''; myDummVoteNo = d.voteNo }
+  let main = '';
+  const qBox = (who) => d.q ? `<div class="dq"><small>${who}</small><b>${esc(d.q.text)}</b></div>` : '';
+  if (d.phase === 'ready') main = `<div class="dmsg">${d.round ? 'Gleich startet die nächste Runde …' : 'Gleich geht’s los …'}</div>`;
+  if (d.phase === 'round') main = qBox(me && d.turn === me.id ? 'DU BIST DRAN!' : 'FRAGE AN ' + esc(dummName(d.turn)).toUpperCase());
+  if (d.phase === 'vote') {
+    if (out || mine === null) main = `<div class="dmsg">Abstimmung läuft – ${out ? 'du bist raus und stimmst nicht mit ab' : 'du schaust zu'}.</div>`;
+    else if (!timerRunning()) main = `<div class="dmsg">${myDummVote ? 'Deine Stimme: ' + esc(dummName(myDummVote)) + '. ' : 'Keine Stimme abgegeben. '}Zeit um – der Quizmaster wertet aus …</div>`;
+    else main = `<div class="dq"><small>WER VERLIERT EIN LEBEN?</small><div class="vbtns">${d.cands.filter(id => id !== me.id).map(id =>
+      `<button class="btn ${myDummVote === id ? 'ok' : ''}" onclick="DA.sendVote('${esc(id)}')">${iconHtml(id, '')} ${esc(dummName(id))}</button>`).join('')}</div>
+      ${myDummVote ? `<span class="mu">Abgestimmt für ${esc(dummName(myDummVote))} – du kannst bis Zeitende ändern.</span>` : ''}</div>`;
+  }
+  if (d.phase === 'result') {
+    const t = d.tally || {}, list = Object.keys(t).sort((a, b) => t[b] - t[a]);
+    main = `<div class="dq"><small>ERGEBNIS</small><b>${d.loser ? esc(dummName(d.loser)) + ' verliert ein Leben' : 'Gleichstand – der Quizmaster entscheidet'}</b>
+      <div class="dtally">${list.map(id => `<span>${esc(dummName(id))}: ${t[id]}</span>`).join('')}</div></div>`;
+  }
+  if (d.phase === 'final') main = dummFinalScore() + qBox(me && d.turn === me.id ? 'DU BIST DRAN!' : 'FRAGE AN ' + esc(dummName(d.turn)).toUpperCase());
+  if (d.phase === 'estimate') {
+    const fin = me && (d.finalists || []).includes(me.id), sent = myDummEst.startsWith(d.q.no + ':');
+    main = dummFinalScore() + qBox('SCHÄTZFRAGE') + (fin ? `<div class="row"><input class="input vin" id="dest" inputmode="decimal" placeholder="Deine Schätzung" onkeydown="if(event.key==='Enter')DA.sendEst()"><button class="btn y" onclick="DA.sendEst()">Absenden</button></div>${sent ? `<span class="mu">Abgegeben: ${esc(myDummEst.split(':')[1])} – du kannst noch ändern.</span>` : ''}` : '<div class="dmsg">Die beiden Finalisten schätzen …</div>');
+  }
+  if (d.phase === 'over') main = `<div class="crash-win"><small>GEWONNEN HAT</small><b>${iconHtml(d.winner, '')} ${esc(dummName(d.winner))}</b></div>` +
+    (d.est ? `<div class="dtally"><span>Richtig: ${esc(d.est.answer)}</span>${Object.entries(d.est.guesses).map(([id, v]) => `<span>${esc(dummName(id))}: ${esc(v)}</span>`).join('')}</div>` : '');
+  const status = mine === null ? '<span class="dst">DU SCHAUST ZU</span>' : out ? '<span class="dst out">DU BIST RAUS</span>' : `<span class="dst">DEINE LEBEN ${dummHearts(me.id)}</span>`;
+  return `${dummHead()}<div class="dme">${status}</div>${main}`;
+}
+
+/* ----- Host-Ansicht ----- */
+function dummHostCard() {
+  const d = D();
+  if (!d) return `<div class="card dumm-card"><h3>Der Dümmste fliegt · Einstellungen</h3>
+    ${dummMsg ? `<div class="warn">${esc(dummMsg)}</div>` : ''}
+    <div class="setup">
+      <label><span>Leben</span><small>pro Spieler</small><input class="input" type="number" min="1" max="9" value="${dummCfg.lives}" onchange="DA.cfg('lives',this.value)"></label>
+      <label><span>Fragerunde</span><small>Sekunden</small><input class="input" type="number" min="15" max="900" step="15" value="${dummCfg.roundSec}" onchange="DA.cfg('roundSec',this.value)"></label>
+      <label><span>Abstimmung</span><small>Sekunden</small><input class="input" type="number" min="10" max="600" step="10" value="${dummCfg.voteSec}" onchange="DA.cfg('voteSec',this.value)"></label>
+    </div>
+    <div class="row"><button class="btn pk big" onclick="DA.start()">▶ Spiel starten</button></div></div>`;
+  const ans = dummHost.ans && d.q && dummHost.ans.no === d.q.no ? dummHost.ans.answer : null;
+  const qPanel = d.q ? `<div class="dqh"><small>${d.phase === 'estimate' ? 'SCHÄTZFRAGE' : 'FRAGE AN ' + esc(dummName(d.turn)).toUpperCase()}</small><b>${esc(d.q.text)}</b>
+      <div class="dans"><span class="mu">ANTWORT</span><em>${ans != null ? esc(ans) : '—'}</em></div></div>` : '';
+  const manual = `<details class="dman"><summary class="mu">Eigene ${d.phase === 'estimate' ? 'Schätzfrage' : 'Frage'} eingeben</summary>
+      <div class="row"><input class="input" id="dq-text" placeholder="Frage"><input class="input" id="dq-ans" placeholder="${d.phase === 'estimate' ? 'Antwort (Zahl)' : 'Antwort'}"><button class="btn y sm" onclick="DA.manual()">Stellen</button></div></details>`;
+  let ctl = '';
+  if (d.phase === 'ready') ctl = `<div class="row"><button class="btn pk big" onclick="DA.round()">▶ Runde ${d.round + 1} starten (${d.roundSec} s)</button></div>`;
+  if (d.phase === 'round') ctl = `${qPanel}<div class="row"><button class="btn ok big" onclick="DA.mark(true)">✓ Richtig</button><button class="btn big" onclick="DA.mark(false)">✗ Falsch</button><button class="btn sm" onclick="DA.skip()">Andere Frage</button><span id="htimer"></span></div>${manual}
+      <div class="row" style="margin-top:12px"><button class="btn pk big" onclick="DA.vote()">Abstimmung starten (${d.voteSec} s)</button></div>`;
+  if (d.phase === 'vote') ctl = `<div class="turnbox"><span class="mu">ABSTIMMUNG</span><b>${d.voted}/${dummActive().length} Stimmen</b><span id="htimer"></span></div>
+      <div class="answers">${Object.entries(dummHost.votes).map(([v, t]) => `<div class="arow"><b>${esc(dummName(v))}</b><i>STIMMT FÜR</i><span>${esc(dummName(t))}</span><em></em></div>`).join('') || '<p class="mu">Noch keine Stimmen.</p>'}</div>
+      <div class="row"><button class="btn pk big" onclick="DA.close()">Abstimmung beenden &amp; auswerten</button></div>`;
+  if (d.phase === 'result') {
+    const t = d.tally || {}, list = Object.keys(t).sort((a, b) => t[b] - t[a]);
+    ctl = `<div class="turnbox"><span class="mu">ERGEBNIS</span><b>${d.loser ? esc(dummName(d.loser)) + ' hat die meisten Stimmen' : 'GLEICHSTAND'}</b></div>
+      <div class="dtally">${list.map(id => `<span>${esc(dummName(id))}: ${t[id]}</span>`).join('')}</div>
+      <div class="row">${d.loser ? `<button class="btn pk big" onclick="DA.hit('${d.loser}')">Bestätigen – ${esc(dummName(d.loser))} verliert 1 Leben</button>` : ''}
+        ${(d.tie || []).map(id => `<button class="btn pk" onclick="DA.hit('${id}')">${esc(dummName(id))} verliert 1 Leben</button>`).join('')}
+        ${d.tie && d.tie.length > 1 ? `<button class="btn y" onclick="DA.vote(true)">Neu abstimmen (nur zwischen ${d.tie.map(dummName).map(esc).join(' &amp; ')})</button>` : ''}</div>
+      ${d.loser ? `<details class="dman"><summary class="mu">Anders entscheiden</summary><div class="row">${dummActive().filter(id => id !== d.loser).map(id => `<button class="btn sm" onclick="DA.hit('${id}')">${esc(dummName(id))}</button>`).join('')}</div></details>` : ''}`;
+  }
+  if (d.phase === 'final') ctl = `${dummFinalScore()}${qPanel}<div class="row"><button class="btn ok big" onclick="DA.mark(true)">✓ Richtig</button><button class="btn big" onclick="DA.mark(false)">✗ Falsch</button><button class="btn sm" onclick="DA.skip()">Andere Frage</button></div>${manual}
+      <div class="row" style="margin-top:12px"><button class="btn y" onclick="DA.estimate()">Schätzfrage jetzt</button></div>`;
+  if (d.phase === 'estimate') {
+    const a = dummHost.ans ? Number(dummHost.ans.answer) : NaN, g = dummHost.est;
+    const best = d.finalists.filter(id => id in g).sort((x, y) => Math.abs(g[x] - a) - Math.abs(g[y] - a))[0];
+    ctl = `${dummFinalScore()}${qPanel}
+      <div class="answers">${d.finalists.map(id => `<div class="arow ${id === best ? 'right' : ''}"><b>${esc(dummName(id))}</b><i>SCHÄTZT</i><span>${id in g ? esc(g[id]) : '— noch nichts —'}</span><em>${id in g && isFinite(a) ? 'Δ ' + Math.abs(g[id] - a) : ''}</em></div>`).join('')}</div>
+      <div class="row">${d.finalists.map(id => `<button class="btn pk big" onclick="DA.win('${id}')">${esc(dummName(id))} gewinnt</button>`).join('')}<button class="btn sm" onclick="DA.skip()">Andere Schätzfrage</button></div>${manual}`;
+  }
+  if (d.phase === 'over') ctl = `<div class="crash-win"><small>GEWONNEN HAT</small><b>${iconHtml(d.winner, '')} ${esc(dummName(d.winner))}</b></div><div class="row"><button class="btn pk big" onclick="DA.end()">Neues Spiel</button></div>`;
+  const rows = d.order.map(id => {
+    const s = d.stats[id] || { r: 0, w: 0 }, out = !(d.lives[id] > 0);
+    const vf = Object.values(dummHost.votes).filter(t => t === id).length;
+    return `<div class="crow ${out ? 'lost' : ''} ${d.turn === id && (d.phase === 'round' || d.phase === 'final') ? 'safe' : ''}"><i>${iconHtml(id, '·')}</i><b>${esc(dummName(id))}</b>
+      <span>${out ? 'RAUS' : dummHearts(id)}${d.phase === 'round' ? ` · ✓${s.r} ✗${s.w}` : ''}${d.phase === 'vote' && vf ? ` · ${vf} Stimme${vf > 1 ? 'n' : ''}` : ''}</span>
+      <em>${d.phase === 'final' || d.phase === 'estimate' || d.phase === 'over' ? '' : `<button class="btn sm" onclick="DA.life('${id}',-1)">−</button><button class="btn sm" onclick="DA.life('${id}',1)">+</button>`}</em></div>`;
+  }).join('');
+  return `<div class="card dumm-card"><h3>Der Dümmste fliegt · ${dummHead().match(/<span>(.*?)<\/span>/)[1]}</h3>
+    ${dummMsg ? `<div class="warn">${esc(dummMsg)}</div>` : ''}${ctl}
+    <div class="crows dcrows">${rows}</div>
+    ${d.phase !== 'over' ? `<div class="row" style="margin-top:14px"><button class="btn" onclick="DA.end()">Spiel beenden</button></div>` : ''}
+    <p class="mu">Antworten und wer wen gewählt hat, siehst nur du.</p></div>`;
+}
+
+/* ----- Overlay ----- */
+OVERLAY_GAMES.dumm = {
+  // 'main' = Hauptrunde (Quizmaster + Spieler-Kameras, Leiste unten) · 'final' = Finale (Fragekasten oben, 2 große Kameras)
+  sub: () => dummFinalOn() ? 'final' : 'main',
+  game: () => {
+    const d = D();
+    if (!d) return `<div class="o-dbar"><div class="o-dtxt"><small>DER DÜMMSTE FLIEGT</small><b>Gleich geht’s los …</b></div></div>`;
+    const phase = dummHead().match(/<span>(.*?)<\/span>/)[1];
+    if (dummFinalOn()) {                                   // Finale: Fragekasten
+      let q = '';
+      if (d.phase === 'over') q = `<small>GEWONNEN HAT</small><div class="o-big o-win">${iconHtml(d.winner, '')} ${esc(dummName(d.winner))}</div>`;
+      else if (d.q) q = `<small>${d.phase === 'estimate' ? 'SCHÄTZFRAGE' : 'FRAGE AN ' + esc(dummName(d.turn)).toUpperCase()}</small><div class="o-q">${esc(d.q.text)}</div>`;
+      return `<div class="o-dq"><div class="o-dqh"><b>FINALE</b><span>${phase}</span><em>${DUMM_FINAL_WINS} richtige gewinnen</em></div>${q}</div>`;
+    }
+    const timer = d.phase === 'round' || d.phase === 'vote' ? `<div class="vtimer o-timer"><div class="vtbar"><i></i></div><span class="vtt"></span></div>` : '';
+    let txt = '';                                          // Hauptrunde: Leiste unten
+    if (d.phase === 'ready') txt = `<small>DER DÜMMSTE FLIEGT · ${phase}</small><b>${d.round ? 'Gleich geht’s weiter …' : 'Gleich geht’s los …'}</b>`;
+    if (d.phase === 'round') txt = `<small>RUNDE ${d.round} · FRAGE AN ${esc(dummName(d.turn)).toUpperCase()}</small><b>${d.q ? esc(d.q.text) : ''}</b>`;
+    if (d.phase === 'vote') txt = `<small>ABSTIMMUNG · ${d.voted}/${dummActive().length} STIMMEN</small><b class="o-vote">Wer verliert ein Leben?</b>`;
+    if (d.phase === 'result') txt = `<small>ERGEBNIS · ${Object.keys(d.tally || {}).sort((a, b) => d.tally[b] - d.tally[a]).map(id => esc(dummName(id)) + ' ' + d.tally[id]).join(' · ')}</small><b>${d.loser ? esc(dummName(d.loser)) + ' verliert ein Leben' : 'Gleichstand!'}</b>`;
+    if (d.phase === 'over') txt = `<small>GEWONNEN HAT</small><b class="o-win">${iconHtml(d.winner, '')} ${esc(dummName(d.winner))}</b>`;
+    return `<div class="o-dbar"><div class="o-dtxt">${txt}</div>${timer}</div>`;
+  },
+  side: () => ''                                           // Leben stehen direkt in den Kamera-Kacheln
+};
+
 /* Host-Hauptmenü: fester OBS-Link */
 function obsCard() {
   return `<div class="card obs-card"><h3>OBS Overlay Link</h3>
@@ -2266,6 +2782,7 @@ function hostView() {
     ${!state.activeGame ? obsCard() : ''}
     ${state.activeGame === 'imposter' ? impHostCard() : ''}
     ${state.activeGame === 'crash' ? crashHostCard() : ''}
+    ${state.activeGame === 'dumm' ? dummHostCard() : ''}
   </div>`;
 }
 
@@ -2307,6 +2824,8 @@ function playerView() {
     </div>`;
   // Imposter: Rolle steht im Infokasten oben (in #vdo), hier nur noch Name + Spielerliste
   if (g === 'imposter') return `<div class="wrap wrap-b">${statusChip()}${warn()}</div>`;
+  if (g === 'dumm') return state.dumm ? `<div class="wrap wrap-b">${statusChip()}${warn()}</div>`
+    : `<div class="wrap">${statusChip()}${warn()}<div class="card"><h3>Der Dümmste fliegt</h3><div class="stage"><div><b>Der Dümmste fliegt</b>Warte, bis der Quizmaster das Spiel startet …</div></div></div></div>`;
   if (g === 'crash') return state.crash ? `<div class="wrap wrap-b">${statusChip()}${warn()}</div>` : `<div class="wrap">${statusChip()}${warn()}${crashPlayerView()}</div>`;
   return `<div class="wrap">${logo()}${statusChip()}${warn()}
     ${avatarCard(false)}
@@ -2396,6 +2915,8 @@ addEventListener('storage', e => { if (ROLE === 'host' && e.key === 'qs-round' &
   6. Falls Supabase unter Realtime → Settings "Private channels only" aktiv ist: ausschalten.
   6a. Profilbilder: Größe/Qualität oben bei AVATAR_SIZE/AVATAR_QUALITY, Anzeige im CSS unter "Profilbilder".
       Freigabe-Logik in pushAvatars/receiveAvatar/avatarDecide – nur freigegebene Bilder verlassen den Host.
+  6c. Der Dümmste fliegt: Leben/Timer oben bei DUMM_LIVES/DUMM_ROUND_SEC/DUMM_VOTE_SEC (im Host änderbar),
+      Herzen bei DUMM_HEART, Fragen in DUMM_QUESTIONS/DUMM_ESTIMATES, RAUS-Overlay im CSS unter "RAUS-Overlay".
   6b. Crash: Icons, Geschwindigkeit (CRASH_SPEED/CRASH_ACCEL) und Crash-Wahrscheinlichkeit (CRASH_MIN/MEAN/MAX)
      oben im Abschnitt "Crash – HIER ANPASSEN", Aussehen im CSS unter "Crash" und im Diagramm bei CRASH_CHART.
   7. Imposter: Wörter, Kategorie, Anzahl Imposter, Mindestspieler, Redezeit (IMPOSTER_TURN_SEC),
