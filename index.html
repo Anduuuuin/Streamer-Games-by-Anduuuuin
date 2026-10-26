@@ -124,7 +124,7 @@ code{font:12px ui-monospace,monospace;background:#000;color:var(--cyan);padding:
 .vtile{width:var(--vdo-w);display:grid;gap:10px;justify-items:center}
 .vframe{width:var(--vdo-w);height:var(--vdo-h);border-radius:var(--vdo-radius);overflow:hidden;background:#000;border:4px solid var(--cyan);box-shadow:5px 5px 0 #000}
 .vframe iframe{width:100%;height:100%;border:0;display:block}
-.vtile.own .vframe{border-color:var(--green);box-shadow:5px 5px 0 #000,0 0 18px var(--green)}
+.vtile.own .vframe{border-color:var(--green)}   /* eigene Kamera: grüner Rahmen, leuchtet aber nicht */
 .vname{font:10px var(--px);color:#fff;text-transform:uppercase;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;padding:6px 10px;background:#000;border:3px solid var(--cyan);border-radius:8px}
 .vtile.own .vname{color:#000;background:var(--green);border-color:#000}
 .vhead a{color:#000;font-weight:bold}
@@ -430,7 +430,6 @@ img.avi{width:var(--avi-inline);height:var(--avi-inline);border-radius:50%;objec
 .lives.zero{opacity:.6}
 /* RAUS-Overlay: Kamera ausgeblendet, Profilbild + großes rotes RAUS (Größe/Farbe/Drehung HIER) */
 .vframe,.oframe{position:relative}
-.vtile.out iframe,.otile.out iframe{visibility:hidden}
 .vtile.out .vframe,.otile.out .oframe{border-color:var(--red);background-color:#1a0005}
 .raus{position:absolute;inset:0;display:grid;place-items:center;pointer-events:none;z-index:2;
   font:clamp(18px,4.5vw,44px) var(--px);color:#ff1a1a;transform:rotate(-14deg);letter-spacing:2px;
@@ -529,6 +528,72 @@ img.avi{width:var(--avi-inline);height:var(--avi-inline);border-radius:50%;objec
 #ostage[data-game="dumm"] .o-flagrow .o-q{margin:0;font-size:28px}
 #ostage[data-game="dumm"][data-sub="final"] .o-dq{padding:16px 26px;gap:10px}
 
+/* ===== Kamera-Rahmen: nur wer dran ist, leuchtet – HIER ANPASSEN ===== */
+.vframe,.oframe{box-shadow:5px 5px 0 #000;animation:none}
+.vtile.turn .vframe,.otile.turn .oframe{border-color:var(--yellow);animation:turnglow 1s ease-in-out infinite alternate}
+@keyframes turnglow{from{box-shadow:5px 5px 0 #000,0 0 10px 2px var(--yellow)}to{box-shadow:5px 5px 0 #000,0 0 34px 10px var(--yellow)}}
+.vtile.turn .vname,.otile.turn .oname{background:var(--yellow);color:#000;border-color:#000}
+
+/* ===== Kamera-Karte umdrehen (Kamera aus / Seite verlassen) – HIER ANPASSEN ===== */
+.vframe,.oframe{perspective:900px;background:transparent}
+.flip{position:absolute;inset:0;transform-style:preserve-3d;transition:transform .9s cubic-bezier(.3,1.4,.5,1)}   /* Dauer + Schwung der Drehung */
+.vframe.flipped .flip,.oframe.flipped .flip{transform:rotateY(180deg)}
+.face{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;overflow:hidden}
+.face.front{background:#000}
+.face.front iframe{width:100%;height:100%;border:0;display:block}
+.face.back{transform:rotateY(180deg);display:grid;place-items:center;text-align:center;
+  background:repeating-linear-gradient(45deg,#1b0b4d 0 10px,#12063a 10px 20px)}
+.face.back span{font:9px var(--px);color:var(--mu);display:grid;gap:10px;justify-items:center;padding:8px;line-height:1.6}
+.face.back.avi-bg{background-size:cover;background-position:center;background-repeat:no-repeat}
+.face.back.avi-bg span{font-size:0;align-self:end;margin-bottom:8px}
+#ostage .face.back span{font-size:14px}#ostage .face.back.avi-bg span{font-size:0}
+
+/* ===== RAUS-Stempel (Der Dümmste fliegt, 0 Leben) – HIER ANPASSEN ===== */
+.vtile.out .front iframe,.otile.out .front iframe{filter:grayscale(1) brightness(.55)}     /* Kamera grau */
+.vtile.out .face.back,.otile.out .face.back{filter:grayscale(1) brightness(.6)}
+.vtile.out .vframe::after,.otile.out .oframe::after{content:'';position:absolute;inset:0;background:rgba(70,70,70,.45);z-index:2;pointer-events:none}
+.vtile.out .vframe,.otile.out .oframe{border-color:#777}
+.raus{position:absolute;inset:0;display:grid;place-items:center;pointer-events:none;z-index:3;background:none;
+  font:clamp(18px,4.2vw,40px) var(--px);color:#ff1a1a;-webkit-text-stroke:0;text-shadow:none;transform:none}
+.raus span{display:block;padding:.35em .55em .3em;border:.16em solid #ff1a1a;outline:.07em solid #ff1a1a;outline-offset:.12em;
+  color:#ff1a1a;letter-spacing:.12em;transform:rotate(-14deg);background:rgba(255,26,26,.08);
+  text-shadow:0 0 12px rgba(255,0,0,.7);box-shadow:0 0 22px rgba(255,0,0,.55),inset 0 0 14px rgba(255,0,0,.35);
+  animation:stamp .55s cubic-bezier(.2,1.6,.4,1) both}                                     /* Stempel-Animation */
+@keyframes stamp{0%{transform:rotate(-30deg) scale(3.2);opacity:0}55%{transform:rotate(-12deg) scale(.88);opacity:1}
+  70%{transform:rotate(-15deg) scale(1.06)}100%{transform:rotate(-14deg) scale(1);opacity:.95}}
+.vtile.out .vframe,.otile.out .oframe{animation:stampshake .45s .3s ease-out 1}               /* Kachel wackelt beim Aufprall */
+@keyframes stampshake{0%,100%{translate:0 0}20%{translate:-6px 3px}40%{translate:5px -3px}60%{translate:-3px 2px}80%{translate:2px -1px}}
+.vframe .raus span,.oframe .raus span{font-size:1em;color:#ff1a1a;line-height:1.1}   /* schützt den Stempel vor anderen Span-Regeln */
+.otile .raus{font-size:64px}.o-hostcam .raus{font-size:76px}
+.vtile.out .vname,.otile.out .oname{border-color:#777;color:#999;text-decoration:line-through}
+
+/* ===== Imposter-Auflösung ===== */
+.vtile.impx .vframe,.otile.impx .oframe{border-color:var(--red)}
+.vtile.impx .vframe::before,.otile.impx .oframe::before{content:'IMPOSTER';position:absolute;left:50%;top:8px;transform:translateX(-50%);z-index:4;
+  background:var(--red);color:#fff;font:9px var(--px);padding:5px 8px;border:2px solid #000;white-space:nowrap}
+.otile.impx .oframe::before{font-size:16px;padding:8px 12px;top:12px}
+.vinfo .ik.reveal{flex-basis:100%;border:4px solid var(--red);background:#1a0005;padding:12px}
+.vinfo .ik.reveal b{font-size:clamp(13px,2vw,20px);color:#fff}.vinfo .ik.reveal .red{color:var(--red);font-size:inherit;text-shadow:none;animation:none}
+.vinfo .ik.reveal em{font-style:normal;color:var(--cyan)}
+#ostage .o-impname{font-size:84px;color:var(--red);text-shadow:6px 6px 0 #000;animation:glow 1s ease-in-out infinite alternate}
+#ostage .o-word{font-style:normal;color:var(--cyan)}
+
+/* ===== Gewinner-Show + Konfetti – HIER ANPASSEN ===== */
+.winfx{position:fixed;inset:0;z-index:60;display:grid;place-items:center;background:radial-gradient(circle,rgba(42,10,94,.55),rgba(13,2,33,.88));animation:winfade .5s ease-out both}
+#ostage .winfx{position:absolute}
+.winfx .confetti{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:2}
+.wincard{position:relative;z-index:1;display:grid;gap:18px;justify-items:center;text-align:center;padding:30px 40px;
+  background:#000c;border:6px solid var(--yellow);box-shadow:10px 10px 0 #000,0 0 60px rgba(255,230,0,.6);animation:winpop .8s .15s cubic-bezier(.2,1.6,.4,1) both}
+.wincard small{font:clamp(10px,1.6vw,16px) var(--px);color:var(--cyan);letter-spacing:2px}
+.winpic{width:clamp(120px,22vw,220px);aspect-ratio:1;border-radius:50%;overflow:hidden;border:6px solid var(--yellow);box-shadow:0 0 40px var(--yellow);display:grid;place-items:center;background:#1b0b4d}
+.winpic img{width:100%;height:100%;object-fit:cover}.winpic span{font-size:clamp(60px,10vw,110px)}
+.wincard b{font:clamp(24px,6vw,64px) var(--px);color:var(--yellow);text-shadow:5px 5px 0 var(--pink),10px 10px 0 #000;text-transform:uppercase;animation:glow 1s ease-in-out infinite alternate}
+.wincard em{font:normal clamp(16px,3.5vw,36px) var(--px);color:#fff;text-shadow:3px 3px 0 #000}
+.winclose{position:absolute;right:16px;bottom:16px;z-index:3}
+#ostage .wincard{padding:50px 80px;gap:26px}#ostage .winpic{width:300px}#ostage .wincard b{font-size:96px}#ostage .wincard em{font-size:48px}#ostage .wincard small{font-size:24px}
+@keyframes winfade{from{opacity:0}}
+@keyframes winpop{0%{transform:scale(.2) rotate(-8deg);opacity:0}100%{transform:none;opacity:1}}
+
 /* Player */
 .input{font:12px var(--px);background:#000;color:#fff;border:3px solid var(--cyan);padding:12px;width:100%;max-width:340px}
 .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
@@ -562,7 +627,7 @@ img.avi{width:var(--avi-inline);height:var(--avi-inline);border-radius:50%;objec
 
 <script>
 /* ===== Konfiguration ===== */
-const APP_VERSION = 'v26.10.2026-12';   // Versionsnummer – steht unten auf jeder Seite, so siehst du, ob GitHub die neue Datei ausliefert
+const APP_VERSION = 'v26.10.2026-13';   // Versionsnummer – steht unten auf jeder Seite, so siehst du, ob GitHub die neue Datei ausliefert
 const SUPABASE_URL = 'https://oufoopkyhdxbmvjngngd.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im91Zm9vcGt5aGR4Ym12am5nbmdkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTI5MzI0NTUsImV4cCI6MjEwODUwODQ1NX0.yeKbvsNwgqErfFNmHKsIrRc-SNVWD3SEfyqmR1X2BWM';
 const CHANNEL = 'raum-eins';   // Basisname; jede Runde läuft in "raum-eins-<Rundencode>"
@@ -1227,6 +1292,8 @@ function vdoPeople() {
   const byId = {};
   (state.players || []).forEach(p => byId[p.id] = { ...p });
   online.forEach(p => byId[p.id] = { ...(byId[p.id] || {}), ...p, slot: (byId[p.id] && byId[p.id].slot) || p.slot });
+  const d = state.activeGame === 'dumm' && state.dumm;               // Seite verlassen → Karte bleibt, zeigt Profilbild
+  if (d) d.order.forEach(id => { if (!byId[id]) byId[id] = { id, name: d.names[id], slot: (d.slots || {})[id] || 9, vdoId: '', offline: true } });
   return Object.values(byId);
 }
 
@@ -1238,7 +1305,7 @@ function vdoList(withPlaceholders) {
     const own = !!(me && p.id === me.id);
     const v = own ? cleanVdo(me.vdoId) : cleanVdo(p.vdoId);
     if (v) l.push({ key: v, vdoId: v, pid: p.id, name: own ? me.name : p.name, slot: p.slot || 9, own });
-    else if (withPlaceholders || aviOf(p.id)) l.push({ key: 'ph-' + p.id, pid: p.id, name: own ? me.name : p.name, slot: p.slot || 9, own, ph: true });   // Kamera aus: Platzhalter (mit Profilbild, falls freigegeben)
+    else if (withPlaceholders || aviOf(p.id) || p.offline) l.push({ key: 'ph-' + p.id, pid: p.id, name: own ? me.name : p.name, slot: p.slot || 9, own, ph: true });   // Kamera aus: Platzhalter (mit Profilbild, falls freigegeben)
   });
   // Host-Kamera (kommt beim Spieler über den State)
   if (ROLE !== 'host') {
@@ -1280,7 +1347,9 @@ function impPhaseLine() {
     return `<div class="ik ph"><small>DURCHGANG ${r}/${impTurns()} · ZUG ${im.turn + 1}/${impTotal()}</small><b class="${mine ? 'me' : ''}">${mine ? 'DU BIST DRAN!' : 'DRAN: ' + esc(impName(pid))}</b></div>`;
   }
   if (im.phase === 'reveal') { const d = me && im.result ? im.result[me.id] : undefined;
-    return `<div class="ik ph"><small>AUFLÖSUNG</small><b class="wait">Die Antworten stehen über den Kameras.${d !== undefined ? ' Deine Punkte: ' + fmtPts(d) + ' (gesamt ' + ptsOf(me.id) + ')' : ''}</b></div>` }
+    const s = im.solution;
+    return (s ? `<div class="ik reveal"><small>AUFLÖSUNG</small><b>DER IMPOSTER WAR: <span class="red">${s.names.map(esc).join(' &amp; ')}</span></b><span>Gesuchter Begriff: <em>${esc(s.word)}</em></span></div>` : '') +
+      `<div class="ik ph"><small>PUNKTE</small><b class="wait">Die Antworten stehen über den Kameras.${d !== undefined ? ' Deine Punkte: ' + fmtPts(d) + ' (gesamt ' + ptsOf(me.id) + ')' : ''}</b></div>` }
   return '';
 }
 
@@ -1345,29 +1414,31 @@ function updateVdo(force) {
   grid.classList.toggle('dfin', dm && dummFinalOn());   // Finale: Quizmaster + Frage oben, 2 große Kameras
 
   // Kacheln abgleichen: neue anlegen, alte entfernen, Namen aktualisieren – iframes nie neu laden
-  const list = vdoList(lay), want = new Set(list.map(p => p.key));
-  grid.querySelectorAll('.vtile').forEach(t => { if (!want.has(t.dataset.vdo)) t.remove() });
+  const list = vdoList(lay), want = new Set(list.map(p => p.pid));
+  grid.querySelectorAll('.vtile').forEach(t => { if (!want.has(t.dataset.pid)) t.remove() });
   const players = list.filter(p => !p.host).length;
   grid.style.setProperty('--cols', Math.max(5, players));   // so viele Spalten wie Spieler (mind. 5)
-  const im = state.imposter, turnPid = imp ? impTurnPid() : '', rev = imp && im && im.phase === 'reveal' ? (im.reveal || {}) : null, order = impOrder();
+  const im = state.imposter, turnPid = curTurnPid(), impIds = impRevealIds(), rev = imp && im && im.phase === 'reveal' ? (im.reveal || {}) : null, order = impOrder();
   const cr = crm ? state.crash : null;
   list.forEach(p => {
-    let t = grid.querySelector('.vtile[data-vdo="' + p.key + '"]');
+    let t = grid.querySelector('.vtile[data-pid="' + p.pid + '"]');        // eine Karte pro Person – bleibt beim Kamera-Wechsel bestehen
     if (!t) {
-      t = document.createElement('div'); t.className = 'vtile'; t.dataset.vdo = p.key;
-      t.innerHTML = p.ph
-        ? `<div class="vans"></div><div class="vframe ph"><span>KEINE KAMERA${p.own && ROLE === 'player' ? '<button class="btn y sm" onclick="A.vdoConnect()">Kamera verbinden</button>' : ''}</span></div><div class="vname"></div>`
-        : `<div class="vans"></div><div class="vframe"><iframe src="${esc(vdoViewUrl(p.vdoId, p.own))}" allow="autoplay; fullscreen; picture-in-picture" title="Kamera"></iframe></div><div class="vname"></div>`;
+      t = document.createElement('div'); t.className = 'vtile'; t.dataset.pid = p.pid;
+      const back = p.host ? esc(HOST_NAME).toUpperCase() : 'KEINE KAMERA' + (p.own && ROLE === 'player' ? '<button class="btn y sm" onclick="A.vdoConnect()">Kamera verbinden</button>' : '');
+      t.innerHTML = camTileHtml('vframe', 'vname', p.vdoId, p.own, back); t._cam0 = p.vdoId || '';
       grid.appendChild(t);
     }
+    t.dataset.vdo = p.key;
+    syncCamCard(t, '.vframe', p.vdoId, p.own, p.pid);                          // Kamera aus → Karte umdrehen (Profilbild)
     t.classList.toggle('own', !!p.own);
     t.classList.toggle('host', !!p.host);
     // Reihenfolge nur per CSS-order, damit die iframes nicht umgehängt werden (sonst laden sie neu)
     t.style.order = lay ? (p.host ? 0 : 10 + p.slot) : (p.own ? 0 : p.host ? 1 : p.slot + 1);
     const label = (p.own ? 'DU · ' : '') + (cr && cr.icons[p.pid] ? iconHtml(p.pid, cr.icons[p.pid]) + ' ' : '') + esc(p.name);
     const nm = t.querySelector('.vname'); if (nm._lbl !== label) { nm.innerHTML = label; nm._lbl = label }
-    dummDecorate(t, '.vframe', p.pid, p.ph);   // Kamera aus → Profilbild · 0 Leben → Kamera weg, Profilbild + RAUS
-    t.classList.toggle('turn', !!turnPid && p.pid === turnPid);                 // wer gerade dran ist
+    dummDecorate(t, '.vframe', p.pid);   // 0 Leben → grau + RAUS-Stempel
+    t.classList.toggle('turn', !!turnPid && p.pid === turnPid);                 // nur wer dran ist, leuchtet
+    t.classList.toggle('impx', impIds.includes(p.pid));                         // Imposter-Auflösung
     const an = t.querySelector('.vans');                                         // Blase über der Kamera
     const dl = rev && im.result && p.pid in im.result ? ' · ' + fmtPts(im.result[p.pid]) : '';
     let at = rev && rev[p.pid] ? '„' + rev[p.pid] + '“' + dl : rev && order.includes(p.pid) ? '— keine Antwort —' + dl : '';
@@ -1482,6 +1553,8 @@ const A = {
     const d = impScore(); im.result = d;                         // Punkte dieser Runde
     state.scores = { ...(state.scores || {}) };
     for (const id in d) state.scores[id] = (state.scores[id] || 0) + d[id];
+    const sol = impSolution || {};
+    im.solution = { ids: sol.impIds || [], names: sol.imposters || [], word: sol.word || '', category: sol.category || im.category };   // Auflösung für alle
     im.phase = 'reveal'; im.reveal = { ...impAnswers }; state.timer = null; push(); render();
   },
   draft(v) { draft = v },
@@ -1786,7 +1859,7 @@ const OVERLAY_GAMES = {
         main = `<small>DURCHGANG ${r}/${impTurns()} · ZUG ${im.turn + 1}/${impTotal()}</small><div class="o-big o-turn">DRAN: ${esc(impName(impTurnPid()))}</div>`;
       }
       if (im.phase === 'vote') main = `<div class="o-big o-vote">ABSTIMMUNG</div><small>Wer ist der Imposter? Der Imposter tippt den Begriff.</small>`;
-      if (im.phase === 'reveal') main = `<div class="o-big">AUFLÖSUNG</div><small>Die Antworten stehen über den Kameras</small>`;
+      if (im.phase === 'reveal') main = im.solution ? `<small>AUFLÖSUNG · DER IMPOSTER WAR</small><div class="o-big o-impname">${im.solution.names.map(esc).join(' &amp; ')}</div><small>Gesuchter Begriff: <em class="o-word">${esc(im.solution.word)}</em></small>` : `<div class="o-big">AUFLÖSUNG</div><small>Die Antworten stehen über den Kameras</small>`;
       const timer = im.phase === 'turns' || im.phase === 'vote' || im.phase === 'dealt'
         ? `<div class="vtimer o-timer"><div class="vtbar"><i></i></div><span class="vtt"></span></div>` : '';
       return head + `<div class="o-grid">${cat}<div class="o-panel o-center">${main}</div></div>${timer}`;
@@ -1822,40 +1895,45 @@ function renderOverlay() {
   if (g !== ovGameHtml) { st.querySelector('.o-game').innerHTML = g; ovGameHtml = g }
   if (s !== ovSideHtml) { st.querySelector('.o-side').innerHTML = s; ovSideHtml = s }
   updateOverlayCams(st);
+  syncWinner(st);                                        // Gewinner + Konfetti im Overlay
   tickTimer();
 }
 
 /* Kameras im Overlay – sichtbar in jedem Spiel */
 function updateOverlayCams(st) {
   const im = state.imposter, inImp = state.activeGame === 'imposter';
-  const turnPid = inImp ? impTurnPid() : '';
+  const turnPid = curTurnPid(), impIds = impRevealIds();
   const rev = inImp && im && im.phase === 'reveal' ? (im.reveal || {}) : null;
   const want = [];
   const hv = cleanVdo(state.hostVdo);
   want.push({ box: '.o-hostcam', key: hv || 'ph-host', vdoId: hv, pid: 'host', name: HOST_NAME, slot: 0 });
-  (state.players || []).slice().sort((a, b) => (a.slot || 99) - (b.slot || 99)).forEach(p => {
+  const pl = (state.players || []).slice();
+  const d = state.activeGame === 'dumm' && state.dumm;                 // Spieler, die die Seite verlassen haben, bleiben als Karte
+  if (d) d.order.forEach(id => { if (!pl.some(p => p.id === id)) pl.push({ id, name: d.names[id], slot: (d.slots || {})[id] || 9, vdoId: '' }) });
+  pl.sort((a, b) => (a.slot || 99) - (b.slot || 99)).forEach(p => {
     const v = cleanVdo(p.vdoId);
     want.push({ box: '.o-row', key: v || 'ph-' + p.id, vdoId: v, pid: p.id, name: p.name, slot: p.slot || 9 });
   });
-  const keys = new Set(want.map(w => w.key));
-  st.querySelectorAll('.otile').forEach(t => { if (!keys.has(t.dataset.key)) t.remove() });
+  const pids = new Set(want.map(w => w.pid));
+  st.querySelectorAll('.otile').forEach(t => { if (!pids.has(t.dataset.pid)) t.remove() });
   want.forEach(w => {
     const box = st.querySelector(w.box);
-    let t = box.querySelector('.otile[data-key="' + w.key + '"]');
+    let t = box.querySelector('.otile[data-pid="' + w.pid + '"]');
     if (!t) {
-      t = document.createElement('div'); t.className = 'otile'; t.dataset.key = w.key;
-      t.innerHTML = `<div class="vans"></div><div class="oframe">${w.vdoId
-        ? `<iframe src="${esc(vdoViewUrl(w.vdoId, !OVERLAY_CAM_AUDIO))}" allow="autoplay; fullscreen" title="Kamera"></iframe>`
-        : `<span>${w.pid === 'host' ? esc(HOST_NAME).toUpperCase() : 'KEINE KAMERA'}</span>`}</div><div class="oname"></div>`;
+      t = document.createElement('div'); t.className = 'otile'; t.dataset.pid = w.pid;
+      t.innerHTML = camTileHtml('oframe', 'oname', w.vdoId, !OVERLAY_CAM_AUDIO, w.pid === 'host' ? esc(HOST_NAME).toUpperCase() : 'KEINE KAMERA'); t._cam0 = w.vdoId || '';
       box.appendChild(t);
     }
+    t.dataset.key = w.key;
+    syncCamCard(t, '.oframe', w.vdoId, !OVERLAY_CAM_AUDIO, w.pid);       // Kamera aus / Seite verlassen → Karte umdrehen
     t.style.order = w.slot;
     t.classList.toggle('host', w.pid === 'host');
-    t.classList.toggle('turn', !!turnPid && w.pid === turnPid);
+    t.classList.toggle('turn', !!turnPid && w.pid === turnPid);          // nur wer dran ist, leuchtet
+    t.classList.toggle('impx', impIds.includes(w.pid));                  // Imposter-Auflösung
     const cr = state.activeGame === 'crash' && state.crash;
     const label = (cr && cr.icons[w.pid] ? iconHtml(w.pid, cr.icons[w.pid]) + ' ' : '') + esc(w.name);
     const nm = t.querySelector('.oname'); if (nm._lbl !== label) { nm.innerHTML = label; nm._lbl = label }
-    dummDecorate(t, '.oframe', w.pid, !w.vdoId);   // Kamera aus → Profilbild · 0 Leben → Profilbild + RAUS
+    dummDecorate(t, '.oframe', w.pid);   // 0 Leben → grau + RAUS-Stempel
     const an = t.querySelector('.vans');
     const dl = rev && im.result && w.pid in im.result ? ' · ' + fmtPts(im.result[w.pid]) : '';
     let at = rev && rev[w.pid] ? '„' + rev[w.pid] + '“' + dl : rev && impOrder().includes(w.pid) ? '— keine Antwort —' + dl : '';
@@ -1880,8 +1958,98 @@ function overlayState() {
     crash: state.crash || null,   // enthält nie den Crash-Punkt
     dumm: state.dumm || null,     // enthält nie Antworten oder wer wen gewählt hat
     imposter: im ? { deal: im.deal, category: im.category, count: im.count, order: im.order, names: im.names, phase: im.phase,
-      turn: im.turn, vote: im.vote, reveal: im.phase === 'reveal' ? im.reveal : null, result: im.phase === 'reveal' ? im.result : null } : null
+      turn: im.turn, vote: im.vote, reveal: im.phase === 'reveal' ? im.reveal : null, result: im.phase === 'reveal' ? im.result : null,
+      solution: im.phase === 'reveal' ? im.solution || null : null } : null
   };
+}
+
+/* ===================================================================================
+   KAMERA-KARTEN · Vorderseite = Kamera (VDO.Ninja), Rückseite = Profilbild
+   Kamera aus oder Spieler hat die Seite verlassen → Karte dreht sich um.
+   Dauer/Art der Drehung im CSS unter „Kamera-Karte umdrehen“.
+   =================================================================================== */
+const camIframe = (id, mute) => `<iframe src="${esc(vdoViewUrl(id, mute))}" allow="autoplay; fullscreen; picture-in-picture" title="Kamera"></iframe>`;
+function camTileHtml(frameCls, nameCls, vdoId, mute, backText) {
+  return `<div class="vans"></div><div class="${frameCls}"><div class="flip"><div class="face front">${vdoId ? camIframe(vdoId, mute) : ''}</div>` +
+    `<div class="face back"><span>${backText}</span></div></div></div><div class="${nameCls}"></div>`;
+}
+function syncCamCard(t, frameSel, vdoId, mute, pid) {
+  const fr = t.querySelector(frameSel); if (!fr) return;
+  const front = fr.querySelector('.front'), back = fr.querySelector('.back');
+  if (front && front._cam === undefined) front._cam = t._cam0 || '';   // welche Kamera beim Anlegen schon drin war
+  if (vdoId && front && front._cam !== vdoId) {                    // neue/andere Kamera → iframe einsetzen (gleiche Kamera lädt nie neu)
+    front.innerHTML = camIframe(vdoId, mute);
+    front._cam = vdoId;
+  }
+  fr.classList.toggle('flipped', !vdoId);                          // keine Kamera → Rückseite mit Profilbild
+  aviBackground(back, pid);
+}
+/* Wer ist gerade dran? Nur dessen Rahmen leuchtet (Imposter: Zug · Der Dümmste fliegt: Frage) */
+function curTurnPid() {
+  if (state.activeGame === 'imposter') return impTurnPid();
+  const d = state.activeGame === 'dumm' && state.dumm;
+  if (d && (d.phase === 'round' || d.phase === 'final')) return d.turn || '';
+  return '';
+}
+/* Imposter-Auflösung: wer war Imposter? (erst nach der Freigabe im State) */
+const impRevealIds = () => { const im = state.activeGame === 'imposter' && state.imposter; return im && im.phase === 'reveal' && im.solution ? im.solution.ids || [] : [] };
+
+/* ===================================================================================
+   GEWINNER-SHOW + KONFETTI – HIER ANPASSEN
+   =================================================================================== */
+const CONFETTI = {
+  cannon: 220,          // Teilchen, die zu Beginn aus den unteren Ecken geschossen werden
+  rain: 5,              // neue Teilchen pro Bild, die danach von oben regnen
+  durationMs: 9000,     // wie lange es nachregnet
+  gravity: 0.16,        // Fallgeschwindigkeit
+  size: [9, 18],        // Größe der Schnipsel (min, max) in Pixel
+  colors: ['#ff2bd6', '#00f0ff', '#ffe600', '#39ff14', '#ff2d55', '#ffffff']
+};
+function confetti(cv) {
+  const x = cv && cv.getContext && cv.getContext('2d'); if (!x) return;
+  const fit = () => { cv.width = cv.clientWidth || 1920; cv.height = cv.clientHeight || 1080 };
+  fit();
+  const R = (a, b) => a + Math.random() * (b - a), col = () => CONFETTI.colors[Math.random() * CONFETTI.colors.length | 0];
+  const mk = (px, py, vx, vy) => ({ x: px, y: py, vx, vy, r: R(0, 6.3), vr: R(-.25, .25), s: R(CONFETTI.size[0], CONFETTI.size[1]), c: col(), round: Math.random() < .25, tilt: R(0, 6.3) });
+  const P = [], W = () => cv.width, H = () => cv.height, t0 = Date.now();
+  for (let i = 0; i < CONFETTI.cannon; i++) {                     // zwei Konfetti-Kanonen unten links und rechts
+    const left = i % 2 === 0;
+    P.push(mk(left ? R(0, W() * .08) : R(W() * .92, W()), H() + 10, (left ? 1 : -1) * R(4, 13) * W() / 1920, -R(14, 26) * H() / 1080));
+  }
+  const raf = typeof requestAnimationFrame === 'function' ? requestAnimationFrame : f => setTimeout(f, 16);
+  (function step() {
+    if (cv.isConnected === false) return;                          // Anzeige geschlossen → aufhören
+    const el = Date.now() - t0;
+    if (el < CONFETTI.durationMs) for (let i = 0; i < CONFETTI.rain; i++) P.push(mk(R(0, W()), -20, R(-1.5, 1.5), R(1, 4)));
+    x.clearRect(0, 0, W(), H());
+    for (let i = P.length - 1; i >= 0; i--) {
+      const p = P[i];
+      p.vy += CONFETTI.gravity; p.vx *= .99; p.vy = Math.min(p.vy, 7); p.x += p.vx + Math.sin(p.tilt += .05) * .6; p.y += p.vy; p.r += p.vr;
+      if (p.y > H() + 40) { P.splice(i, 1); continue }
+      x.save(); x.translate(p.x, p.y); x.rotate(p.r); x.fillStyle = p.c;
+      if (p.round) { x.beginPath(); x.arc(0, 0, p.s / 2.4, 0, 6.3); x.fill() }
+      else x.fillRect(-p.s / 2, -p.s / 4, p.s, p.s / 2 * Math.abs(Math.cos(p.tilt)) + 2);
+      x.restore();
+    }
+    if (P.length || el < CONFETTI.durationMs) raf(step);
+  })();
+}
+/* Gewinner groß einblenden (einmal pro Sieg). parent = #ostage (Overlay) oder body (Spieler-Ansicht) */
+function showWinner(parent, key, pid, name, title) {
+  if (!parent || parent._winKey === key) return;
+  hideWinner(parent); parent._winKey = key;
+  const el = document.createElement('div'); el.className = 'winfx';
+  const pic = aviOf(pid) ? `<img src="${aviOf(pid)}" alt="">` : '<span>🏆</span>';
+  el.innerHTML = `<canvas class="confetti"></canvas><div class="wincard"><small>${esc(title)}</small><div class="winpic">${pic}</div>` +
+    `<b>${esc(name)}</b><em>GEWINNT!</em></div>${ROLE === 'player' ? '<button class="btn winclose" onclick="this.parentNode.remove()">Schließen</button>' : ''}`;
+  parent.appendChild(el);
+  confetti(el.querySelector('.confetti'));
+}
+function hideWinner(parent) { if (!parent) return; const el = parent.querySelector('.winfx'); if (el) el.remove(); parent._winKey = '' }
+function syncWinner(parent) {
+  const d = state.activeGame === 'dumm' && state.dumm;
+  if (d && d.phase === 'over' && d.winner) showWinner(parent, 'dumm:' + d.winner + ':' + d.qNo, d.winner, dummName(d.winner), 'DER DÜMMSTE FLIEGT');
+  else if (parent && parent._winKey) hideWinner(parent);
 }
 
 /* ===================================================================================
@@ -2961,14 +3129,13 @@ function dummHearts(id) {
   return `<span class="lives ${n ? '' : 'zero'}">${DUMM_HEART.repeat(n)}${DUMM_HEART_EMPTY.repeat(Math.max(0, max - n))}</span>`;
 }
 /* RAUS-Overlay + Profilbild an einer Kamera-Kachel (Spieler-Ansicht und Overlay) */
-function dummDecorate(t, frameSel, pid, isPh) {
+function dummDecorate(t, frameSel, pid) {
   const fr = t.querySelector(frameSel); if (!fr) return;
   const out = dummOut(pid);
-  t.classList.toggle('out', out);
+  t.classList.toggle('out', out);                       // raus → Kamera grau (CSS „RAUS-Stempel“)
   let r = fr.querySelector('.raus');
-  if (out && !r) { r = document.createElement('div'); r.className = 'raus'; r.textContent = DUMM_OUT_TEXT; fr.appendChild(r) }
+  if (out && !r) { r = document.createElement('div'); r.className = 'raus'; r.innerHTML = '<span>' + esc(DUMM_OUT_TEXT) + '</span>'; fr.appendChild(r) }   // Stempel – Animation läuft beim Erscheinen
   if (!out && r) r.remove();
-  aviBackground(fr, (isPh || out) ? pid : null);       // raus → Kamera ausgeblendet, Profilbild sichtbar
   // Abzeichen oben rechts in der Kachel: Herzen (Hauptrunde) bzw. richtige Antworten (Finale) – HIER ANPASSEN
   const fin = dummFinalOn() && D().finalists.includes(pid);
   t.classList.toggle('fin', fin);
@@ -3062,10 +3229,11 @@ const DA = {
   start() {
     const ids = (state.players || []).filter(p => /^p\d+$/.test(p.id)).sort((a, b) => (a.slot || 99) - (b.slot || 99)).map(p => p.id);
     if (ids.length < 3) { dummMsg = 'Mindestens 3 Spieler nötig – gerade ' + ids.length + ' verbunden.'; render(); return }
-    const lives = {}, status = {}, names = {}, stats = {};
+    const lives = {}, status = {}, names = {}, stats = {}, slots = {};
+    (state.players || []).forEach(p => slots[p.id] = p.slot);
     ids.forEach(id => { lives[id] = dummCfg.lives; status[id] = 'active'; names[id] = impName(id); stats[id] = { r: 0, w: 0 } });
     state.dumm = { phase: 'ready', round: 0, maxLives: dummCfg.lives, roundSec: dummCfg.roundSec, voteSec: dummCfg.voteSec,
-      lives, status, names, order: ids, stats, turn: '', q: null, qNo: 0, voteNo: 0, cands: [], voted: 0,
+      lives, status, names, slots, order: ids, stats, turn: '', q: null, qNo: 0, voteNo: 0, cands: [], voted: 0,
       tally: null, tie: null, loser: null, lastStart: null, lastHit: null, finalists: null, fs: {}, fq: {}, winner: null, est: null };
     dummHost = { ans: null, votes: {}, est: {}, used: [], estUsed: [] }; dummSave();
     dummMsg = ''; state.timer = null; push(); render();
@@ -3402,6 +3570,7 @@ function render() {
     return;
   }
   if (ROLE === 'overlay') { renderOverlay(); return }
+  if (ROLE === 'player') syncWinner(document.body);       // Gewinner + Konfetti in der Spieler-Ansicht
   document.getElementById('app').innerHTML = ROLE === 'host' ? hostView() : playerView();
   if (app2) app2.innerHTML = (ROLE === 'host' ? hostBottom() : '') + versionTag();
   // Eigenes Video-Element wiederverwenden, damit es beim Neuzeichnen nicht flackert
