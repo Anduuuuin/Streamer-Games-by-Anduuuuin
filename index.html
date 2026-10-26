@@ -138,6 +138,13 @@ code{font:12px ui-monospace,monospace;background:#000;color:var(--cyan);padding:
 /* Imposter-Ansicht für Spieler – LAYOUT HIER ANPASSEN
    Zeile 1: Quizmaster-Kamera + Infokasten · Zeile 2: Spieler-Kameras · Zeile 3: Timer */
 body.imp-mode{display:flex;flex-direction:column}
+body.imp-mode #vdo,body.imp-mode #app,body.imp-mode #app2{width:100%}
+.vgrid.imp .vtile{align-content:start}   /* Name direkt unter der Kamera, nicht in die Zeilenhöhe gestreckt */
+/* Blasen über den Kameras (Crash „✓ 60“, Imposter-Antworten) schweben über der Kachel und verschieben nichts –
+   so bleiben alle Kameras exakt in einer Reihe */
+.vgrid.imp .vtile{position:relative}
+#vdo .vgrid.imp{row-gap:48px}   /* Platz für die Blasen über den Kameras */
+.vgrid.imp .vtile .vans{position:absolute;bottom:calc(100% - 2px);left:50%;transform:translateX(-50%);z-index:6;white-space:nowrap;max-width:none}   /* volle Breite – sonst schrumpft die Spiel-Ansicht ohne Kamerabilder zusammen */
 body.imp-mode #vdo{order:0;padding-top:24px}
 body.imp-mode #app{order:1}
 body.imp-mode #app2{order:2}
@@ -627,7 +634,7 @@ img.avi{width:var(--avi-inline);height:var(--avi-inline);border-radius:50%;objec
 
 <script>
 /* ===== Konfiguration ===== */
-const APP_VERSION = 'v26.10.2026-13';   // Versionsnummer – steht unten auf jeder Seite, so siehst du, ob GitHub die neue Datei ausliefert
+const APP_VERSION = 'v26.10.2026-16';   // Versionsnummer – steht unten auf jeder Seite, so siehst du, ob GitHub die neue Datei ausliefert
 const SUPABASE_URL = 'https://oufoopkyhdxbmvjngngd.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im91Zm9vcGt5aGR4Ym12am5nbmdkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTI5MzI0NTUsImV4cCI6MjEwODUwODQ1NX0.yeKbvsNwgqErfFNmHKsIrRc-SNVWD3SEfyqmR1X2BWM';
 const CHANNEL = 'raum-eins';   // Basisname; jede Runde läuft in "raum-eins-<Rundencode>"
@@ -2461,11 +2468,7 @@ function crashPanel() {
   if (crashPending && (c.round !== crashPending || c.phase !== 'run' || c.cashed[me.id])) crashPending = 0;
   if (c.phase === 'over') return `<div class="crash-win"><small>GEWONNEN HAT</small><b>${(c.winners || []).map(id => iconHtml(id, c.icons[id]) + ' ' + esc(crashName(id))).join(' &amp; ')}</b></div>`;
   const mine = c.icons[me.id], rider = (c.riders || []).includes(me.id), cs = c.cashed[me.id];
-  const picker = c.phase === 'pick' ? `<div class="crash-pick"><small>${mine ? 'DEIN ICON – du kannst bis zum Spielstart noch wechseln' : 'WÄHLE DEIN ICON – gilt fürs ganze Spiel'}</small>
-    <div class="icons">${CRASH_ICONS.map(ic => {
-      const owner = Object.keys(c.icons).find(k => c.icons[k] === ic), taken = owner && owner !== me.id;
-      return `<button class="icon ${owner === me.id ? 'on' : ''}" ${taken ? 'disabled' : ''} onclick="A.pickIcon('${ic}')"><span>${ic}</span><em>${taken ? esc(crashName(owner)) : owner === me.id ? 'DU' : ''}</em></button>`;
-    }).join('')}</div></div>` : '';
+  const picker = '';   // keine Icon-Auswahl mehr – im Spiel erscheint das freigegebene Profilbild (sonst automatisch ein Emoji)
   let action = '';
   if (c.phase === 'run') action = !rider ? `<div class="crash-btn wait">Du fährst diese Runde nicht mit</div>`
     : cs ? `<div class="crash-btn safe">✓ GESICHERT: ${cs.pts}</div>`
@@ -2475,7 +2478,7 @@ function crashPanel() {
     const g = (c.last || {})[me.id] || 0;
     action = g ? `<div class="crash-btn safe">✓ +${g} PUNKTE GESICHERT</div>` : `<div class="crash-btn boom">💥 CRASH – 0 PUNKTE</div>`;
   }
-  if (c.phase === 'pick') return `${avatarCard(true)}${picker}<p class="mu">${aviOf(me.id) ? 'Im Spiel wird dein Profilbild benutzt – das Emoji ist nur Ersatz. ' : ''}Der Quizmaster startet gleich die erste Runde.</p>`;
+  if (c.phase === 'pick') return `<div class="dmsg"><b>Gleich geht’s los!</b><br>Der Quizmaster startet gleich die erste Runde.</div>${aviOf(me.id) ? '<p class="mu">Im Spiel erscheint dein Profilbild.</p>' : avatarCard(true) + '<p class="mu">Ohne freigegebenes Profilbild bekommst du automatisch ein Emoji.</p>'}`;
   return crashChart() + action + picker;
 }
 
@@ -2491,11 +2494,7 @@ function crashPlayerView() {
     return `<div class="card crash-card">${head}<div class="crash-win"><small>GEWONNEN HAT</small><b>${esc(w)}</b></div>${crashTotals(true)}</div>`;
   }
   // Icon-Auswahl (nicht während einer laufenden Runde)
-  const picker = c.phase === 'pick' ? `<div class="crash-pick"><small>${mine ? 'DEIN ICON – du kannst bis zum Spielstart noch wechseln' : 'WÄHLE DEIN ICON – gilt fürs ganze Spiel'}</small>
-    <div class="icons">${CRASH_ICONS.map(ic => {
-      const owner = Object.keys(c.icons).find(k => c.icons[k] === ic), taken = owner && owner !== me.id;
-      return `<button class="icon ${owner === me.id ? 'on' : ''}" ${taken ? 'disabled' : ''} onclick="A.pickIcon('${ic}')"><span>${ic}</span><em>${taken ? esc(crashName(owner)) : owner === me.id ? 'DU' : ''}</em></button>`;
-    }).join('')}</div></div>` : '';
+  const picker = '';   // keine Icon-Auswahl mehr – im Spiel erscheint das freigegebene Profilbild (sonst automatisch ein Emoji)
   let action = '';
   if (c.phase === 'run') {
     action = !rider ? `<div class="crash-btn wait">Du fährst diese Runde nicht mit</div>`
@@ -2536,7 +2535,7 @@ function crashHostCard() {
   return `<div class="card crash-card"><h3>Crash · Ziel ${c.target}${c.round ? ' · Runde ' + c.round : ''}</h3>
     ${crashMsg ? `<div class="warn">${esc(crashMsg)}</div>` : ''}
     ${c.phase === 'over' ? `<div class="crash-win"><small>GEWONNEN HAT</small><b>${esc((c.winners || []).map(crashName).join(' & '))}</b></div>` : ''}
-    ${c.phase === 'pick' ? '<p class="mu">Die Spieler wählen jetzt ihre Icons. Wer beim Start noch keins hat, bekommt ein freies.</p>' : crashChart('host')}
+    ${c.phase === 'pick' ? '<p class="mu">Im Spiel erscheinen die freigegebenen Profilbilder. Wer keins hat, bekommt beim Start automatisch ein Emoji.</p>' : crashChart('host')}
     <div class="crows">${rows || '<p class="mu">Noch keine Spieler verbunden.</p>'}</div>
     <div class="row" style="margin-top:14px">${ctl}${c.phase !== 'over' ? `<button class="btn" onclick="A.crashEnd()">Spiel beenden</button>` : ''}</div>
     <p class="mu">Der Crash-Punkt ist geheim – auch für dich, damit er nicht im Stream landet.</p>
@@ -2550,8 +2549,8 @@ OVERLAY_GAMES.crash = {
     const head = `<div class="o-head o-target"><b>CRASH</b>${c ? `<span><small>ZIELPUNKTZAHL</small> ${c.target}</span>${c.round ? `<span><small>RUNDE</small> ${c.round}</span>` : ''}` : ''}</div>`;
     if (!c) return head + `<div class="o-panel o-center"><div class="o-big">Gleich geht’s los …</div></div>`;
     if (c.phase === 'over') return head + `<div class="o-panel o-center"><small>GEWONNEN HAT</small><div class="o-big o-win">${(c.winners || []).map(id => iconHtml(id, c.icons[id]) + ' ' + esc(crashName(id))).join(' &amp; ')}</div></div>`;
-    if (c.phase === 'pick') return head + `<div class="o-panel o-center"><div class="o-big">Wählt eure Icons!</div>
-      <div class="o-icons">${CRASH_ICONS.map(ic => { const o = Object.keys(c.icons).find(k => c.icons[k] === ic); return `<div class="${o ? 'on' : ''}"><span>${o && aviOf(o) ? iconHtml(o) : ic}</span><em>${o ? esc(crashName(o)) : ''}</em></div>` }).join('')}</div></div>`;
+    if (c.phase === 'pick') return head + `<div class="o-panel o-center"><div class="o-big">Gleich geht’s los!</div>
+      <div class="o-icons">${(state.players || []).filter(p => /^p\d+$/.test(p.id)).sort((a, b) => (a.slot || 99) - (b.slot || 99)).map(p => `<div class="on"><span>${aviOf(p.id) ? iconHtml(p.id) : '❔'}</span><em>${esc(p.name)}</em></div>`).join('')}</div></div>`;
     return head + `<div class="o-panel o-crash">${crashChart('ov')}</div>`;
   },
   side: () => state.crash ? `<div class="o-scores"><div class="vsh"><small>PUNKTE</small><small>ZIEL ${state.crash.target}</small></div>${crashTotals(false)}</div>` : ''
