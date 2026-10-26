@@ -296,8 +296,6 @@ body.overlay #vdo{display:none}
 #ostage[data-game="imposter"] .o-final{flex:1;display:grid;gap:18px;align-content:start;overflow:hidden}
 #ostage[data-game="imposter"] .o-final small{font-size:18px;color:var(--yellow)}
 #ostage[data-game="imposter"] .o-final .scores.big .srow{font-size:20px;padding:16px 20px}
-/* Werwolf im Overlay – hier später gestalten */
-#ostage[data-game="werwolf"] .o-head b{color:var(--red)}
 .obs-card{border-color:var(--yellow)}
 .obs-card .tip{color:var(--yellow)}
 
@@ -543,11 +541,11 @@ img.avi{width:var(--avi-inline);height:var(--avi-inline);border-radius:50%;objec
 
 <script>
 /* ===== Konfiguration ===== */
-const APP_VERSION = 'v26.10.2026-6';   // Versionsnummer – steht unten auf jeder Seite, so siehst du, ob GitHub die neue Datei ausliefert
+const APP_VERSION = 'v26.10.2026-8';   // Versionsnummer – steht unten auf jeder Seite, so siehst du, ob GitHub die neue Datei ausliefert
 const SUPABASE_URL = 'https://oufoopkyhdxbmvjngngd.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im91Zm9vcGt5aGR4Ym12am5nbmdkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTI5MzI0NTUsImV4cCI6MjEwODUwODQ1NX0.yeKbvsNwgqErfFNmHKsIrRc-SNVWD3SEfyqmR1X2BWM';
 const CHANNEL = 'raum-eins';   // Basisname; jede Runde läuft in "raum-eins-<Rundencode>"
-const GAMES = { imposter: 'Imposter', werwolf: 'Werwolf', crash: 'Crash', dumm: 'Der Dümmste fliegt' };   // Spiele im Hauptmenü – hier weitere ergänzen
+const GAMES = { imposter: 'Imposter', crash: 'Crash', dumm: 'Der Dümmste fliegt' };   // Spiele im Hauptmenü – hier weitere ergänzen
 const MAX_SLOTS = 6;
 
 /* ===== Imposter – HIER ANPASSEN ===== */
@@ -637,7 +635,7 @@ const FRAME_MS = 300;          // Abstand zwischen zwei Bildern in ms. Höher = 
 const FRAME_W = 192;           // Breite der gesendeten Bilder in Pixel (Höhe folgt automatisch). Größer = schärfer, mehr Daten
 const FRAME_Q = 0.5;           // JPEG-Qualität von 0 bis 1
 const FRAME_TIMEOUT = 3000;    // kommt so lange kein Bild, gilt die Kamera als aus (z. B. Tab abgestürzt)
-const HOST_NAME = 'Quizmaster'; // Name unter der Host-Kamera
+const HOST_NAME = 'Anduuuuin';  // Name unter deiner Kamera (Spieler-Seiten, Host, Overlay, VDO.Ninja-Fenster)
 const SLOT_COLORS = ['#ff2d55', '#ff2d55', '#00cfff', '#00cfff', '#39ff14', '#39ff14']; // Rahmenfarbe je Platz (wie Team Rot/Blau/Grün)
 const HOST_COLOR = '#8b5cf6';
 
@@ -1774,11 +1772,6 @@ const OVERLAY_GAMES = {
     side: () => state.impGame && !state.impGame.over ? `<div class="o-scores">${scoreBoard()}</div>` : ''
   },
 
-  // ---------- WERWOLF (Platzhalter) ----------
-  werwolf: {
-    game: () => `<div class="o-head"><b>WERWOLF</b></div><div class="o-panel o-center"><div class="o-big">Gleich geht’s los …</div></div>`,
-    side: () => ''
-  }
 };
 
 /* Bühne einmal aufbauen und auf das Fenster skalieren (in OBS 1920×1080 = 1:1) */
@@ -1831,7 +1824,7 @@ function updateOverlayCams(st) {
       t = document.createElement('div'); t.className = 'otile'; t.dataset.key = w.key;
       t.innerHTML = `<div class="vans"></div><div class="oframe">${w.vdoId
         ? `<iframe src="${esc(vdoViewUrl(w.vdoId, !OVERLAY_CAM_AUDIO))}" allow="autoplay; fullscreen" title="Kamera"></iframe>`
-        : `<span>${w.pid === 'host' ? 'QUIZMASTER' : 'KEINE KAMERA'}</span>`}</div><div class="oname"></div>`;
+        : `<span>${w.pid === 'host' ? esc(HOST_NAME).toUpperCase() : 'KEINE KAMERA'}</span>`}</div><div class="oname"></div>`;
       box.appendChild(t);
     }
     t.style.order = w.slot;
@@ -2922,7 +2915,6 @@ addEventListener('storage', e => { if (ROLE === 'host' && e.key === 'qs-round' &
   7. Imposter: Wörter, Kategorie, Anzahl Imposter, Mindestspieler, Redezeit (IMPOSTER_TURN_SEC),
      Anzahl Durchgänge (IMPOSTER_TURN_ROUNDS) und Abstimmungszeit (IMPOSTER_VOTE_SEC) oben unter "Imposter – HIER ANPASSEN".
      Rollen werden pro Spieler verschlüsselt – Spieler-Links aus dem Host nehmen (sie enthalten den Schlüssel &s=…).
-     Werwolf: in playerView() den .stage-Platzhalter für 'werwolf' ersetzen.
   8. Spieler-Kameras laufen über VDO.Ninja: Room-Name oben bei VDO_ROOM, Kachelgröße im CSS bei .vgrid.
      Der Room-Name ist öffentlich lesbar – wer ihn kennt, kann in den Room. Später ggf. &password=… ergänzen.
      Host und Overlay nutzen noch die alte Standbild-Kamera (Supabase-Frames).
